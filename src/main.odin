@@ -43,6 +43,8 @@ AppState :: struct {
 	is_playing:             bool,
 	ik_enabled:             bool,
 	show_demo_window:       bool,
+	viewport_pan:           core.Vec2,
+	viewport_zoom:          f32,
 	is_dragging_viewport:   bool,
 	drag_joint_id:          string,
 	drag_start_pos:         core.Vec2,
@@ -99,6 +101,8 @@ init_app_state :: proc(state: ^AppState) {
 	state.is_playing = false
 	state.ik_enabled = true
 	state.show_demo_window = false
+	state.viewport_pan = {0, 0}
+	state.viewport_zoom = 1.0
 	state.is_dragging_viewport = false
 	state.drag_joint_id = ""
 
@@ -424,6 +428,72 @@ editor_load_default_animation_pack :: proc(state: ^AppState) {
 	state.timeline_time = 0.0
 	animation.sample_clip(&state.current_clip, 0.0, &state.character_pose)
 	ui.toast_add(&state.toasts, "Pacote padrão (5 clipes) carregado!", .Success)
+}
+
+viewport_scene_bounds :: proc(state: ^AppState) -> (left, right, top, bottom: f32) {
+	zoom := state.viewport_zoom > 0.05 ? state.viewport_zoom : 1.0
+	pan := state.viewport_pan
+	half_w := 256.0 / zoom
+	half_h := 256.0 / zoom
+	cx := 256.0 - pan.x
+	cy := 256.0 - pan.y
+	return cx - half_w, cx + half_w, cy - half_h, cy + half_h
+}
+
+viewport_to_screen :: proc(pos: core.Vec2, origin: im.Vec2, disp_w, disp_h, vl, vt, span_x, span_y: f32) -> im.Vec2 {
+	return {
+		origin.x + ((pos.x - vl) / span_x) * disp_w,
+		origin.y + ((pos.y - vt) / span_y) * disp_h,
+	}
+}
+
+editor_delete_selected_layers :: proc(state: ^AppState) {
+	if len(state.character_layers) == 0 do return
+
+	ids_to_delete := make([dynamic]string, 0, len(state.character_layers), context.temp_allocator)
+	if len(state.selection.selected_layers) > 0 {
+		for id, sel in state.selection.selected_layers {
+			if sel do append(&ids_to_delete, id)
+		}
+	} else if state.selected_layer_id != "" {
+		append(&ids_to_delete, state.selected_layer_id)
+	}
+
+	if len(ids_to_delete) == 0 do return
+
+	save_undo(state, fmt.tprintf("Excluir %d Camada(s)", len(ids_to_delete)))
+
+	deleted_count := 0
+	for id in ids_to_delete {
+		if tex, ok := state.layer_textures[id]; ok {
+			render.texture_destroy(&tex)
+			delete_key(&state.layer_textures, id)
+		}
+		if m, ok := state.layer_meshes[id]; ok {
+			mesh.mesh_destroy(&m)
+			delete_key(&state.layer_meshes, id)
+		}
+		if pins, ok := state.layer_pins[id]; ok {
+			delete(pins)
+			delete_key(&state.layer_pins, id)
+		}
+
+		for i := len(state.character_layers) - 1; i >= 0; i -= 1 {
+			if state.character_layers[i].id == id {
+				delete(state.character_layers[i].name)
+				delete(state.character_layers[i].asset)
+				delete(state.character_layers[i].id)
+				ordered_remove(&state.character_layers, i)
+				deleted_count += 1
+				break
+			}
+		}
+	}
+
+	ui.selection_clear(&state.selection)
+	state.selected_layer_id = len(state.character_layers) > 0 ? state.character_layers[0].id : ""
+
+	ui.toast_add(&state.toasts, fmt.tprintf("%d camada(s) excluída(s)", deleted_count), .Info)
 }
 
 import_image_as_layer :: proc(state: ^AppState, file_path: string) -> bool {
@@ -856,6 +926,41 @@ render_viewport_panel :: proc(state: ^AppState) {
 			return
 		}
 
+		v_left, v_right, v_top, v_bottom := viewport_scene_bounds(state)
+		scene_span_x := v_right - v_left
+		scene_span_y := v_bottom - v_top
+		if scene_span_x <= 0 do scene_span_x = 512.0
+		if scene_span_y <= 0 do scene_span_y = 512.0
+
+		// Coordenadas da cena considerando Pan e Zoom do Viewport 2D
+		scene_mx = v_left + ((mouse_pos.x - cursor_pos.x) / display_w) * scene_span_x
+		scene_my = v_top + ((mouse_pos.y - cursor_pos.y) / display_h) * scene_span_y
+
+		// Pan da câmera 2D com botão do meio, botão direito ou Alt+arrastar
+		is_panning := mouse_in_canvas && (im.IsMouseDragging(.Middle) || im.IsMouseDragging(.Right) || (im.IsMouseDragging(.Left) && (im.IsKeyDown(.Space) || io.KeyAlt)))
+		if is_panning {
+			delta := io.MouseDelta
+			state.viewport_pan.x += delta.x * (scene_span_x / display_w)
+			state.viewport_pan.y += delta.y * (scene_span_y / display_h)
+		} else if mouse_in_canvas && io.MouseWheel != 0 {
+			zoom_factor: f32 = io.MouseWheel > 0 ? 1.15 : 0.87
+			old_zoom := state.viewport_zoom > 0.05 ? state.viewport_zoom : 1.0
+			new_zoom := clamp(old_zoom * zoom_factor, 0.1, 15.0)
+
+			norm_x := (mouse_pos.x - cursor_pos.x) / display_w
+			norm_y := (mouse_pos.y - cursor_pos.y) / display_h
+			new_span := 512.0 / new_zoom
+			state.viewport_pan.x = 256.0 - scene_mx - (0.5 - norm_x) * new_span
+			state.viewport_pan.y = 256.0 - scene_my - (0.5 - norm_y) * new_span
+			state.viewport_zoom = new_zoom
+		}
+
+		if (im.IsKeyPressed(.F) || im.IsKeyPressed(.Home)) && !editor_keyboard_blocked(state) {
+			state.viewport_pan = {0, 0}
+			state.viewport_zoom = 1.0
+			ui.toast_add(&state.toasts, "Visualização resetada (100%)", .Info)
+		}
+
 		mouse_vec := core.Vec2{mouse_pos.x, mouse_pos.y}
 
 		// Hit-test das juntas (clique direto na junta com suporte a multi-seleção via Ctrl)
@@ -863,16 +968,16 @@ render_viewport_panel :: proc(state: ^AppState) {
 		for j in state.character_joints {
 			mat_j := bones[j.id]
 			j_pos := core.mat_apply(mat_j, {0, 0})
-			sx := cursor_pos.x + (j_pos.x / 512.0) * display_w
-			sy := cursor_pos.y + (j_pos.y / 512.0) * display_h
-			dist_to_mouse := math.sqrt((mouse_pos.x - sx) * (mouse_pos.x - sx) + (mouse_pos.y - sy) * (mouse_pos.y - sy))
-			if dist_to_mouse <= 8.0 {
+			sp := viewport_to_screen(j_pos, cursor_pos, display_w, display_h, v_left, v_top, scene_span_x, scene_span_y)
+			dist_to_mouse := math.sqrt((mouse_pos.x - sp.x) * (mouse_pos.x - sp.x) + (mouse_pos.y - sp.y) * (mouse_pos.y - sp.y))
+			if dist_to_mouse <= 10.0 * state.editor.ui_scale {
 				hovered_joint_id = j.id
 				break
 			}
 		}
 
-		if im.IsMouseClicked(.Left) && mouse_in_canvas {
+		can_interact_canvas := mouse_in_canvas && !is_panning && !io.KeyAlt && !im.IsKeyDown(.Space)
+		if im.IsMouseClicked(.Left) && can_interact_canvas {
 			save_undo(state, fmt.tprintf("Ação na Viewport: %v", state.active_tool))
 			state.is_dragging_viewport = true
 			state.drag_start_pos = {scene_mx, scene_my}
@@ -893,7 +998,7 @@ render_viewport_panel :: proc(state: ^AppState) {
 				// Criação ou seleção de pino MLS
 				if state.selected_layer_id != "" {
 					if layer, ok_l := find_layer_by_id(state.character_layers[:], state.selected_layer_id); ok_l {
-						dims := get_layer_dimensions(layer.id)
+						dims := get_layer_dimensions(state, layer.id)
 						if layer.id not_in state.layer_meshes {
 							state.layer_meshes[layer.id] = mesh.build_grid_mesh(dims.x, dims.y, 6)
 						}
@@ -1146,12 +1251,10 @@ render_viewport_panel :: proc(state: ^AppState) {
 					c_pos := core.mat_apply(mat_c, {0, 0})
 					p_pos := core.mat_apply(mat_p, {0, 0})
 
-					sx1 := cursor_pos.x + (p_pos.x / 512.0) * display_w
-					sy1 := cursor_pos.y + (p_pos.y / 512.0) * display_h
-					sx2 := cursor_pos.x + (c_pos.x / 512.0) * display_w
-					sy2 := cursor_pos.y + (c_pos.y / 512.0) * display_h
+					sp1 := viewport_to_screen(p_pos, cursor_pos, display_w, display_h, v_left, v_top, scene_span_x, scene_span_y)
+					sp2 := viewport_to_screen(c_pos, cursor_pos, display_w, display_h, v_left, v_top, scene_span_x, scene_span_y)
 
-					im.DrawList_AddLine(draw_list, {sx1, sy1}, {sx2, sy2}, 0xaa_ff_d7_00, 2.5)
+					im.DrawList_AddLine(draw_list, sp1, sp2, 0xaa_ff_d7_00, 2.5)
 				}
 			}
 		}
@@ -1159,7 +1262,7 @@ render_viewport_panel :: proc(state: ^AppState) {
 		// 2. Gizmo 2D interativo profissional para a camada selecionada
 		if state.selected_layer_id != "" {
 			if sel_layer, ok_l := find_layer_by_id(state.character_layers[:], state.selected_layer_id); ok_l {
-				dims := get_layer_dimensions(sel_layer.id)
+				dims := get_layer_dimensions(state, sel_layer.id)
 				bounds := ui.calculate_gizmo_bounds(
 					sel_layer,
 					dims,
@@ -1168,6 +1271,8 @@ render_viewport_panel :: proc(state: ^AppState) {
 					bones,
 					{cursor_pos.x, cursor_pos.y},
 					scale_factor,
+					view_bounds = {v_left, v_right, v_top, v_bottom},
+					canvas_size = {display_w, display_h},
 				)
 
 				part, is_active_gizmo := ui.draw_and_interact_gizmo(
@@ -1232,7 +1337,7 @@ render_viewport_panel :: proc(state: ^AppState) {
 				l_mat := rig.layer_matrix(layer, state.character_joints[:], &state.character_pose, bones)
 				for p in state.layer_pins[state.selected_layer_id] {
 					world_p := core.mat_apply(l_mat, {p.x, p.y})
-					sp := im.Vec2{cursor_pos.x + (world_p.x / 512.0) * display_w, cursor_pos.y + (world_p.y / 512.0) * display_h}
+					sp := viewport_to_screen(world_p, cursor_pos, display_w, display_h, v_left, v_top, scene_span_x, scene_span_y)
 					pin_col := p.id == state.selected_pin_id ? canvas_focus : canvas_accent
 					im.DrawList_AddCircleFilled(draw_list, sp, 6.0 * state.editor.ui_scale, pin_col)
 					im.DrawList_AddCircle(draw_list, sp, 6.0 * state.editor.ui_scale, canvas_text, 16, 1.5)
@@ -1243,12 +1348,10 @@ render_viewport_panel :: proc(state: ^AppState) {
 
 		// 4. Desenho de seleção em caixa (Marquee)
 		if state.selection.is_box_selecting {
-			bx0 := cursor_pos.x + (state.selection.box_start.x / 512.0) * display_w
-			by0 := cursor_pos.y + (state.selection.box_start.y / 512.0) * display_h
-			bx1 := cursor_pos.x + (state.selection.box_end.x / 512.0) * display_w
-			by1 := cursor_pos.y + (state.selection.box_end.y / 512.0) * display_h
-			min_p := im.Vec2{math.min(bx0, bx1), math.min(by0, by1)}
-			max_p := im.Vec2{math.max(bx0, bx1), math.max(by0, by1)}
+			sp0 := viewport_to_screen(state.selection.box_start, cursor_pos, display_w, display_h, v_left, v_top, scene_span_x, scene_span_y)
+			sp1 := viewport_to_screen(state.selection.box_end, cursor_pos, display_w, display_h, v_left, v_top, scene_span_x, scene_span_y)
+			min_p := im.Vec2{math.min(sp0.x, sp1.x), math.min(sp0.y, sp1.y)}
+			max_p := im.Vec2{math.max(sp0.x, sp1.x), math.max(sp0.y, sp1.y)}
 			marquee_fill := ui.current_palette.accent
 			marquee_fill.w = 0.16
 			im.DrawList_AddRectFilled(draw_list, min_p, max_p, ui.color_u32(marquee_fill))
@@ -1260,8 +1363,8 @@ render_viewport_panel :: proc(state: ^AppState) {
 			for i in 0 ..< len(state.selection.lasso_points) - 1 {
 				pt0 := state.selection.lasso_points[i]
 				pt1 := state.selection.lasso_points[i + 1]
-				p0 := im.Vec2{cursor_pos.x + (pt0.x / 512.0) * display_w, cursor_pos.y + (pt0.y / 512.0) * display_h}
-				p1 := im.Vec2{cursor_pos.x + (pt1.x / 512.0) * display_w, cursor_pos.y + (pt1.y / 512.0) * display_h}
+				p0 := viewport_to_screen(pt0, cursor_pos, display_w, display_h, v_left, v_top, scene_span_x, scene_span_y)
+				p1 := viewport_to_screen(pt1, cursor_pos, display_w, display_h, v_left, v_top, scene_span_x, scene_span_y)
 				im.DrawList_AddLine(draw_list, p0, p1, canvas_accent, 2.0)
 			}
 		}
@@ -1269,10 +1372,10 @@ render_viewport_panel :: proc(state: ^AppState) {
 		// 6. Círculo do pincel da borracha e pintura de pesos
 		if mouse_in_canvas {
 			if state.active_tool == .Eraser {
-				r_screen := (state.eraser_radius / 512.0) * display_w
+				r_screen := (state.eraser_radius / scene_span_x) * display_w
 				im.DrawList_AddCircle(draw_list, mouse_pos, r_screen, canvas_accent, 24, 1.5)
 			} else if state.active_tool == .Weight {
-				r_screen := (state.weight_brush_radius / 512.0) * display_w
+				r_screen := (state.weight_brush_radius / scene_span_x) * display_w
 				im.DrawList_AddCircle(draw_list, mouse_pos, r_screen, canvas_accent, 24, 1.5)
 			}
 		}
@@ -1281,23 +1384,26 @@ render_viewport_panel :: proc(state: ^AppState) {
 		for j in state.character_joints {
 			mat_j := bones[j.id]
 			j_pos := core.mat_apply(mat_j, {0, 0})
-			sx := cursor_pos.x + (j_pos.x / 512.0) * display_w
-			sy := cursor_pos.y + (j_pos.y / 512.0) * display_h
+			sp := viewport_to_screen(j_pos, cursor_pos, display_w, display_h, v_left, v_top, scene_span_x, scene_span_y)
 
 			is_selected := (j.id == state.selected_joint_id || ui.selection_is_joint_selected(&state.selection, j.id))
 			radius: f32 = (is_selected ? 7.0 : 5.0) * state.editor.ui_scale
 			color := is_selected ? canvas_focus : canvas_accent
 
-			dist_to_mouse := math.sqrt((mouse_pos.x - sx) * (mouse_pos.x - sx) + (mouse_pos.y - sy) * (mouse_pos.y - sy))
+			dist_to_mouse := math.sqrt((mouse_pos.x - sp.x) * (mouse_pos.x - sp.x) + (mouse_pos.y - sp.y) * (mouse_pos.y - sp.y))
 			if dist_to_mouse <= radius + 3.0 {
 				color = canvas_text
 			}
 
-			im.DrawList_AddCircleFilled(draw_list, {sx, sy}, radius, color)
+			im.DrawList_AddCircleFilled(draw_list, sp, radius, color)
 			if is_selected {
-				im.DrawList_AddCircle(draw_list, {sx, sy}, radius + 3.0, canvas_focus, 16, 1.5)
+				im.DrawList_AddCircle(draw_list, sp, radius + 3.0, canvas_focus, 16, 1.5)
 			}
 		}
+
+		// Overlay informativo de PTZ 2D sobre o canvas
+		ptz_txt := fmt.tprintf("Zoom: %d%% | Roda: Zoom | Botão Meio/Direito ou Alt+Arrastar: Pan | [F] Resetar", int(state.viewport_zoom * 100.0 + 0.5))
+		im.DrawList_AddText(draw_list, {cursor_pos.x + 12, cursor_pos.y + display_h - 26}, canvas_text, cstring(raw_data(ptz_txt)))
 
 	}
 	im.End()
@@ -1363,6 +1469,23 @@ render_inspector_panel :: proc(state: ^AppState) {
 					editor_slider_float("Opacidade", &layer.opacity, 0.0, 1.0)
 					editor_drag_float2("Pivô Local (PX, PY)", &layer.transform.pivot, 1.0)
 
+					layer_dims := get_layer_dimensions(state, layer.id)
+					im.Text("Ajuste Rápido de Pivô:")
+					if im.Button("Centro##piv") {
+						layer.transform.pivot = {layer_dims.x * 0.5, layer_dims.y * 0.5}
+						save_undo(state, "Ajustar Pivô para Centro")
+					}
+					im.SameLine()
+					if im.Button("Base (Pés)##piv") {
+						layer.transform.pivot = {layer_dims.x * 0.5, layer_dims.y}
+						save_undo(state, "Ajustar Pivô para Base")
+					}
+					im.SameLine()
+					if im.Button("Topo (Cabeça)##piv") {
+						layer.transform.pivot = {layer_dims.x * 0.5, 0}
+						save_undo(state, "Ajustar Pivô para Topo")
+					}
+
 					if layer.has_seam_mask {
 						im.Separator()
 						im.TextColored(ui.current_palette.text_muted, "Emenda suave")
@@ -1382,6 +1505,31 @@ render_inspector_panel :: proc(state: ^AppState) {
 		if im.CollapsingHeader(ui.ICON_PH_SELECTION + " Malha e deformação", state.current_workspace == .Rig ? im.TreeNodeFlags{.DefaultOpen} : im.TreeNodeFlags{}) {
 			im.TextColored(ui.current_palette.text_muted, "Deformação da malha")
 
+			if state.selected_layer_id in state.layer_meshes {
+				m_ptr := &state.layer_meshes[state.selected_layer_id]
+				mode_str := m_ptr.mode == .Skin ? "Deformação por Ossos (Skin Ativo)" : "Deformação por Pinos MLS"
+				im.TextColored(ui.current_palette.accent, "%s", cstring(raw_data(mode_str)))
+				if im.Button(ui.ICON_PH_LINK + " Vincular Ossos à Malha (Auto-Skin)") {
+					if layer, ok_l := find_layer_by_id(state.character_layers[:], state.selected_layer_id); ok_l {
+						mesh.mesh_auto_skin_to_joints(m_ptr, layer, state.character_joints[:])
+						ui.toast_add(&state.toasts, "Malha vinculada aos ossos com sucesso!", .Success)
+					}
+				}
+				im.SameLine()
+				if m_ptr.mode == .Skin {
+					if im.Button("Alternar para Pinos") {
+						m_ptr.mode = .Pins
+						ui.toast_add(&state.toasts, "Modo de deformação: Pinos MLS", .Info)
+					}
+				} else {
+					if im.Button("Alternar para Skin") {
+						m_ptr.mode = .Skin
+						ui.toast_add(&state.toasts, "Modo de deformação: Deformação por Ossos (Skin)", .Info)
+					}
+				}
+				im.Separator()
+			}
+
 			// Controles de Pinos MLS
 			pin_count := 0
 			if state.selected_layer_id in state.layer_pins {
@@ -1390,7 +1538,7 @@ render_inspector_panel :: proc(state: ^AppState) {
 			im.Text("Pinos na camada: %d", pin_count)
 			if im.Button(ui.ICON_PH_PUSH_PIN + " Adicionar Pino Central") {
 				if state.selected_layer_id != "" {
-					dims := get_layer_dimensions(state.selected_layer_id)
+					dims := get_layer_dimensions(state, state.selected_layer_id)
 					if state.selected_layer_id not_in state.layer_pins {
 						state.layer_pins[state.selected_layer_id] = make([dynamic]mesh.Pin, 0, 8)
 					}
@@ -1568,10 +1716,14 @@ render_layers_panel :: proc(state: ^AppState) {
 				import_images_as_layers(state, paths[:])
 			}
 		}
+		im.SameLine()
+		has_layer_selection := len(state.selection.selected_layers) > 0 || state.selected_layer_id != ""
+		if im.Button(ui.ICON_PH_TRASH + " Excluir") && has_layer_selection {
+			editor_delete_selected_layers(state)
+		}
 		im.Separator()
 
 		io := im.GetIO()
-		layer_to_delete := ""
 		for &layer in state.character_layers {
 			im.PushID(cstring(raw_data(layer.id)))
 			vis_icon: cstring = layer.visible ? ui.ICON_PH_EYE : ui.ICON_PH_EYE_SLASH
@@ -1581,33 +1733,25 @@ render_layers_panel :: proc(state: ^AppState) {
 			im.SameLine()
 			is_sel := (layer.id == state.selected_layer_id || ui.selection_is_layer_selected(&state.selection, layer.id))
 			if im.Selectable(cstring(raw_data(layer.name)), is_sel) {
-				state.selected_layer_id = layer.id
-				ui.selection_select_layer(&state.selection, layer.id, io.KeyShift, io.KeyCtrl)
+				if io.KeyShift {
+					ui.selection_select_layer_range(&state.selection, state.character_layers[:], layer.id)
+					state.selected_layer_id = layer.id
+				} else {
+					state.selected_layer_id = layer.id
+					ui.selection_select_layer(&state.selection, layer.id, false, io.KeyCtrl)
+				}
 			}
 
 			if im.BeginPopupContextItem("##layer_ctx") {
 				im.TextDisabled("Camada: %s", cstring(raw_data(layer.name)))
 				im.Separator()
 				if im.MenuItem(ui.ICON_PH_TRASH + " Excluir Camada") {
-					layer_to_delete = layer.id
+					state.selected_layer_id = layer.id
+					editor_delete_selected_layers(state)
 				}
 				im.EndPopup()
 			}
 			im.PopID()
-		}
-
-		if layer_to_delete != "" {
-			for l, idx in state.character_layers {
-				if l.id == layer_to_delete {
-					ordered_remove(&state.character_layers, idx)
-					if state.selected_layer_id == layer_to_delete {
-						state.selected_layer_id = len(state.character_layers) > 0 ? state.character_layers[0].id : ""
-					}
-					save_undo(state, "Excluir Camada")
-					ui.toast_add(&state.toasts, "Camada removida", .Info)
-					break
-				}
-			}
 		}
 	}
 	im.End()
@@ -1647,7 +1791,7 @@ render_timeline_panel :: proc(state: ^AppState) {
 		im.SameLine()
 
 		play_label: cstring = state.is_playing ? ui.ICON_PH_PAUSE : ui.ICON_PH_PLAY
-		if editor_icon_button(play_label, state.is_playing ? "Pausar" : "Reproduzir") do state.is_playing = !state.is_playing
+		if editor_icon_button(play_label, state.is_playing ? "Pausar (Espaço)" : "Reproduzir (Espaço)") do state.is_playing = !state.is_playing
 		im.SameLine()
 		if editor_icon_button(ui.ICON_PH_SKIP_BACK, "Primeiro quadro") {
 			state.timeline_time = 0
@@ -1685,7 +1829,10 @@ render_timeline_panel :: proc(state: ^AppState) {
 }
 
 
-get_layer_dimensions :: proc(id: string) -> [2]f32 {
+get_layer_dimensions :: proc(state: ^AppState, id: string) -> [2]f32 {
+	if tex, ok := state.layer_textures[id]; ok && tex.width > 0 && tex.height > 0 {
+		return {f32(tex.width), f32(tex.height)}
+	}
 	switch id {
 	case "torso":     return {237, 293}
 	case "head":      return {234, 309}
@@ -1693,7 +1840,7 @@ get_layer_dimensions :: proc(id: string) -> [2]f32 {
 	case "arm-left":  return {212, 368}
 	case "leg-right": return {161, 430}
 	case "leg-left":  return {211, 426}
-	case:             return {100, 100}
+	case:             return {256, 256}
 	}
 }
 
@@ -1705,7 +1852,7 @@ find_layer_by_id :: proc(layers: []rig.Layer, id: string) -> (rig.Layer, bool) {
 }
 
 get_layer_visual :: proc(state: ^AppState, layer: rig.Layer) -> render.LayerVisual {
-	dims := get_layer_dimensions(layer.id)
+	dims := get_layer_dimensions(state, layer.id)
 	tex := state.layer_textures[layer.id]
 	w := tex.width > 0 ? f32(tex.width) : dims.x
 	h := tex.height > 0 ? f32(tex.height) : dims.y
@@ -1732,7 +1879,8 @@ render_character_to_fbo :: proc(state: ^AppState) {
 	gl.ClearColor(0.12, 0.13, 0.16, 1.0)
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-	ortho := render.ortho_projection(0, 512, 512, 0, -1, 1)
+	v_left, v_right, v_top, v_bottom := viewport_scene_bounds(state)
+	ortho := render.ortho_projection(v_left, v_right, v_bottom, v_top, -1, 1)
 	render.batch_begin(&state.render_batch, &ortho)
 
 	bones := rig.bone_matrices(state.character_joints[:], &state.character_pose, state.scratch_arena.allocator)
@@ -1921,6 +2069,12 @@ main :: proc() {
 				if save_current_project(&state, "chocobones_project.puppet.json") {
 					ui.toast_add(&state.toasts, "Projeto salvo com sucesso!", .Success)
 				}
+			}
+			if im.IsKeyPressed(.Space) && !io.KeyAlt {
+				state.is_playing = !state.is_playing
+			}
+			if im.IsKeyPressed(.Delete) || im.IsKeyPressed(.Backspace) {
+				editor_delete_selected_layers(&state)
 			}
 		}
 

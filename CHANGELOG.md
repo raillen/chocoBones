@@ -7,6 +7,12 @@ O formato baseia-se no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0
 
 ### Adicionado
 
+- **Câmera 2D Pan / Tilt / Zoom (PTZ) na Viewport**: zoom suave com a roda do mouse em direção ao ponteiro, pan com botão do meio, botão direito ou `Alt + Arrastar`, reset de enquadramento via tecla `F` ou `Home`, com projeção de ossos, gizmos, pinos MLS e seleções perfeitamente sincronizadas ao espaço da câmera.
+- **Seleção Múltipla com Shift e Exclusão no Painel de Camadas**: suporte a seleção em faixa com `Shift` (`selection_select_layer_range`), exclusão via teclado (`Delete` ou `Backspace`) com liberação completa de texturas OpenGL, malhas e pinos, e botão "Excluir" com confirmação visual e histórico de Desfazer.
+- **Atalho de Play/Pause da Linha do Tempo**: alternância de reprodução via tecla `Espaço` com indicador visual nos botões da interface.
+- **Alinhamento do Gizmo e Edição Ágil de Pivô**: resolução das dimensões reais das texturas das camadas no editor e adição de presets rápidos de pivô no painel Inspetor (`Centro`, `Base / Pés`, `Topo / Cabeça`).
+- **Eliminação de Bordas Coloridas (Fringe) em PNGs Importados**: correção do pipeline de blend OpenGL para `gl.BlendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA)`, preservando a nitidez de sprites com transparência direta (straight alpha).
+- **Deformação Automática (Auto-Skinning) de Sprite Único**: algoritmo `mesh_auto_skin_to_joints` com pesos por distância inversa e Dual-Quaternion skinning, permitindo deformar suavemente qualquer personagem desenhado em folha única ao longo de todo o esqueleto.
 - Assistente modal de criação de "Novo Projeto / Personagem" (`Ctrl+N` ou `Arquivo -> Novo Projeto...`), permitindo criar personagens a partir de: Imagem Única (Sprite com auto-posicionamento de esqueleto), Personagem Modular (seleção múltipla de imagens com lista gerenciável de peças), Vitrine Pronta de Demonstração ou Projeto em Branco.
 - Importação nativa simultânea de múltiplas imagens 2D no painel de camadas e no menu (`Ctrl+I`), integrando automaticamente cada peça à anatomia do esqueleto através da heurística `auto_guess_joint_for_layer`.
 - Resolução do congelamento na abertura do diálogo nativo de arquivos: substituição do monitoramento bloqueante do DBus por invocação direta de utilitários gráficos (`zenity`, `kdialog` e `tkinter`), eliminando bloqueios da fila de eventos SDL2 e restabelecendo estabilidade total no Linux/Wayland/X11.

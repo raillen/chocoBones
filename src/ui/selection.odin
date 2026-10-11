@@ -63,6 +63,39 @@ selection_select_layer :: proc(s: ^SelectionState, id: string, additive, toggle:
 	s.primary_layer_id = id
 }
 
+selection_select_layer_range :: proc(s: ^SelectionState, all_layers: []rig.Layer, target_id: string) {
+	if len(all_layers) == 0 do return
+
+	start_idx := -1
+	target_idx := -1
+
+	for l, idx in all_layers {
+		if l.id == s.primary_layer_id do start_idx = idx
+		if l.id == target_id do target_idx = idx
+	}
+
+	if target_idx < 0 do return
+	if start_idx < 0 do start_idx = 0
+
+	min_idx := min(start_idx, target_idx)
+	max_idx := max(start_idx, target_idx)
+
+	for i in min_idx ..= max_idx {
+		s.selected_layers[all_layers[i].id] = true
+	}
+	s.primary_layer_id = target_id
+}
+
+selection_select_all_layers :: proc(s: ^SelectionState, all_layers: []rig.Layer) {
+	for l in all_layers {
+		s.selected_layers[l.id] = true
+	}
+	if len(all_layers) > 0 && s.primary_layer_id == "" {
+		s.primary_layer_id = all_layers[0].id
+	}
+}
+
+
 selection_select_joint :: proc(s: ^SelectionState, id: string, additive, toggle: bool) {
 	if toggle {
 		if id in s.selected_joints {

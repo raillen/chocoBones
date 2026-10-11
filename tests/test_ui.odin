@@ -64,3 +64,43 @@ test_geometry_box_and_lasso :: proc(t: ^testing.T) {
 	testing.expect(t, !ui.point_in_polygon({50, 50}, poly), "Ponto exterior longe deve retornar falso")
 	testing.expect(t, !ui.point_in_polygon({200, 50}, poly), "Ponto acima do topo deve retornar falso")
 }
+
+@(test)
+test_selection_layer_range_and_all :: proc(t: ^testing.T) {
+	s: ui.SelectionState
+	ui.selection_state_init(&s)
+	defer ui.selection_state_destroy(&s)
+
+	layers := []rig.Layer{
+		{id = "l1", name = "Layer 1"},
+		{id = "l2", name = "Layer 2"},
+		{id = "l3", name = "Layer 3"},
+		{id = "l4", name = "Layer 4"},
+		{id = "l5", name = "Layer 5"},
+	}
+
+	// Range selection from l2 to l4
+	ui.selection_select_layer(&s, "l2", false, false)
+	ui.selection_select_layer_range(&s, layers, "l4")
+
+	testing.expect(t, !ui.selection_is_layer_selected(&s, "l1"), "l1 não deve estar no range")
+	testing.expect(t, ui.selection_is_layer_selected(&s, "l2"), "l2 deve estar selecionado")
+	testing.expect(t, ui.selection_is_layer_selected(&s, "l3"), "l3 deve estar selecionado")
+	testing.expect(t, ui.selection_is_layer_selected(&s, "l4"), "l4 deve estar selecionado")
+	testing.expect(t, !ui.selection_is_layer_selected(&s, "l5"), "l5 não deve estar no range")
+	testing.expect_value(t, s.primary_layer_id, "l4")
+
+	// Range selection in reverse (from l4 to l1)
+	ui.selection_select_layer_range(&s, layers, "l1")
+	testing.expect(t, ui.selection_is_layer_selected(&s, "l1"), "l1 deve estar selecionado no range reverso")
+	testing.expect(t, ui.selection_is_layer_selected(&s, "l2"), "l2 deve continuar selecionado")
+	testing.expect(t, ui.selection_is_layer_selected(&s, "l3"), "l3 deve continuar selecionado")
+	testing.expect(t, ui.selection_is_layer_selected(&s, "l4"), "l4 deve continuar selecionado")
+
+	// Select all layers
+	ui.selection_clear(&s)
+	ui.selection_select_all_layers(&s, layers)
+	for l in layers {
+		testing.expect(t, ui.selection_is_layer_selected(&s, l.id), "Todas as camadas devem estar selecionadas")
+	}
+}

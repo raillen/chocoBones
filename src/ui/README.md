@@ -8,8 +8,8 @@ Este pacote reúne a apresentação do editor e os auxiliares de interação com
 | `preferences.odin` | Preferências JSON v1 independentes do personagem e gravação atômica de preferências/layouts |
 | `editor_types.odin` | Espaços de trabalho, visibilidade inicial dos painéis, mapeamento explícito de ferramentas e coordenadas do palco |
 | `widgets.odin` | Controles personalizados que compartilham os tokens do tema |
-| `selection.odin` | Seleção simples/múltipla e operações geométricas de seleção |
-| `gizmo.odin` | Estado e manipulação dos gizmos |
+| `selection.odin` | Seleção simples/múltipla, seleção em intervalo contíguo com Shift (`selection_select_layer_range`) e operações geométricas |
+| `gizmo.odin` | Estado e manipulação dos gizmos 2D com suporte a câmera PTZ e dimensões dinâmicas de camadas |
 | `phosphor_icons.odin` | Constantes dos ícones Phosphor |
 
 Use `apply_theme` para atualizar a aparência e `current_palette` para cores dos widgets; evite cores fixas em novos controles. Associe ferramentas por `ToolDescriptor.tool`, mantendo a ordem visual independente da ordem do enum. Preferências e layout não devem modificar o documento nem os pixels exportados.

@@ -90,7 +90,7 @@ batch_flush :: proc(batch: ^RenderBatch) {
 	gl.BufferSubData(gl.ELEMENT_ARRAY_BUFFER, 0, len(batch.indices) * size_of(u32), raw_data(batch.indices))
 
 	gl.Enable(gl.BLEND)
-	gl.BlendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA) // Alfa pré-multiplicado
+	gl.BlendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
 
 	gl.DrawElements(gl.TRIANGLES, i32(len(batch.indices)), gl.UNSIGNED_INT, nil)
 

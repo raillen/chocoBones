@@ -94,3 +94,53 @@ test_mesh_world_skinning :: proc(t: ^testing.T) {
 		testing.expect(t, math.abs(world_pts[i].y - expected.y) < 1e-4, "Rest pose deve ser idêntica à matriz rígida")
 	}
 }
+
+@(test)
+test_mesh_auto_skin_to_joints :: proc(t: ^testing.T) {
+	joints := []rig.Joint{
+		{id = "top_joint", name = "Topo", parent = "", x = 100, y = 50},
+		{id = "bottom_joint", name = "Base", parent = "top_joint", x = 100, y = 250},
+	}
+
+	layer := rig.Layer{
+		id        = "sprite",
+		name      = "Sprite Completo",
+		transform = core.Transform{pos = {100, 150}, scale = {1, 1}, pivot = {50, 100}},
+		joint     = "top_joint",
+	}
+
+	m := mesh.build_grid_mesh(100, 200, 4)
+	defer mesh.mesh_destroy(&m)
+
+	mesh.mesh_auto_skin_to_joints(&m, layer, joints)
+
+	testing.expect(t, m.mode == .Skin, "Modo deve ser .Skin após auto-skin")
+	testing.expect(t, m.skinning == .DualQuaternion, "Skinning deve ser .DualQuaternion")
+	testing.expect(t, len(m.weights) == len(m.vertices), "Cada vértice deve ter lista de pesos")
+
+	for w_list, i in m.weights {
+		testing.expect(t, len(w_list) > 0, "Cada vértice deve ter pelo menos 1 influência")
+		sum: f32 = 0
+		for inf in w_list {
+			sum += inf.weight
+		}
+		testing.expect(t, math.abs(sum - 1.0) < 1e-4, "Soma dos pesos de cada vértice deve ser normalizada em 1.0")
+	}
+
+	// O vértice superior deve ter influência predominante do top_joint
+	top_vertex_weights := m.weights[0]
+	top_w: f32 = 0
+	for inf in top_vertex_weights {
+		if inf.joint == "top_joint" do top_w = inf.weight
+	}
+	testing.expect(t, top_w > 0.5, "Vértice no topo deve ter peso dominante de top_joint")
+
+	// O vértice inferior deve ter influência predominante do bottom_joint
+	last_idx := len(m.vertices) - 1
+	bottom_vertex_weights := m.weights[last_idx]
+	bottom_w: f32 = 0
+	for inf in bottom_vertex_weights {
+		if inf.joint == "bottom_joint" do bottom_w = inf.weight
+	}
+	testing.expect(t, bottom_w > 0.5, "Vértice na base deve ter peso dominante de bottom_joint")
+}

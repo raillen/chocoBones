@@ -192,7 +192,7 @@ seam_mask_render_layer :: proc(
 	gl.ClearColor(0, 0, 0, 0)
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 	gl.Enable(gl.BLEND)
-	gl.BlendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
+	gl.BlendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
 	batch_begin(batch, &ortho)
 	draw_layer_geometry(batch, visual, joints, pose, bones, {1, 1, 1, 1}, allocator)
 	batch_end(batch)
@@ -202,7 +202,7 @@ seam_mask_render_layer :: proc(
 	gl.ClearColor(0, 0, 0, 0)
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 	gl.Enable(gl.BLEND)
-	gl.BlendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
+	gl.BlendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
 
 	if cover_visual.layer.visible && cover_visual.layer.opacity > 0 {
 		cover_color: [4]f32 = {1, 1, 1, cover_visual.layer.opacity}
@@ -221,7 +221,7 @@ seam_mask_render_layer :: proc(
 
 	gl.Disable(gl.DEPTH_TEST)
 	gl.Enable(gl.BLEND)
-	gl.BlendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
+	gl.BlendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
 
 	gl.UseProgram(seam.shader_program)
 

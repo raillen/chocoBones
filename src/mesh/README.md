@@ -4,4 +4,4 @@ Módulo responsável pela geração de vértices triangulados e algoritmos de de
 
 | Arquivo | Responsabilidade |
 |---|---|
-| `mesh.odin` | Estruturas `Vertex`, `Mesh`, `Pin`, geração de malha quadriculada (`build_grid_mesh`), interpolação MLS afim/rígida e aplicação de pesos |
+| `mesh.odin` | Estruturas `Vertex`, `Mesh`, `Pin`, geração de malha quadriculada (`build_grid_mesh`), interpolação MLS afim/rígida, aplicação de pinos e vinculação automática de ossos à malha (`mesh_auto_skin_to_joints`) |

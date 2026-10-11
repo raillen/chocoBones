@@ -51,6 +51,8 @@ calculate_gizmo_bounds :: proc(
 	bones: map[string]core.Mat2x3,
 	screen_origin: core.Vec2,
 	scale_factor: f32,
+	view_bounds: [4]f32 = {0, 512, 0, 512},
+	canvas_size: core.Vec2 = {0, 0},
 ) -> GizmoBounds {
 	l_mat := rig.layer_matrix(layer, joints, pose, bones)
 
@@ -65,16 +67,27 @@ calculate_gizmo_bounds :: proc(
 
 	piv := core.mat_apply(l_mat, layer.transform.pivot)
 
-	// Converte para coordenadas da tela ImGui
-	to_screen :: proc(p: core.Vec2, origin: core.Vec2, sf: f32) -> core.Vec2 {
-		return {origin.x + (p.x / 512.0) * (512.0 * sf), origin.y + (p.y / 512.0) * (512.0 * sf)}
+	c_size := canvas_size
+	if c_size.x <= 0 || c_size.y <= 0 {
+		c_size = {512.0 * scale_factor, 512.0 * scale_factor}
 	}
 
-	sp0 := to_screen(c0, screen_origin, scale_factor)
-	sp1 := to_screen(c1, screen_origin, scale_factor)
-	sp2 := to_screen(c2, screen_origin, scale_factor)
-	sp3 := to_screen(c3, screen_origin, scale_factor)
-	s_piv := to_screen(piv, screen_origin, scale_factor)
+	// Converte para coordenadas da tela ImGui respeitando PTZ
+	to_screen :: proc(p: core.Vec2, origin, csize: core.Vec2, bounds: [4]f32) -> core.Vec2 {
+		span_x := bounds[1] - bounds[0]
+		span_y := bounds[3] - bounds[2]
+		if span_x <= 0 do span_x = 512.0
+		if span_y <= 0 do span_y = 512.0
+		norm_x := (p.x - bounds[0]) / span_x
+		norm_y := (p.y - bounds[2]) / span_y
+		return {origin.x + norm_x * csize.x, origin.y + norm_y * csize.y}
+	}
+
+	sp0 := to_screen(c0, screen_origin, c_size, view_bounds)
+	sp1 := to_screen(c1, screen_origin, c_size, view_bounds)
+	sp2 := to_screen(c2, screen_origin, c_size, view_bounds)
+	sp3 := to_screen(c3, screen_origin, c_size, view_bounds)
+	s_piv := to_screen(piv, screen_origin, c_size, view_bounds)
 
 	s_center := core.Vec2{(sp0.x + sp2.x) * 0.5, (sp0.y + sp2.y) * 0.5}
 

@@ -319,3 +319,68 @@ mesh_world :: proc(
 
 	return result
 }
+
+// Vincula automaticamente os vértices da malha às juntas esqueléticas através de pesos por distância inversa
+mesh_auto_skin_to_joints :: proc(m: ^Mesh, layer: rig.Layer, joints: []rig.Joint) {
+	if m == nil || len(m.vertices) == 0 || len(joints) == 0 do return
+
+	m.mode = .Skin
+	m.skinning = .DualQuaternion
+
+	for v, i in m.vertices {
+		clear(&m.weights[i])
+
+		// Coordenadas mundiais de repouso do vértice
+		vx := (v.x - layer.transform.pivot.x) * layer.transform.scale.x + layer.transform.pos.x
+		vy := (v.y - layer.transform.pivot.y) * layer.transform.scale.y + layer.transform.pos.y
+
+		MAX_INF :: 4
+		best_joints: [MAX_INF]string
+		best_weights: [MAX_INF]f32
+
+		for j in joints {
+			dx := vx - j.x
+			dy := vy - j.y
+			dist := math.sqrt(dx * dx + dy * dy)
+
+			// Peso inversamente proporcional com suavização
+			inv_d := 1.0 / (dist * dist + 100.0)
+
+			for k in 0..<MAX_INF {
+				if inv_d > best_weights[k] {
+					for shift := MAX_INF - 1; shift > k; shift -= 1 {
+						best_weights[shift] = best_weights[shift - 1]
+						best_joints[shift] = best_joints[shift - 1]
+					}
+					best_weights[k] = inv_d
+					best_joints[k] = j.id
+					break
+				}
+			}
+		}
+
+		sum_w: f32 = 0
+		for k in 0..<MAX_INF {
+			if best_weights[k] > 0 && best_joints[k] != "" {
+				sum_w += best_weights[k]
+			}
+		}
+
+		if sum_w > 1e-6 {
+			for k in 0..<MAX_INF {
+				if best_weights[k] > 0 && best_joints[k] != "" {
+					append(&m.weights[i], Influence{
+						joint = best_joints[k],
+						weight = best_weights[k] / sum_w,
+					})
+				}
+			}
+		} else {
+			append(&m.weights[i], Influence{
+				joint = len(joints) > 0 ? joints[0].id : "root",
+				weight = 1.0,
+			})
+		}
+	}
+}
+

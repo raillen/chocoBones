@@ -285,9 +285,17 @@ execute_create_new_project :: proc(state: ^AppState, np: ^NewProjectState) {
 		state.character_joints = rig.rig_create_preset(np.rig_preset)
 		if np.single_image_path != "" {
 			import_image_as_layer(state, np.single_image_path)
+			if len(state.character_layers) > 0 {
+				last_idx := len(state.character_layers) - 1
+				layer := &state.character_layers[last_idx]
+				if layer.id in state.layer_meshes {
+					m := &state.layer_meshes[layer.id]
+					mesh.mesh_auto_skin_to_joints(m, layer^, state.character_joints[:])
+				}
+			}
 		}
 		editor_load_default_animation_pack(state)
-		ui.toast_add(&state.toasts, "Projeto criado com sucesso!", .Success)
+		ui.toast_add(&state.toasts, "Projeto de sprite única criado com deformação esquelética ativa!", .Success)
 
 	case .ModularMultiImage:
 		state.character_joints = rig.rig_create_preset(np.rig_preset)
