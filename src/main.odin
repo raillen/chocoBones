@@ -258,24 +258,8 @@ init_gpu_resources :: proc(state: ^AppState) {
 	// RenderBatch dinâmico
 	render.batch_init(&state.render_batch, program)
 
-	// Carrega as texturas reais de alta fidelidade da demonstração de 6 peças
-	ref_path := "custom-char-creator/public/assets/demos/six-piece-rig-v2/reference.png"
-	loaded_real := render.load_six_piece_textures(ref_path, &state.layer_textures)
-	if !loaded_real {
-		// Fallback para texturas sólidas estilizadas
-		state.layer_textures["torso"] = render.texture_create_solid(237, 293, {185, 55, 65, 255})
-		state.layer_textures["head"] = render.texture_create_solid(234, 309, {240, 200, 165, 255})
-		state.layer_textures["arm-right"] = render.texture_create_solid(204, 368, {40, 160, 95, 255})
-		state.layer_textures["arm-left"] = render.texture_create_solid(212, 368, {35, 140, 85, 255})
-		state.layer_textures["leg-right"] = render.texture_create_solid(161, 430, {45, 100, 175, 255})
-		state.layer_textures["leg-left"] = render.texture_create_solid(211, 426, {40, 90, 155, 255})
-	}
-
-	// Malhas deformáveis com Dual Quaternion para os 4 membros da demo de 6 peças
-	state.layer_meshes["arm-right"] = build_limb_mesh(204, 368, "upper_arm_near", "forearm_near", "hand_near")
-	state.layer_meshes["arm-left"]  = build_limb_mesh(212, 368, "upper_arm_far", "forearm_far", "hand_far")
-	state.layer_meshes["leg-right"] = build_limb_mesh(161, 430, "thigh_near", "shin_near", "foot_near")
-	state.layer_meshes["leg-left"]  = build_limb_mesh(211, 426, "thigh_far", "shin_far", "foot_far")
+	// Carrega a vitrine real de alta fidelidade com os assets originais do Frontier Survival
+	editor_load_showcase_survivor(state)
 
 	// Renderizador de máscaras de emenda em GPU
 	ok_seam := render.seam_mask_renderer_init(&state.seam_mask_renderer, 512, 512)
@@ -647,6 +631,16 @@ render_main_menu :: proc(state: ^AppState) {
 			clear(&state.character_pose.layers)
 			state.status_message = "Novo projeto vazio inicializado."
 			ui.toast_add(&state.toasts, "Novo projeto vazio criado", .Info)
+		}
+
+		if im.BeginMenu(ui.ICON_PH_IMAGES + " Vitrine de Exemplos") {
+			if im.MenuItem(ui.ICON_PH_PERSON_SIMPLE_WALK + " Sobrevivente (Frontier Survival · 18 partes)") {
+				editor_load_showcase_survivor(state)
+			}
+			if im.MenuItem(ui.ICON_PH_PERSON_ARMS_SPREAD + " Lobo da Fronteira (Quadrúpede)") {
+				editor_load_showcase_wolf(state)
+			}
+			im.EndMenu()
 		}
 
 		if im.MenuItem(ui.ICON_PH_FOLDER_OPEN + " Abrir Projeto (Diálogo)...", "Ctrl+O") {
