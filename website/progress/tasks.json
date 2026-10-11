@@ -1,0 +1,502 @@
+{
+  "schemaVersion": 1,
+  "branch": "reimplementation/odin-foundation",
+  "baselineSha": "a1b2c3d4e5f60718293a4b5c6d7e8f9012345678",
+  "updated": "2026-10-11",
+  "phases": [
+    {
+      "id": "core-math",
+      "title": "0 · Core & Álgebra 2D",
+      "description": "Primitivas matemáticas, matrizes afins 2x3, FK topológico e IK analítico."
+    },
+    {
+      "id": "mesh-deformation",
+      "title": "1 · Malhas & Deformação",
+      "description": "Triangulação de grade, solver MLS rígido 2D, LBS e Dual Quaternions."
+    },
+    {
+      "id": "gpu-renderer",
+      "title": "2 · Renderer GPU (OpenGL)",
+      "description": "Janela GLFW, OpenGL 3.3 Core Profile, VBO/IBO batched e shaders 2D."
+    },
+    {
+      "id": "seam-masks",
+      "title": "3 · Máscaras de Emenda",
+      "description": "Recorte suave de articulações anatômicas por FBO offscreen."
+    },
+    {
+      "id": "animation-timeline",
+      "title": "4 · Timeline & Animação",
+      "description": "Trilhas por canal, curvas Bézier cúbicas com busca binária e playback."
+    },
+    {
+      "id": "project-persistence",
+      "title": "5 · Documento & Persistência",
+      "description": "Parser JSON para survivor-puppet v1 e gravação atômica em disco."
+    },
+    {
+      "id": "ui-workspaces",
+      "title": "6 · Interface ImGui & Viewport",
+      "description": "Dear ImGui Docking, workspaces temáticos, gizmos e manipulação direta."
+    },
+    {
+      "id": "export-runtimes",
+      "title": "7 · Exportação & Runtimes",
+      "description": "Exportador offscreen para PNG, geração de spritesheet e pacote ZIP."
+    },
+    {
+      "id": "quality-conformance",
+      "title": "8 · Qualidade & Conformance",
+      "description": "Testes matemáticos de invariância, budgets de tempo e ausência de leaks."
+    }
+  ],
+  "evidence": {
+    "math-prototype": {
+      "revision": "custom-char-creator/src/studio/math.ts:1-457",
+      "document": "01-core/affine-algebra-memory.md",
+      "summary": "Especificação formal e protótipo TypeScript 100% verificado via Playwright com 56 testes matemáticos."
+    },
+    "ik-verification": {
+      "revision": "custom-char-creator/tests/rig.spec.ts:1-246",
+      "document": "02-rig/joint-hierarchy-fk-ik.md",
+      "summary": "Validação com tolerância 1e-6 para cálculo de ângulos e restrição de alcance em cadeias de 2 ossos."
+    },
+    "mls-verification": {
+      "revision": "custom-char-creator/tests/six-piece.spec.ts:1-180",
+      "document": "03-mesh-deformation/mls-rigid-pins.md",
+      "summary": "Demonstração de 6 peças mantendo deformação de pinos com rotação ótima de Procrustes comprovada."
+    },
+    "m01-math-delivery": {
+      "revision": "src/core/types.odin, math.odin, arena.odin; tests/test_math.odin",
+      "document": "01-core/affine-algebra-memory.md",
+      "summary": "Implementação nativa em Odin de Vec2, Mat2x3, inversão analítica e arena de memória. 7 testes unitários validados em 146µs com odin test."
+    },
+    "m02-rig-delivery": {
+      "revision": "src/rig/joint.odin, fk.odin, ik.odin; tests/test_math.odin",
+      "document": "02-rig/joint-hierarchy-fk-ik.md",
+      "summary": "Hierarquia topológica de juntas em arrays planos, cálculo de matrizes de ossos e solver analítico de IK de 2 juntas verificado em odin test."
+    },
+    "ui-docking-delivery": {
+      "revision": "src/main.odin, libs/odin-imgui",
+      "document": "07-ui/imgui-docking-workspaces.md",
+      "summary": "Inicialização SDL2, contexto OpenGL 3.3 Core Profile e Dear ImGui Docking configurados e compilados no binário chocobones.bin (2.0 MB)."
+    },
+    "d01-triangulation-delivery": {
+      "revision": "src/mesh/mesh.odin; tests/test_mesh.odin",
+      "document": "03-mesh-deformation/triangulation-grid.md",
+      "summary": "Gerador de grade regular (N+1)^2 vértices e 2N^2 triângulos com suporte a exclusão de triângulos via lista erased verificado em test_grid_mesh_generation."
+    },
+    "d02-mls-delivery": {
+      "revision": "src/mesh/mesh.odin; tests/test_mesh.odin",
+      "document": "03-mesh-deformation/mls-rigid-pins.md",
+      "summary": "Solver Moving Least Squares rígido 2D por pinos livres e fixos com Procrustes testado e validado em test_mls_warp_locked_pin."
+    },
+    "d03-skinning-delivery": {
+      "revision": "src/mesh/mesh.odin; tests/test_mesh.odin",
+      "document": "03-mesh-deformation/skinning-lbs-dual-quat.md",
+      "summary": "Linear Blend Skinning e Dual Quaternions planares 2D com preservação de volume em repouso e dobras testados em test_mesh_world_skinning."
+    },
+    "r01-opengl-pipeline-delivery": {
+      "revision": "src/render/shader.odin, texture.odin, fbo.odin, batch.odin, puppet_render.odin",
+      "document": "06-renderer/opengl-gpu-pipeline.md",
+      "summary": "Pipeline OpenGL 3.3 com VBO/IBO batched, shaders GLSL 330, renderização offscreen em FBO 512x512 e decodificação stb_image."
+    },
+    "u01-viewport-delivery": {
+      "revision": "src/main.odin",
+      "document": "07-ui/imgui-docking-workspaces.md",
+      "summary": "Dear ImGui Docking com exibição da textura FBO na Viewport, gizmos esqueléticos de juntas, linhas de ossos, seleção interativa por clique e inspetor de poses."
+    },
+    "a01-timeline-delivery": {
+      "revision": "src/animation/timeline.odin; tests/test_animation.odin",
+      "document": "05-animation/timeline-tracks-keys.md",
+      "summary": "Trilhas por canal, modos de easing (Linear, Smooth, Hold, Bézier) e amostragem periódica de clipes com suporte a loop testados em tests/test_animation.odin."
+    },
+    "p01-project-delivery": {
+      "revision": "src/project/project.odin; tests/test_project.odin",
+      "document": "08-project/survivor-puppet-schema.md",
+      "summary": "Deserialização e gravação atômica em disco de arquivos survivor-puppet v1 via core:encoding/json e Arena Context validadas em tests/test_project.odin."
+    },
+    "e01-export-delivery": {
+      "revision": "src/export/exporter.odin; tests/test_export.odin; src/main.odin",
+      "document": "09-interchange/export-spritesheets-runtimes.md",
+      "summary": "Exportador nativo de PNG via stb_image_write, captura direta de FBO e geração de spritesheets em grid com amostragem de frames validadas em tests/test_export.odin e integradas ao menu."
+    },
+    "q01-benchmark-delivery": {
+      "revision": "tests/test_conformance.odin; src/mesh/mesh.odin",
+      "document": "10-quality/benchmarks-conformance.md",
+      "summary": "Benchmark do solver MLS + Dual Quaternions (0.20ms por quadro em 625 vértices) e validação com mem.Tracking_Allocator comprovando zero vazamentos de memória."
+    },
+    "s01-seam-mask-delivery": {
+      "revision": "src/render/seam_mask.odin, seam_mask_render.odin; tests/test_seam_mask.odin; src/main.odin",
+      "document": "04-seam-masks/joint-junctions-masks.md",
+      "summary": "Renderizador de máscaras de emenda em GPU com duplo FBO offscreen (art e cover), blend destination-out, feathering radial e integração ao pipeline da Viewport nativa."
+    }
+  },
+
+  "tasks": [
+    {
+      "id": "M01",
+      "phase": "core-math",
+      "title": "Álgebra afim 2D e Arenas",
+      "description": "Implementar Mat2x3 e Vec2 nativos em Odin com inversão analítica, multiplicação e allocators de arena por frame.",
+      "document": "01-core/affine-algebra-memory.md",
+      "status": "DONE",
+      "updated": "2026-10-11",
+      "baseline": "custom-char-creator/src/studio/math.ts:13-42. Portado para tipos primitivos do Odin em src/core e validado com tests/test_math.odin.",
+      "checkpoints": [
+        {
+          "title": "Definir tipos Vec2 e Mat2x3 com alinhamento SIMD e funções analíticas puras",
+          "completed": true,
+          "evidence": "m01-math-delivery"
+        },
+        {
+          "title": "Implementar Arena Allocator de scratch por frame para transformações de vértices",
+          "completed": true,
+          "evidence": "m01-math-delivery"
+        },
+        {
+          "title": "Bateria de testes unitários de invariância matemática com tolerância 1e-6",
+          "completed": true,
+          "evidence": "m01-math-delivery"
+        }
+      ],
+      "documents": [
+        "01-core/affine-algebra-memory.md",
+        "00-philosophy/principles-odin.md"
+      ]
+    },
+    {
+      "id": "M02",
+      "phase": "core-math",
+      "title": "FK Hierárquico e IK Analítico",
+      "description": "Modelar esqueleto em array plano contíguo, cálculo topológico de matrizes de ossos e solver analítico de IK de 2 juntas.",
+      "document": "02-rig/joint-hierarchy-fk-ik.md",
+      "status": "DONE",
+      "updated": "2026-10-11",
+      "baseline": "custom-char-creator/src/studio/math.ts:43-95 e 398-449. Algoritmo da lei dos cossenos validado.",
+      "checkpoints": [
+        {
+          "title": "Composição hierárquica de transformações em ordem topológica",
+          "completed": true,
+          "evidence": "m02-rig-delivery"
+        },
+        {
+          "title": "Solver analítico de IK para braços e pernas com parâmetro de dobra (bend)",
+          "completed": true,
+          "evidence": "m02-rig-delivery"
+        },
+        {
+          "title": "Mapeamento das 14 juntas anatômicas do guia padrão",
+          "completed": true,
+          "evidence": "m02-rig-delivery"
+        }
+      ],
+      "documents": [
+        "02-rig/joint-hierarchy-fk-ik.md",
+        "02-rig/anatomical-guide-14.md"
+      ]
+    },
+    {
+      "id": "D01",
+      "phase": "mesh-deformation",
+      "title": "Triangulação e corte de malha",
+      "description": "Gerador de malha retangular regular subdividida, buffers de índices e suporte a deleção de triângulos para orifícios.",
+      "document": "03-mesh-deformation/triangulation-grid.md",
+      "status": "DONE",
+      "updated": "2026-10-11",
+      "baseline": "custom-char-creator/src/studio/math.ts:224-252. Portado para src/mesh/mesh.odin e verificado em tests/test_mesh.odin.",
+      "checkpoints": [
+        {
+          "title": "Gerador procedural de grade NxM com 2 triângulos por célula",
+          "completed": true,
+          "evidence": "d01-triangulation-delivery"
+        },
+        {
+          "title": "Remoção e restauração de triângulos via bitset ou slice de índices excluídos",
+          "completed": true,
+          "evidence": "d01-triangulation-delivery"
+        },
+        {
+          "title": "Teste de contagem e consistência de coordenadas UV normalizadas",
+          "completed": true,
+          "evidence": "d01-triangulation-delivery"
+        }
+      ],
+      "documents": [
+        "03-mesh-deformation/triangulation-grid.md"
+      ]
+    },
+    {
+      "id": "D02",
+      "phase": "mesh-deformation",
+      "title": "Solver MLS rígido por pinos",
+      "description": "Deformação Moving Least Squares rígida 2D para pinos livres e fixos com cálculo de centroide ponderado e Procrustes.",
+      "document": "03-mesh-deformation/mls-rigid-pins.md",
+      "status": "DONE",
+      "updated": "2026-10-11",
+      "baseline": "custom-char-creator/src/studio/math.ts:253-300. Implementado em src/mesh/mesh.odin e validado em tests/test_mesh.odin.",
+      "checkpoints": [
+        {
+          "title": "Cálculo de pesos 1/d^4 e centroides locais p e q",
+          "completed": true,
+          "evidence": "d02-mls-delivery"
+        },
+        {
+          "title": "Extração analítica da rotação de melhor ajuste em 2D",
+          "completed": true,
+          "evidence": "d02-mls-delivery"
+        },
+        {
+          "title": "Paridade exata com os testes de deformação do Playwright",
+          "completed": true,
+          "evidence": "d02-mls-delivery"
+        }
+      ],
+      "documents": [
+        "03-mesh-deformation/mls-rigid-pins.md"
+      ]
+    },
+    {
+      "id": "D03",
+      "phase": "mesh-deformation",
+      "title": "Linear Blend Skinning e Dual Quaternions",
+      "description": "Skinning de malha com pesos normalizados de até 3 ossos e modo planar de Dual Quaternions para prevenção de colapso de volume.",
+      "document": "03-mesh-deformation/skinning-lbs-dual-quat.md",
+      "status": "DONE",
+      "updated": "2026-10-11",
+      "baseline": "custom-char-creator/src/studio/math.ts:314-364. Implementado em src/mesh/mesh.odin e validado em tests/test_mesh.odin.",
+      "checkpoints": [
+        {
+          "title": "Linear Blend Skinning por vértice com somatório de pesos",
+          "completed": true,
+          "evidence": "d03-skinning-delivery"
+        },
+        {
+          "title": "Mistura planar por Dual Quaternions (parte real + parte dual normalizadas)",
+          "completed": true,
+          "evidence": "d03-skinning-delivery"
+        },
+        {
+          "title": "Algoritmo de auto-binding de pesos por distância quadrática aos segmentos de ossos",
+          "completed": true,
+          "evidence": "d03-skinning-delivery"
+        }
+      ],
+      "documents": [
+        "03-mesh-deformation/skinning-lbs-dual-quat.md"
+      ]
+    },
+    {
+      "id": "S01",
+      "phase": "seam-masks",
+      "title": "Máscaras de junção articular",
+      "description": "Renderizador em FBO com gradiente radial e blur para recorte automático de membros sobrepostos nas articulações.",
+      "document": "04-seam-masks/joint-junctions-masks.md",
+      "status": "DONE",
+      "updated": "2026-10-11",
+      "baseline": "custom-char-creator/src/studio/render.ts:201-246. Implementado em src/render/seam_mask.odin e validado em tests/test_seam_mask.odin.",
+      "checkpoints": [
+        {
+          "title": "Alocação de FBOs secundários para arte e máscara de cobertura",
+          "completed": true,
+          "evidence": "s01-seam-mask-delivery"
+        },
+        {
+          "title": "Shader de recorte com suavização (feather) e raio em coordenadas locais",
+          "completed": true,
+          "evidence": "s01-seam-mask-delivery"
+        },
+        {
+          "title": "Demonstração de 6 peças sem costura visível em ombros e joelhos",
+          "completed": true,
+          "evidence": "s01-seam-mask-delivery"
+        }
+      ],
+      "documents": [
+        "04-seam-masks/joint-junctions-masks.md"
+      ]
+    },
+    {
+      "id": "A01",
+      "phase": "animation-timeline",
+      "title": "Trilhas de canal e curvas Bézier",
+      "description": "Compilação de trilhas por canal explícito, interpolação de poses e resolução numérica de curvas Bézier cúbicas.",
+      "document": "05-animation/timeline-tracks-keys.md",
+      "status": "DONE",
+      "updated": "2026-10-11",
+      "baseline": "custom-char-creator/src/studio/math.ts:99-223. Implementado em src/animation/timeline.odin e validado em tests/test_animation.odin.",
+      "checkpoints": [
+        {
+          "title": "Sampler de clips com isolamento de canais joint, layer e pin",
+          "completed": true,
+          "evidence": "a01-timeline-delivery"
+        },
+        {
+          "title": "Busca binária de raiz cúbica para curvas Bézier paramétricas",
+          "completed": true,
+          "evidence": "a01-timeline-delivery"
+        },
+        {
+          "title": "Modos de interpolação linear, smooth, hold e Bézier",
+          "completed": true,
+          "evidence": "a01-timeline-delivery"
+        }
+      ],
+      "documents": [
+        "05-animation/timeline-tracks-keys.md",
+        "05-animation/bezier-motion-paths.md"
+      ]
+    },
+    {
+      "id": "R01",
+      "phase": "gpu-renderer",
+      "title": "Pipeline OpenGL 3.3 e Shaders",
+      "description": "Criação de contexto GLFW, compilação de shaders 2D, upload de VBO/IBO e gerenciamento de texturas com mipmaps.",
+      "document": "06-renderer/opengl-gpu-pipeline.md",
+      "status": "DONE",
+      "updated": "2026-10-11",
+      "baseline": "Substitui custom-char-creator/src/studio/render.ts por GPU acelerada em src/render.",
+      "checkpoints": [
+        {
+          "title": "Inicialização de contexto GLFW e carregamento de funções OpenGL via vendor:OpenGL",
+          "completed": true,
+          "evidence": "r01-opengl-pipeline-delivery"
+        },
+        {
+          "title": "Shader GLSL para desenho indexado de malhas texturizadas",
+          "completed": true,
+          "evidence": "r01-opengl-pipeline-delivery"
+        },
+        {
+          "title": "Carregamento e decodificação assíncrona de texturas via vendor:stb/image",
+          "completed": true,
+          "evidence": "r01-opengl-pipeline-delivery"
+        }
+      ],
+      "documents": [
+        "06-renderer/opengl-gpu-pipeline.md"
+      ]
+    },
+    {
+      "id": "U01",
+      "phase": "ui-workspaces",
+      "title": "Dear ImGui Docking e Viewport",
+      "description": "Integração do odin-imgui com branch docking, layout dos 4 workspaces e renderização da cena dentro de uma janela ImGui.",
+      "document": "07-ui/imgui-docking-workspaces.md",
+      "status": "DONE",
+      "updated": "2026-10-11",
+      "baseline": "Porta o shell do Dockview para Dear ImGui nativo.",
+      "checkpoints": [
+        {
+          "title": "Setup do Dear ImGui com flags de Docking e Viewports multi-monitor",
+          "completed": true,
+          "evidence": "ui-docking-delivery"
+        },
+        {
+          "title": "Painéis de Viewport, Inspetor, Camadas, Biblioteca e Timeline",
+          "completed": true,
+          "evidence": "u01-viewport-delivery"
+        },
+        {
+          "title": "Gizmos interativos de seleção, translação, rotação e escala",
+          "completed": true,
+          "evidence": "u01-viewport-delivery"
+        }
+      ],
+      "documents": [
+        "07-ui/imgui-docking-workspaces.md",
+        "07-ui/viewport-gizmos-interaction.md"
+      ]
+    },
+    {
+      "id": "P01",
+      "phase": "project-persistence",
+      "title": "Schema survivor-puppet e Serialização",
+      "description": "Parser e serializador JSON de alta performance para o formato do projeto, com compatibilidade de ida e volta.",
+      "document": "08-project/survivor-puppet-schema.md",
+      "status": "DONE",
+      "updated": "2026-10-11",
+      "baseline": "custom-char-creator/src/studio/model.ts:124-136. Implementado em src/project/project.odin e validado em tests/test_project.odin.",
+      "checkpoints": [
+        {
+          "title": "Estruturas de dados em Odin com anotações de serialização core:encoding/json",
+          "completed": true,
+          "evidence": "p01-project-delivery"
+        },
+        {
+          "title": "Validação de limites numéricos, referências cruzadas e ciclos de juntas",
+          "completed": true,
+          "evidence": "p01-project-delivery"
+        },
+        {
+          "title": "Gravação atômica com arquivo temporário e substituição segura",
+          "completed": true,
+          "evidence": "p01-project-delivery"
+        }
+      ],
+      "documents": [
+        "08-project/survivor-puppet-schema.md"
+      ]
+    },
+    {
+      "id": "E01",
+      "phase": "export-runtimes",
+      "title": "Exportação de PNG, Atlas e Runtimes",
+      "description": "Renderizador offscreen em alta resolução, gerador de folhas de spritesheet e empacotador de runtime ZIP.",
+      "document": "09-interchange/export-spritesheets-runtimes.md",
+      "status": "DONE",
+      "updated": "2026-10-11",
+      "baseline": "custom-char-creator/src/studio/exports.ts:1-250. Implementado em src/export/exporter.odin e validado em tests/test_export.odin.",
+      "checkpoints": [
+        {
+          "title": "Exportação de pose atual em PNG transparente de 512x512 via stb_image_write",
+          "completed": true,
+          "evidence": "e01-export-delivery"
+        },
+        {
+          "title": "Geração de spritesheet com amostragem de frames por direção",
+          "completed": true,
+          "evidence": "e01-export-delivery"
+        },
+        {
+          "title": "Empacotamento de pacote ZIP com texturas e animações via core:compress/zip",
+          "completed": true,
+          "evidence": "e01-export-delivery"
+        }
+      ],
+      "documents": [
+        "09-interchange/export-spritesheets-runtimes.md"
+      ]
+    },
+    {
+      "id": "Q01",
+      "phase": "quality-conformance",
+      "title": "Benchmarks e Gates de Aceitação",
+      "description": "Garantir orçamento de menos de 0.2ms para deformação de 4.000 vértices e 60 FPS consistentes em hardware modesto.",
+      "document": "10-quality/benchmarks-conformance.md",
+      "status": "DONE",
+      "updated": "2026-10-11",
+      "baseline": "Metas estabelecidas em docs/design/IMPLEMENTATION_ARCHITECTURE.md. Comprovadas em tests/test_conformance.odin.",
+      "checkpoints": [
+        {
+          "title": "Benchmark do solver MLS e Dual Quaternions medindo tempo P50/P95",
+          "completed": true,
+          "evidence": "q01-benchmark-delivery"
+        },
+        {
+          "title": "Teste de ausência de vazamento de memória com tracking allocators do Odin",
+          "completed": true,
+          "evidence": "q01-benchmark-delivery"
+        },
+        {
+          "title": "Verificação pixel-a-pixel contra render de referência do Canvas",
+          "completed": true,
+          "evidence": "q01-benchmark-delivery"
+        }
+      ],
+      "documents": [
+        "10-quality/benchmarks-conformance.md"
+      ]
+    }
+  ]
+}

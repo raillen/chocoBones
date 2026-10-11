@@ -1,0 +1,29 @@
+{
+  "id": "documentation-publishing",
+  "name": "Documentation Publishing",
+  "version": 1,
+  "schema_version": 2,
+  "select": {
+    "features_any": [
+      "documentation",
+      "docs-site",
+      "public-docs"
+    ]
+  },
+  "requires": [
+    "documentation"
+  ],
+  "purpose": "Generate unified documentation sites from canonical Markdown sources.",
+  "risk_level": "low",
+  "modes": [
+    "documentation"
+  ],
+  "requires_any": [],
+  "tools": [],
+  "provenance": {
+    "source": "prumo",
+    "version": "0.3.0",
+    "checksum": "",
+    "modified": "2026-08-14"
+  }
+}

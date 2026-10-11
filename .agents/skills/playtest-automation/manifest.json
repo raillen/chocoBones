@@ -1,0 +1,25 @@
+{
+  "id": "playtest-automation",
+  "name": "Playtest Automation",
+  "version": 1,
+  "schema_version": 2,
+  "select": {
+    "project_types": [
+      "game",
+      "game-engine"
+    ]
+  },
+  "purpose": "Drive deterministic input sequences and inspect runtime state.",
+  "risk_level": "low",
+  "modes": [
+    "testing"
+  ],
+  "requires_any": [],
+  "tools": [],
+  "provenance": {
+    "source": "prumo",
+    "version": "0.3.0",
+    "checksum": "",
+    "modified": "2026-08-14"
+  }
+}

@@ -1,0 +1,374 @@
+{
+  "schema": "frontier-survival.vector-rig.v1",
+  "character": "survivor-01",
+  "originalArtwork": true,
+  "canvas": {
+    "width": 512,
+    "height": 768,
+    "unit": "px",
+    "origin": "top-left",
+    "background": "transparent"
+  },
+  "handedness": "l/r refer to the character; l is viewer right, r is viewer left",
+  "instructions": "Stack full-canvas PNG/SVG at (0,0), ascending z. Pivot values use the shared canvas. For trimmed textures, subtract trim offset from pivot.",
+  "palette": {
+    "ink": "#24383e",
+    "skin": "#c28d68",
+    "skinLight": "#daa881",
+    "skinDark": "#a87052",
+    "hair": "#353b38",
+    "sand": "#c7c29f",
+    "sandLight": "#e0d8b5",
+    "sandDark": "#a49f7e",
+    "olive": "#6f7961",
+    "oliveLight": "#8d9979",
+    "oliveDark": "#505f51",
+    "teal": "#447c7f",
+    "tealLight": "#679b9a",
+    "tealDark": "#315d64",
+    "rust": "#b96c4e",
+    "rustLight": "#d08b65",
+    "metal": "#aab5aa",
+    "dark": "#354b4e",
+    "amber": "#e4b960"
+  },
+  "preview": "assembled-survivor.svg",
+  "parts": [
+    {
+      "id": "upper_arm_r",
+      "label": "Braço direito",
+      "pivot": [
+        210,
+        224
+      ],
+      "z": 40,
+      "category": "body",
+      "parent": "torso",
+      "distal": [
+        181,
+        296
+      ],
+      "svg": "svg/upper_arm_r.svg",
+      "png": "png/upper_arm_r.png",
+      "defaultVisible": true
+    },
+    {
+      "id": "upper_arm_l",
+      "label": "Braço esquerdo",
+      "pivot": [
+        302,
+        224
+      ],
+      "z": 41,
+      "category": "body",
+      "parent": "torso",
+      "distal": [
+        331,
+        296
+      ],
+      "svg": "svg/upper_arm_l.svg",
+      "png": "png/upper_arm_l.png",
+      "defaultVisible": true
+    },
+    {
+      "id": "forearm_r",
+      "label": "Antebraço direito",
+      "pivot": [
+        180,
+        299
+      ],
+      "z": 30,
+      "category": "body",
+      "parent": "upper_arm_r",
+      "distal": [
+        162,
+        374
+      ],
+      "svg": "svg/forearm_r.svg",
+      "png": "png/forearm_r.png",
+      "defaultVisible": true
+    },
+    {
+      "id": "forearm_l",
+      "label": "Antebraço esquerdo",
+      "pivot": [
+        332,
+        299
+      ],
+      "z": 31,
+      "category": "body",
+      "parent": "upper_arm_l",
+      "distal": [
+        350,
+        374
+      ],
+      "svg": "svg/forearm_l.svg",
+      "png": "png/forearm_l.png",
+      "defaultVisible": true
+    },
+    {
+      "id": "hand_r",
+      "label": "Mão direita",
+      "pivot": [
+        162,
+        380
+      ],
+      "z": 65,
+      "category": "body",
+      "parent": "forearm_r",
+      "svg": "svg/hand_r.svg",
+      "png": "png/hand_r.png",
+      "defaultVisible": true
+    },
+    {
+      "id": "hand_l",
+      "label": "Mão esquerda",
+      "pivot": [
+        350,
+        380
+      ],
+      "z": 66,
+      "category": "body",
+      "parent": "forearm_l",
+      "svg": "svg/hand_l.svg",
+      "png": "png/hand_l.png",
+      "defaultVisible": true
+    },
+    {
+      "id": "thigh_r",
+      "label": "Coxa direita",
+      "pivot": [
+        220,
+        396
+      ],
+      "z": 10,
+      "category": "body",
+      "parent": "pelvis",
+      "distal": [
+        220,
+        523
+      ],
+      "svg": "svg/thigh_r.svg",
+      "png": "png/thigh_r.png",
+      "defaultVisible": true
+    },
+    {
+      "id": "thigh_l",
+      "label": "Coxa esquerda",
+      "pivot": [
+        292,
+        396
+      ],
+      "z": 11,
+      "category": "body",
+      "parent": "pelvis",
+      "distal": [
+        292,
+        523
+      ],
+      "svg": "svg/thigh_l.svg",
+      "png": "png/thigh_l.png",
+      "defaultVisible": true
+    },
+    {
+      "id": "shin_r",
+      "label": "Canela direita",
+      "pivot": [
+        218,
+        524
+      ],
+      "z": 12,
+      "category": "body",
+      "parent": "thigh_r",
+      "distal": [
+        213,
+        640
+      ],
+      "svg": "svg/shin_r.svg",
+      "png": "png/shin_r.png",
+      "defaultVisible": true
+    },
+    {
+      "id": "shin_l",
+      "label": "Canela esquerda",
+      "pivot": [
+        294,
+        524
+      ],
+      "z": 13,
+      "category": "body",
+      "parent": "thigh_l",
+      "distal": [
+        299,
+        640
+      ],
+      "svg": "svg/shin_l.svg",
+      "png": "png/shin_l.png",
+      "defaultVisible": true
+    },
+    {
+      "id": "foot_r",
+      "label": "Bota direita",
+      "pivot": [
+        213,
+        644
+      ],
+      "z": 14,
+      "category": "body",
+      "parent": "shin_r",
+      "svg": "svg/foot_r.svg",
+      "png": "png/foot_r.png",
+      "defaultVisible": true
+    },
+    {
+      "id": "foot_l",
+      "label": "Bota esquerda",
+      "pivot": [
+        299,
+        644
+      ],
+      "z": 15,
+      "category": "body",
+      "parent": "shin_l",
+      "svg": "svg/foot_l.svg",
+      "png": "png/foot_l.png",
+      "defaultVisible": true
+    },
+    {
+      "id": "pelvis",
+      "label": "Quadril e cinto",
+      "pivot": [
+        256,
+        376
+      ],
+      "z": 20,
+      "category": "body",
+      "parent": null,
+      "svg": "svg/pelvis.svg",
+      "png": "png/pelvis.png",
+      "defaultVisible": true
+    },
+    {
+      "id": "torso",
+      "label": "Camisa de explorador",
+      "pivot": [
+        256,
+        276
+      ],
+      "z": 50,
+      "category": "body",
+      "parent": "pelvis",
+      "svg": "svg/torso.svg",
+      "png": "png/torso.png",
+      "defaultVisible": true
+    },
+    {
+      "id": "head",
+      "label": "Cabeça de sobrevivente",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 60,
+      "category": "body",
+      "parent": "torso",
+      "svg": "svg/head.svg",
+      "png": "png/head.png",
+      "defaultVisible": true
+    },
+    {
+      "id": "backpack",
+      "label": "Mochila de campo",
+      "pivot": [
+        256,
+        262
+      ],
+      "z": 0,
+      "category": "equipment",
+      "parent": "torso",
+      "defaultVisible": true,
+      "svg": "svg/backpack.svg",
+      "png": "png/backpack.png"
+    },
+    {
+      "id": "helmet",
+      "label": "Capacete de prospecção",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 70,
+      "category": "equipment",
+      "parent": "head",
+      "defaultVisible": false,
+      "svg": "svg/helmet.svg",
+      "png": "png/helmet.png"
+    },
+    {
+      "id": "visor",
+      "label": "Visor âmbar",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 75,
+      "category": "equipment",
+      "parent": "head",
+      "defaultVisible": false,
+      "svg": "svg/visor.svg",
+      "png": "png/visor.png"
+    },
+    {
+      "id": "vest",
+      "label": "Colete utilitário",
+      "pivot": [
+        256,
+        276
+      ],
+      "z": 55,
+      "category": "clothing",
+      "parent": "torso",
+      "defaultVisible": true,
+      "svg": "svg/vest.svg",
+      "png": "png/vest.png"
+    },
+    {
+      "id": "cold_jacket_torso",
+      "label": "Parka polar — tronco",
+      "pivot": [
+        256,
+        276
+      ],
+      "z": 53,
+      "category": "clothing",
+      "parent": "torso",
+      "defaultVisible": false,
+      "replaces": [
+        "torso"
+      ],
+      "conflicts": [
+        "vest"
+      ],
+      "svg": "svg/cold_jacket_torso.svg",
+      "png": "png/cold_jacket_torso.png"
+    },
+    {
+      "id": "rifle",
+      "label": "Carabina de exploração",
+      "pivot": [
+        350,
+        388
+      ],
+      "z": 80,
+      "category": "equipment",
+      "parent": "hand_l",
+      "defaultVisible": false,
+      "grip": [
+        350,
+        388
+      ],
+      "svg": "svg/rifle.svg",
+      "png": "png/rifle.png"
+    }
+  ]
+}

@@ -1,0 +1,290 @@
+{
+  "generated_by": {
+    "prumo": "0.2.0"
+  },
+  "skills": [
+    "accessibility",
+    "architecture-quality",
+    "benchmarking",
+    "caching",
+    "clean-code",
+    "code-review",
+    "cognitive-clarity",
+    "competitor-analysis",
+    "component-specification",
+    "contrast",
+    "dependency-management",
+    "design-research",
+    "design-system",
+    "design-tokens",
+    "desktop-security",
+    "documentation",
+    "documentation-for-llms",
+    "documentation-publishing",
+    "editor-tooling",
+    "error-handling",
+    "focus-management",
+    "game-engine-architecture",
+    "game-runtime",
+    "game-ui-testing",
+    "git-workflow",
+    "goal-management",
+    "information-architecture",
+    "interaction-design",
+    "interaction-research",
+    "keyboard-accessibility",
+    "lang-odin",
+    "lean-progressive-context",
+    "memory-management",
+    "motion-accessibility",
+    "performance-native",
+    "playtest-automation",
+    "project-documentation-architect",
+    "project-intelligence",
+    "prumo-navigation",
+    "refactoring",
+    "release-engineering",
+    "rendering-2d",
+    "rendering-3d",
+    "scene-graph",
+    "screen-reader",
+    "secrets-security",
+    "secure-coding",
+    "security-review",
+    "serialization",
+    "shaders",
+    "state-management",
+    "supply-chain-security",
+    "testing-quality",
+    "threat-modeling",
+    "tree-sitter-context-indexing",
+    "ui-implementation",
+    "ui-ux-review",
+    "user-flows",
+    "ux-architecture",
+    "visual-qa",
+    "visual-reference-research",
+    "visual-regression",
+    "website-forensics",
+    "wireframing",
+    "zoom-reflow"
+  ],
+  "reasons": {
+    "accessibility": [
+      "feature",
+      "risk",
+      "risk-rule:accessibility-risk"
+    ],
+    "architecture-quality": [
+      "core"
+    ],
+    "benchmarking": [
+      "bundle:game-engine",
+      "risk",
+      "risk-rule:performance-risk"
+    ],
+    "caching": [
+      "feature"
+    ],
+    "clean-code": [
+      "core"
+    ],
+    "code-review": [
+      "core"
+    ],
+    "cognitive-clarity": [
+      "core"
+    ],
+    "competitor-analysis": [
+      "feature"
+    ],
+    "component-specification": [
+      "feature"
+    ],
+    "contrast": [
+      "feature",
+      "risk",
+      "risk-rule:accessibility-risk"
+    ],
+    "dependency-management": [
+      "core"
+    ],
+    "design-research": [
+      "feature"
+    ],
+    "design-system": [
+      "feature"
+    ],
+    "design-tokens": [
+      "feature"
+    ],
+    "desktop-security": [
+      "bundle:desktop",
+      "project-type"
+    ],
+    "documentation": [
+      "core"
+    ],
+    "documentation-for-llms": [
+      "feature"
+    ],
+    "documentation-publishing": [
+      "feature"
+    ],
+    "editor-tooling": [
+      "bundle:desktop",
+      "bundle:game-engine",
+      "feature"
+    ],
+    "error-handling": [
+      "core"
+    ],
+    "focus-management": [
+      "feature"
+    ],
+    "game-engine-architecture": [
+      "bundle:game-engine",
+      "project-type"
+    ],
+    "game-runtime": [
+      "bundle:game-engine",
+      "project-type"
+    ],
+    "game-ui-testing": [
+      "feature",
+      "project-type"
+    ],
+    "git-workflow": [
+      "core"
+    ],
+    "goal-management": [
+      "core"
+    ],
+    "information-architecture": [
+      "feature"
+    ],
+    "interaction-design": [
+      "feature"
+    ],
+    "interaction-research": [
+      "feature"
+    ],
+    "keyboard-accessibility": [
+      "feature",
+      "risk-rule:accessibility-risk"
+    ],
+    "lang-odin": [
+      "stack"
+    ],
+    "lean-progressive-context": [
+      "core"
+    ],
+    "memory-management": [
+      "risk"
+    ],
+    "motion-accessibility": [
+      "feature"
+    ],
+    "performance-native": [
+      "bundle:desktop",
+      "bundle:game-engine",
+      "risk",
+      "risk-rule:performance-risk"
+    ],
+    "playtest-automation": [
+      "project-type"
+    ],
+    "project-documentation-architect": [
+      "feature"
+    ],
+    "project-intelligence": [
+      "core"
+    ],
+    "prumo-navigation": [
+      "core"
+    ],
+    "refactoring": [
+      "core"
+    ],
+    "release-engineering": [
+      "core"
+    ],
+    "rendering-2d": [
+      "bundle:game-engine",
+      "feature"
+    ],
+    "rendering-3d": [
+      "feature"
+    ],
+    "scene-graph": [
+      "feature"
+    ],
+    "screen-reader": [
+      "feature"
+    ],
+    "secrets-security": [
+      "risk"
+    ],
+    "secure-coding": [
+      "risk",
+      "risk-rule:security-risk"
+    ],
+    "security-review": [
+      "risk",
+      "risk-rule:security-risk"
+    ],
+    "serialization": [
+      "feature"
+    ],
+    "shaders": [
+      "feature"
+    ],
+    "state-management": [
+      "feature"
+    ],
+    "supply-chain-security": [
+      "risk"
+    ],
+    "testing-quality": [
+      "core"
+    ],
+    "threat-modeling": [
+      "risk",
+      "risk-rule:security-risk"
+    ],
+    "tree-sitter-context-indexing": [
+      "feature"
+    ],
+    "ui-implementation": [
+      "bundle:desktop",
+      "feature"
+    ],
+    "ui-ux-review": [
+      "feature"
+    ],
+    "user-flows": [
+      "feature"
+    ],
+    "ux-architecture": [
+      "feature"
+    ],
+    "visual-qa": [
+      "feature"
+    ],
+    "visual-reference-research": [
+      "feature"
+    ],
+    "visual-regression": [
+      "feature"
+    ],
+    "website-forensics": [
+      "feature"
+    ],
+    "wireframing": [
+      "feature"
+    ],
+    "zoom-reflow": [
+      "feature"
+    ]
+  }
+}

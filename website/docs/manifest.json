@@ -1,0 +1,194 @@
+{
+  "domains": [
+    {
+      "id": "reimplementation",
+      "title": "Reimplementação",
+      "files": [
+        {
+          "path": "12-reimplementation/index.md",
+          "title": "Acompanhamento e atualização de status"
+        }
+      ]
+    },
+    {
+      "id": "philosophy",
+      "title": "Filosofia & Padrões",
+      "files": [
+        {
+          "path": "00-philosophy/principles-odin.md",
+          "title": "Princípios em Odin e Filosofia DOD"
+        },
+        {
+          "path": "00-philosophy/decision-register.md",
+          "title": "Registro de decisões arquiteturais"
+        }
+      ]
+    },
+    {
+      "id": "core",
+      "title": "Core & Memória",
+      "files": [
+        {
+          "path": "01-core/affine-algebra-memory.md",
+          "title": "Álgebra Afim 2D e Arenas de Memória"
+        }
+      ]
+    },
+    {
+      "id": "rig",
+      "title": "Rig & Cinemática",
+      "files": [
+        {
+          "path": "02-rig/joint-hierarchy-fk-ik.md",
+          "title": "Hierarquia de Juntas, FK e IK Analítico"
+        },
+        {
+          "path": "02-rig/anatomical-guide-14.md",
+          "title": "Guia Anatômico de 14 Juntas"
+        }
+      ]
+    },
+    {
+      "id": "mesh-deformation",
+      "title": "Malhas & Deformação",
+      "files": [
+        {
+          "path": "03-mesh-deformation/triangulation-grid.md",
+          "title": "Triangulação de Grade e Corte de Malha"
+        },
+        {
+          "path": "03-mesh-deformation/mls-rigid-pins.md",
+          "title": "Deformação Rígida MLS por Pinos"
+        },
+        {
+          "path": "03-mesh-deformation/skinning-lbs-dual-quat.md",
+          "title": "Linear Blend Skinning e Dual Quaternions 2D"
+        }
+      ]
+    },
+    {
+      "id": "seam-masks",
+      "title": "Máscaras de Emenda",
+      "files": [
+        {
+          "path": "04-seam-masks/joint-junctions-masks.md",
+          "title": "Máscaras de Emenda e Junções Anatômicas"
+        }
+      ]
+    },
+    {
+      "id": "animation",
+      "title": "Timeline & Animação",
+      "files": [
+        {
+          "path": "05-animation/timeline-tracks-keys.md",
+          "title": "Trilhas por Elemento e Timeline"
+        },
+        {
+          "path": "05-animation/bezier-motion-paths.md",
+          "title": "Curvas Bézier Cúbicas e Trajetórias"
+        }
+      ]
+    },
+    {
+      "id": "renderer",
+      "title": "Renderer GPU (OpenGL)",
+      "files": [
+        {
+          "path": "06-renderer/opengl-gpu-pipeline.md",
+          "title": "Pipeline GPU OpenGL 3.3 e Shaders"
+        }
+      ]
+    },
+    {
+      "id": "ui",
+      "title": "UI & Workspaces (ImGui)",
+      "files": [
+        {
+          "path": "07-ui/imgui-docking-workspaces.md",
+          "title": "Dear ImGui Docking e Workspaces"
+        },
+        {
+          "path": "07-ui/viewport-gizmos-interaction.md",
+          "title": "Viewport, Gizmos e Ferramentas"
+        }
+      ]
+    },
+    {
+      "id": "project",
+      "title": "Projeto & Persistência",
+      "files": [
+        {
+          "path": "08-project/survivor-puppet-schema.md",
+          "title": "Schema survivor-puppet v1 e Persistência"
+        }
+      ]
+    },
+    {
+      "id": "interchange",
+      "title": "Exportação & Runtimes",
+      "files": [
+        {
+          "path": "09-interchange/export-spritesheets-runtimes.md",
+          "title": "Exportação de PNG, Spritesheet e Runtimes"
+        }
+      ]
+    },
+    {
+      "id": "quality",
+      "title": "Qualidade & Performance",
+      "files": [
+        {
+          "path": "10-quality/benchmarks-conformance.md",
+          "title": "Benchmarks, Conformance e Gates"
+        }
+      ]
+    },
+    {
+      "id": "code-agents",
+      "title": "Code Agents & Prumo",
+      "files": [
+        {
+          "path": "11-code-agents/index.md",
+          "title": "Code Agents — Comece aqui"
+        },
+        {
+          "path": "11-code-agents/reading-navigation.md",
+          "title": "Leitura, autoridade e contexto progressivo"
+        },
+        {
+          "path": "11-code-agents/implementation-protocol.md",
+          "title": "Protocolo de implementação e gap matrix"
+        },
+        {
+          "path": "11-code-agents/workforce-index.md",
+          "title": "Prumo Workforce — catálogo completo"
+        },
+        {
+          "path": "11-code-agents/agents-catalog.md",
+          "title": "Prumo — 39 Agents com links"
+        },
+        {
+          "path": "11-code-agents/skills-foundations.md",
+          "title": "Prumo Skills — Engenharia e Documentação"
+        },
+        {
+          "path": "11-code-agents/skills-experience.md",
+          "title": "Prumo Skills — Acessibilidade e UX"
+        },
+        {
+          "path": "11-code-agents/skills-engine-graphics.md",
+          "title": "Prumo Skills — Editor, Engine e Render"
+        },
+        {
+          "path": "11-code-agents/skills-languages-specialized.md",
+          "title": "Prumo Skills — Odin e Especialidades"
+        },
+        {
+          "path": "11-code-agents/recipes-catalog.md",
+          "title": "Prumo — 20 Recipes com links"
+        }
+      ]
+    }
+  ]
+}

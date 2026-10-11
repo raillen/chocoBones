@@ -1,0 +1,13 @@
+# Binaries and build artifacts
+bin/
+*.bin
+chocobones.bin
+*.zip
+
+# ImGui & local layout state
+imgui.ini
+layouts.ini
+
+# Prumo derived/runtime state
+.prumo/runtime/
+.prumo/cache/

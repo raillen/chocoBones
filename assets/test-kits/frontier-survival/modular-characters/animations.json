@@ -1,0 +1,1465 @@
+{
+  "schema": "frontier-survival.modular-animations.v1",
+  "purpose": "Reference FK cutout clips for the independent asset kit; not the native chocoBones project schema.",
+  "coordinates": {
+    "unit": "px",
+    "origin": "top-left",
+    "positive_rotation": "clockwise",
+    "angles": "local offsets in degrees from the shared rest pose",
+    "root_offset": "added to pelvis world translation"
+  },
+  "interpolation": "linear between adjacent samples; looping clips wrap last to first",
+  "joint_ids": [
+    "pelvis",
+    "torso",
+    "head",
+    "upper_arm_r",
+    "upper_arm_l",
+    "forearm_r",
+    "forearm_l",
+    "hand_r",
+    "hand_l",
+    "thigh_r",
+    "thigh_l",
+    "shin_r",
+    "shin_l",
+    "foot_r",
+    "foot_l"
+  ],
+  "render_canvas": {
+    "width": 768,
+    "height": 768,
+    "character_offset_px": [
+      128,
+      0
+    ],
+    "reason": "Side margins preserve weapons and moving limbs."
+  },
+  "export_cell": {
+    "width": 384,
+    "height": 384
+  },
+  "clips": [
+    {
+      "id": "idle",
+      "label": "Respiração / repouso",
+      "loop": true,
+      "duration_seconds": 1.6,
+      "sample_count": 8,
+      "fps": 5,
+      "recommended_equipment": "any",
+      "frames": [
+        {
+          "time_seconds": 0,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": 0,
+            "head": 0,
+            "upper_arm_r": 0,
+            "upper_arm_l": 0,
+            "forearm_r": -3,
+            "forearm_l": 3,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 0,
+            "thigh_l": 0,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            0
+          ]
+        },
+        {
+          "time_seconds": 0.2,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": 0.707,
+            "head": -0.424,
+            "upper_arm_r": -1.273,
+            "upper_arm_l": 1.273,
+            "forearm_r": -3,
+            "forearm_l": 3,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 0,
+            "thigh_l": 0,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            1.061
+          ]
+        },
+        {
+          "time_seconds": 0.4,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": 1,
+            "head": -0.6,
+            "upper_arm_r": -1.8,
+            "upper_arm_l": 1.8,
+            "forearm_r": -3,
+            "forearm_l": 3,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 0,
+            "thigh_l": 0,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            1.5
+          ]
+        },
+        {
+          "time_seconds": 0.6,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": 0.707,
+            "head": -0.424,
+            "upper_arm_r": -1.273,
+            "upper_arm_l": 1.273,
+            "forearm_r": -3,
+            "forearm_l": 3,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 0,
+            "thigh_l": 0,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            1.061
+          ]
+        },
+        {
+          "time_seconds": 0.8,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": 0,
+            "head": 0,
+            "upper_arm_r": 0,
+            "upper_arm_l": 0,
+            "forearm_r": -3,
+            "forearm_l": 3,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 0,
+            "thigh_l": 0,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            0
+          ]
+        },
+        {
+          "time_seconds": 1,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": -0.707,
+            "head": 0.424,
+            "upper_arm_r": 1.273,
+            "upper_arm_l": -1.273,
+            "forearm_r": -3,
+            "forearm_l": 3,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 0,
+            "thigh_l": 0,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            -1.061
+          ]
+        },
+        {
+          "time_seconds": 1.2,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": -1,
+            "head": 0.6,
+            "upper_arm_r": 1.8,
+            "upper_arm_l": -1.8,
+            "forearm_r": -3,
+            "forearm_l": 3,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 0,
+            "thigh_l": 0,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            -1.5
+          ]
+        },
+        {
+          "time_seconds": 1.4,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": -0.707,
+            "head": 0.424,
+            "upper_arm_r": 1.273,
+            "upper_arm_l": -1.273,
+            "forearm_r": -3,
+            "forearm_l": 3,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 0,
+            "thigh_l": 0,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            -1.061
+          ]
+        }
+      ]
+    },
+    {
+      "id": "walk",
+      "label": "Caminhada",
+      "loop": true,
+      "duration_seconds": 1,
+      "sample_count": 8,
+      "fps": 8,
+      "recommended_equipment": "any",
+      "frames": [
+        {
+          "time_seconds": 0,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": -1.5,
+            "head": 1,
+            "upper_arm_r": 0,
+            "upper_arm_l": 0,
+            "forearm_r": -8,
+            "forearm_l": 8,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 0,
+            "thigh_l": 0,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            -3
+          ]
+        },
+        {
+          "time_seconds": 0.125,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": -1.061,
+            "head": 0.707,
+            "upper_arm_r": 14.142,
+            "upper_arm_l": -14.142,
+            "forearm_r": -8,
+            "forearm_l": 8,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": -15.556,
+            "thigh_l": 15.556,
+            "shin_r": 21.213,
+            "shin_l": 0,
+            "foot_r": 5.657,
+            "foot_l": -5.657
+          },
+          "root_offset_px": [
+            0,
+            -2.121
+          ]
+        },
+        {
+          "time_seconds": 0.25,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": 0,
+            "head": 0,
+            "upper_arm_r": 20,
+            "upper_arm_l": -20,
+            "forearm_r": -8,
+            "forearm_l": 8,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": -22,
+            "thigh_l": 22,
+            "shin_r": 30,
+            "shin_l": 0,
+            "foot_r": 8,
+            "foot_l": -8
+          },
+          "root_offset_px": [
+            0,
+            0
+          ]
+        },
+        {
+          "time_seconds": 0.375,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": 1.061,
+            "head": -0.707,
+            "upper_arm_r": 14.142,
+            "upper_arm_l": -14.142,
+            "forearm_r": -8,
+            "forearm_l": 8,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": -15.556,
+            "thigh_l": 15.556,
+            "shin_r": 21.213,
+            "shin_l": 0,
+            "foot_r": 5.657,
+            "foot_l": -5.657
+          },
+          "root_offset_px": [
+            0,
+            -2.121
+          ]
+        },
+        {
+          "time_seconds": 0.5,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": 1.5,
+            "head": -1,
+            "upper_arm_r": 0,
+            "upper_arm_l": 0,
+            "forearm_r": -8,
+            "forearm_l": 8,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 0,
+            "thigh_l": 0,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            -3
+          ]
+        },
+        {
+          "time_seconds": 0.625,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": 1.061,
+            "head": -0.707,
+            "upper_arm_r": -14.142,
+            "upper_arm_l": 14.142,
+            "forearm_r": -8,
+            "forearm_l": 8,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 15.556,
+            "thigh_l": -15.556,
+            "shin_r": 0,
+            "shin_l": 21.213,
+            "foot_r": -5.657,
+            "foot_l": 5.657
+          },
+          "root_offset_px": [
+            0,
+            -2.121
+          ]
+        },
+        {
+          "time_seconds": 0.75,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": 0,
+            "head": 0,
+            "upper_arm_r": -20,
+            "upper_arm_l": 20,
+            "forearm_r": -8,
+            "forearm_l": 8,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 22,
+            "thigh_l": -22,
+            "shin_r": 0,
+            "shin_l": 30,
+            "foot_r": -8,
+            "foot_l": 8
+          },
+          "root_offset_px": [
+            0,
+            0
+          ]
+        },
+        {
+          "time_seconds": 0.875,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": -1.061,
+            "head": 0.707,
+            "upper_arm_r": -14.142,
+            "upper_arm_l": 14.142,
+            "forearm_r": -8,
+            "forearm_l": 8,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 15.556,
+            "thigh_l": -15.556,
+            "shin_r": 0,
+            "shin_l": 21.213,
+            "foot_r": -5.657,
+            "foot_l": 5.657
+          },
+          "root_offset_px": [
+            0,
+            -2.121
+          ]
+        }
+      ]
+    },
+    {
+      "id": "run",
+      "label": "Corrida",
+      "loop": true,
+      "duration_seconds": 0.65,
+      "sample_count": 8,
+      "fps": 12.307692307692307,
+      "recommended_equipment": "any",
+      "frames": [
+        {
+          "time_seconds": 0,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": -7,
+            "head": 4,
+            "upper_arm_r": 0,
+            "upper_arm_l": 0,
+            "forearm_r": -20,
+            "forearm_l": 20,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 0,
+            "thigh_l": 0,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            -7
+          ]
+        },
+        {
+          "time_seconds": 0.08125,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": -6.414,
+            "head": 4,
+            "upper_arm_r": 24.042,
+            "upper_arm_l": -24.042,
+            "forearm_r": -20,
+            "forearm_l": 20,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": -24.042,
+            "thigh_l": 24.042,
+            "shin_r": 31.113,
+            "shin_l": 0,
+            "foot_r": 9.899,
+            "foot_l": -9.899
+          },
+          "root_offset_px": [
+            0,
+            -4.95
+          ]
+        },
+        {
+          "time_seconds": 0.1625,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": -5,
+            "head": 4,
+            "upper_arm_r": 34,
+            "upper_arm_l": -34,
+            "forearm_r": -20,
+            "forearm_l": 20,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": -34,
+            "thigh_l": 34,
+            "shin_r": 44,
+            "shin_l": 0,
+            "foot_r": 14,
+            "foot_l": -14
+          },
+          "root_offset_px": [
+            0,
+            0
+          ]
+        },
+        {
+          "time_seconds": 0.24375,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": -3.586,
+            "head": 4,
+            "upper_arm_r": 24.042,
+            "upper_arm_l": -24.042,
+            "forearm_r": -20,
+            "forearm_l": 20,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": -24.042,
+            "thigh_l": 24.042,
+            "shin_r": 31.113,
+            "shin_l": 0,
+            "foot_r": 9.899,
+            "foot_l": -9.899
+          },
+          "root_offset_px": [
+            0,
+            -4.95
+          ]
+        },
+        {
+          "time_seconds": 0.325,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": -3,
+            "head": 4,
+            "upper_arm_r": 0,
+            "upper_arm_l": 0,
+            "forearm_r": -20,
+            "forearm_l": 20,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 0,
+            "thigh_l": 0,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            -7
+          ]
+        },
+        {
+          "time_seconds": 0.40625,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": -3.586,
+            "head": 4,
+            "upper_arm_r": -24.042,
+            "upper_arm_l": 24.042,
+            "forearm_r": -20,
+            "forearm_l": 20,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 24.042,
+            "thigh_l": -24.042,
+            "shin_r": 0,
+            "shin_l": 31.113,
+            "foot_r": -9.899,
+            "foot_l": 9.899
+          },
+          "root_offset_px": [
+            0,
+            -4.95
+          ]
+        },
+        {
+          "time_seconds": 0.4875,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": -5,
+            "head": 4,
+            "upper_arm_r": -34,
+            "upper_arm_l": 34,
+            "forearm_r": -20,
+            "forearm_l": 20,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 34,
+            "thigh_l": -34,
+            "shin_r": 0,
+            "shin_l": 44,
+            "foot_r": -14,
+            "foot_l": 14
+          },
+          "root_offset_px": [
+            0,
+            0
+          ]
+        },
+        {
+          "time_seconds": 0.56875,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": -6.414,
+            "head": 4,
+            "upper_arm_r": -24.042,
+            "upper_arm_l": 24.042,
+            "forearm_r": -20,
+            "forearm_l": 20,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 24.042,
+            "thigh_l": -24.042,
+            "shin_r": 0,
+            "shin_l": 31.113,
+            "foot_r": -9.899,
+            "foot_l": 9.899
+          },
+          "root_offset_px": [
+            0,
+            -4.95
+          ]
+        }
+      ]
+    },
+    {
+      "id": "melee-attack",
+      "label": "Golpe com espada",
+      "loop": false,
+      "duration_seconds": 0.8,
+      "sample_count": 8,
+      "fps": 10,
+      "recommended_equipment": "melee",
+      "frames": [
+        {
+          "time_seconds": 0,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": 0,
+            "head": 0,
+            "upper_arm_r": -8,
+            "upper_arm_l": 0,
+            "forearm_r": -15,
+            "forearm_l": 0,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 4,
+            "thigh_l": -4,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            0
+          ]
+        },
+        {
+          "time_seconds": 0.11429,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": -3,
+            "head": 1.5,
+            "upper_arm_r": -8,
+            "upper_arm_l": -18,
+            "forearm_r": -15,
+            "forearm_l": -10,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 4,
+            "thigh_l": -4,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            0
+          ]
+        },
+        {
+          "time_seconds": 0.22857,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": -6,
+            "head": 3,
+            "upper_arm_r": -8,
+            "upper_arm_l": -34,
+            "forearm_r": -15,
+            "forearm_l": -18,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 4,
+            "thigh_l": -4,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            0
+          ]
+        },
+        {
+          "time_seconds": 0.34286,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": -3,
+            "head": 1.5,
+            "upper_arm_r": -8,
+            "upper_arm_l": -22,
+            "forearm_r": -15,
+            "forearm_l": -5,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 4,
+            "thigh_l": -4,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            0
+          ]
+        },
+        {
+          "time_seconds": 0.45714,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": 5,
+            "head": -2.5,
+            "upper_arm_r": -8,
+            "upper_arm_l": 22,
+            "forearm_r": -15,
+            "forearm_l": 20,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 4,
+            "thigh_l": -4,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            0
+          ]
+        },
+        {
+          "time_seconds": 0.57143,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": 7,
+            "head": -3.5,
+            "upper_arm_r": -8,
+            "upper_arm_l": 32,
+            "forearm_r": -15,
+            "forearm_l": 12,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 4,
+            "thigh_l": -4,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            0
+          ]
+        },
+        {
+          "time_seconds": 0.68571,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": 3,
+            "head": -1.5,
+            "upper_arm_r": -8,
+            "upper_arm_l": 12,
+            "forearm_r": -15,
+            "forearm_l": 5,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 4,
+            "thigh_l": -4,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            0
+          ]
+        },
+        {
+          "time_seconds": 0.8,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": 0,
+            "head": 0,
+            "upper_arm_r": -8,
+            "upper_arm_l": 0,
+            "forearm_r": -15,
+            "forearm_l": 0,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 4,
+            "thigh_l": -4,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ranged-fire",
+      "label": "Mira e recuo de arma de fogo",
+      "loop": false,
+      "duration_seconds": 0.9,
+      "sample_count": 8,
+      "fps": 8.88888888888889,
+      "recommended_equipment": "firearm",
+      "frames": [
+        {
+          "time_seconds": 0,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": 0,
+            "head": 2,
+            "upper_arm_r": 0,
+            "upper_arm_l": 0,
+            "forearm_r": 0,
+            "forearm_l": 0,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 0,
+            "thigh_l": 0,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            0
+          ]
+        },
+        {
+          "time_seconds": 0.12857,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": -2,
+            "head": 2,
+            "upper_arm_r": 10,
+            "upper_arm_l": -22,
+            "forearm_r": 12,
+            "forearm_l": -8,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 0,
+            "thigh_l": 0,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            0
+          ]
+        },
+        {
+          "time_seconds": 0.25714,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": -4,
+            "head": 2,
+            "upper_arm_r": 20,
+            "upper_arm_l": -40,
+            "forearm_r": 30,
+            "forearm_l": -18,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 0,
+            "thigh_l": 0,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            0
+          ]
+        },
+        {
+          "time_seconds": 0.38571,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": -4,
+            "head": 2,
+            "upper_arm_r": 20,
+            "upper_arm_l": -42,
+            "forearm_r": 30,
+            "forearm_l": -20,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 0,
+            "thigh_l": 0,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            0
+          ]
+        },
+        {
+          "time_seconds": 0.51429,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": -6,
+            "head": 2,
+            "upper_arm_r": 24,
+            "upper_arm_l": -48,
+            "forearm_r": 36,
+            "forearm_l": -26,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 0,
+            "thigh_l": 0,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            0
+          ]
+        },
+        {
+          "time_seconds": 0.64286,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": -4,
+            "head": 2,
+            "upper_arm_r": 20,
+            "upper_arm_l": -42,
+            "forearm_r": 30,
+            "forearm_l": -20,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 0,
+            "thigh_l": 0,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            0
+          ]
+        },
+        {
+          "time_seconds": 0.77143,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": -2,
+            "head": 2,
+            "upper_arm_r": 10,
+            "upper_arm_l": -20,
+            "forearm_r": 12,
+            "forearm_l": -8,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 0,
+            "thigh_l": 0,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            0
+          ]
+        },
+        {
+          "time_seconds": 0.9,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": 0,
+            "head": 2,
+            "upper_arm_r": 0,
+            "upper_arm_l": 0,
+            "forearm_r": 0,
+            "forearm_l": 0,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 0,
+            "thigh_l": 0,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "shield-block",
+      "label": "Defesa com escudo",
+      "loop": false,
+      "duration_seconds": 1,
+      "sample_count": 8,
+      "fps": 8,
+      "recommended_equipment": "shield",
+      "frames": [
+        {
+          "time_seconds": 0,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": 0,
+            "head": 0,
+            "upper_arm_r": 0,
+            "upper_arm_l": -8,
+            "forearm_r": 0,
+            "forearm_l": 5,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 5,
+            "thigh_l": -5,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            0
+          ]
+        },
+        {
+          "time_seconds": 0.14286,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": 1,
+            "head": 0,
+            "upper_arm_r": 10,
+            "upper_arm_l": -8,
+            "forearm_r": 10,
+            "forearm_l": 5,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 5,
+            "thigh_l": -5,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            1
+          ]
+        },
+        {
+          "time_seconds": 0.28571,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": 3,
+            "head": 0,
+            "upper_arm_r": 22,
+            "upper_arm_l": -8,
+            "forearm_r": 24,
+            "forearm_l": 5,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 5,
+            "thigh_l": -5,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            3
+          ]
+        },
+        {
+          "time_seconds": 0.42857,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": 4,
+            "head": 0,
+            "upper_arm_r": 24,
+            "upper_arm_l": -8,
+            "forearm_r": 28,
+            "forearm_l": 5,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 5,
+            "thigh_l": -5,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            4
+          ]
+        },
+        {
+          "time_seconds": 0.57143,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": 4,
+            "head": 0,
+            "upper_arm_r": 24,
+            "upper_arm_l": -8,
+            "forearm_r": 28,
+            "forearm_l": 5,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 5,
+            "thigh_l": -5,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            4
+          ]
+        },
+        {
+          "time_seconds": 0.71429,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": 3,
+            "head": 0,
+            "upper_arm_r": 22,
+            "upper_arm_l": -8,
+            "forearm_r": 24,
+            "forearm_l": 5,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 5,
+            "thigh_l": -5,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            3
+          ]
+        },
+        {
+          "time_seconds": 0.85714,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": 1,
+            "head": 0,
+            "upper_arm_r": 10,
+            "upper_arm_l": -8,
+            "forearm_r": 10,
+            "forearm_l": 5,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 5,
+            "thigh_l": -5,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            1
+          ]
+        },
+        {
+          "time_seconds": 1,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": 0,
+            "head": 0,
+            "upper_arm_r": 0,
+            "upper_arm_l": -8,
+            "forearm_r": 0,
+            "forearm_l": 5,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 5,
+            "thigh_l": -5,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hit",
+      "label": "Reação a impacto",
+      "loop": false,
+      "duration_seconds": 0.7,
+      "sample_count": 8,
+      "fps": 11.428571428571429,
+      "recommended_equipment": "any",
+      "frames": [
+        {
+          "time_seconds": 0,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": 0,
+            "head": 0,
+            "upper_arm_r": 0,
+            "upper_arm_l": 0,
+            "forearm_r": 0,
+            "forearm_l": 0,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 0,
+            "thigh_l": 0,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            0
+          ]
+        },
+        {
+          "time_seconds": 0.1,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": 4,
+            "head": -4.4,
+            "upper_arm_r": -5.6,
+            "upper_arm_l": 5.6,
+            "forearm_r": -4,
+            "forearm_l": 4,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": -1.2,
+            "thigh_l": 1.2,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            1
+          ]
+        },
+        {
+          "time_seconds": 0.2,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": 8,
+            "head": -8.8,
+            "upper_arm_r": -11.2,
+            "upper_arm_l": 11.2,
+            "forearm_r": -8,
+            "forearm_l": 8,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": -2.4,
+            "thigh_l": 2.4,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            3
+          ]
+        },
+        {
+          "time_seconds": 0.3,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": 6,
+            "head": -6.6,
+            "upper_arm_r": -8.4,
+            "upper_arm_l": 8.4,
+            "forearm_r": -6,
+            "forearm_l": 6,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": -1.8,
+            "thigh_l": 1.8,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            2
+          ]
+        },
+        {
+          "time_seconds": 0.4,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": 3,
+            "head": -3.3,
+            "upper_arm_r": -4.2,
+            "upper_arm_l": 4.2,
+            "forearm_r": -3,
+            "forearm_l": 3,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": -0.9,
+            "thigh_l": 0.9,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            1
+          ]
+        },
+        {
+          "time_seconds": 0.5,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": -2,
+            "head": 2.2,
+            "upper_arm_r": 2.8,
+            "upper_arm_l": -2.8,
+            "forearm_r": -2,
+            "forearm_l": 2,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 0.6,
+            "thigh_l": -0.6,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            0
+          ]
+        },
+        {
+          "time_seconds": 0.6,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": -1,
+            "head": 1.1,
+            "upper_arm_r": 1.4,
+            "upper_arm_l": -1.4,
+            "forearm_r": -1,
+            "forearm_l": 1,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 0.3,
+            "thigh_l": -0.3,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            0
+          ]
+        },
+        {
+          "time_seconds": 0.7,
+          "angles_deg": {
+            "pelvis": 0,
+            "torso": 0,
+            "head": 0,
+            "upper_arm_r": 0,
+            "upper_arm_l": 0,
+            "forearm_r": 0,
+            "forearm_l": 0,
+            "hand_r": 0,
+            "hand_l": 0,
+            "thigh_r": 0,
+            "thigh_l": 0,
+            "shin_r": 0,
+            "shin_l": 0,
+            "foot_r": 0,
+            "foot_l": 0
+          },
+          "root_offset_px": [
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ]
+}

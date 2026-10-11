@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "updated_at": "2026-10-11T19:18:20Z",
+  "summary": {
+    "cached_tokens": 0,
+    "direct_cost": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "tasks": 0
+  },
+  "tasks": [],
+  "debt": [],
+  "metrics_note": "Os zeros de summary sao o baseline preexistente do Prumo. Custos e tokens desta implementacao nao foram medidos; nenhuma metrica de consumo foi inferida. Nao ha Goal ou TaskEntry formal criado para esta entrega.",
+  "implementation_evidence": [
+    {
+      "id": "editor-ui-appearance-workspaces-2026-10-11",
+      "kind": "local-implementation-evidence",
+      "recorded_at": "2026-10-11T19:18:20Z",
+      "status": "implemented-and-validated-in-xvfb",
+      "formal_goal": null,
+      "canonical_document": "docs/development/editor-ui.md",
+      "changes": [
+        "Temas Dark/Light, accent presets/RGB/HEX e fontes Inter/Phosphor",
+        "Composicao compacta e layouts independentes Montagem/Rig/Animacao/Foco",
+        "Preferencias JSON v1 e docking INI no diretorio SDL, separados do personagem",
+        "Mapeamento explicito de ferramentas e coordenadas proporcionais do palco",
+        "Exportacao de personagem invariavel entre temas e accents extremos"
+      ],
+      "verification": {
+        "odin_check": {"command": "odin check src", "result": "passed"},
+        "odin_build": {"command": "odin build src -out:bin/chocobones", "result": "passed"},
+        "odin_tests": {"command": "odin test tests", "result": "passed", "test_count": 41},
+        "native_matrix": {
+          "script": "scripts/qa_editor_ui.py",
+          "result": "passed",
+          "case_count": 18,
+          "themes": ["dark", "light"],
+          "resolutions": ["1280x720", "1440x900", "1920x1080"],
+          "scales": [1, 1.5, 2],
+          "report": "/home/raillen/.codex/visualizations/2026/10/11/01a12c37-d2a6-7871-8894-44640df44ef9/chocobones/matrix.json"
+        },
+        "native_interactions": {
+          "script": "scripts/qa_editor_interactions.py",
+          "result": "passed",
+          "exit_code": 0,
+          "check_count": 14,
+          "observed_drag": "30 screen pixels correspond to 30 * 512 / 756 document units",
+          "export_comparison": "PNG SHA-256 unchanged across Light/Dark, black/white and custom accent",
+          "restart": "light theme, #123456 accent and four workspace layouts persisted; ImageMagick assertion passed",
+          "spritesheet": "Existing eight animation frames exported as 2048x1024 PNG",
+          "scrolling": "At 1280x720 and 200%, scroll exposed and selected the Weight tool",
+          "timeline": "Record/delete keyframes and keyboard focus passed; compact timeline at 1280x720/200% inspected with full controls and no unnecessary clipping/scrolling",
+          "report": "/home/raillen/.codex/visualizations/2026/10/11/01a12c37-d2a6-7871-8894-44640df44ef9/chocobones/interaction.json"
+        }
+      },
+      "environment": {
+        "display": "Xvfb :99",
+        "renderer": "native SDL2/OpenGL with software OpenGL",
+        "user_hardware_validated": false
+      },
+      "remaining_implementation": [],
+      "limitations": ["Native QA used Xvfb and software OpenGL; physical desktop, DPI and GPU/driver acceptance on user hardware were not run"],
+      "schema_note": "No machine-readable TaskEntry schema was available in the project. This named evidence record preserves the existing version/summary/tasks/debt envelope and is not a formal Prumo TaskEntry."
+    }
+  ]
+}

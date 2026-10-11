@@ -1,0 +1,38 @@
+{
+  "generated_by": {
+    "prumo": "0.2.0"
+  },
+  "recipes": [
+    "documentation-refactor",
+    "engine-renderer",
+    "feature-standard",
+    "security-review",
+    "ui-feature",
+    "ui-review"
+  ],
+  "reasons": {
+    "documentation-refactor": [
+      "feature"
+    ],
+    "engine-renderer": [
+      "bundle:game-engine",
+      "feature",
+      "project-type"
+    ],
+    "feature-standard": [
+      "bundle:desktop",
+      "bundle:game-engine"
+    ],
+    "security-review": [
+      "risk",
+      "risk-rule:security-risk"
+    ],
+    "ui-feature": [
+      "bundle:desktop",
+      "feature"
+    ],
+    "ui-review": [
+      "feature"
+    ]
+  }
+}

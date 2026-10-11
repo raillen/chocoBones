@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "packages": [
+    {
+      "id": "architecture-quality",
+      "version": "0.6.0",
+      "checksum": "9027bf0b07ab66a20e080c1ca5e907a4459c6b2fa8011db06be26722963634fc",
+      "type": "skill"
+    },
+    {
+      "id": "clean-code",
+      "version": "0.6.0",
+      "checksum": "408a3e39d7cdc186ae38a7da0fb958092f5cd490ea354e096fcc7859c8df227d",
+      "type": "skill"
+    },
+    {
+      "id": "code-review",
+      "version": "0.6.0",
+      "checksum": "8d01bc0b806529602c92be3f5c0201a115d27c72b60e9cee7e31979a382eeb49",
+      "type": "skill"
+    },
+    {
+      "id": "cognitive-clarity",
+      "version": "0.6.0",
+      "checksum": "a6502dba89a836d1943e50c0c66f84b9982e0f52cfe5d022c32dcbf60f758341",
+      "type": "skill"
+    },
+    {
+      "id": "dependency-management",
+      "version": "0.6.0",
+      "checksum": "d7a59bcce75acd8f70f7f208012cee8d732400d542ea167b7c745087001a23f0",
+      "type": "skill"
+    },
+    {
+      "id": "documentation",
+      "version": "0.6.0",
+      "checksum": "2d2c2e75b79ed21dcedea00ac227a13e9de4e4b65a3f5b844e6a0fedce5af4b1",
+      "type": "skill"
+    },
+    {
+      "id": "error-handling",
+      "version": "0.6.0",
+      "checksum": "52f46983e968156cee380a4cdac817a2327aa1d18f62b0ede8a49c32f89406fa",
+      "type": "skill"
+    },
+    {
+      "id": "git-workflow",
+      "version": "0.6.0",
+      "checksum": "d4bd6656cead02b83c11536de56c914b604286fcbe43786a2002fe0d8c8f2198",
+      "type": "skill"
+    },
+    {
+      "id": "goal-management",
+      "version": "0.6.0",
+      "checksum": "16a3c8e5e0cd41fb8153e33a880e1da5b5ed7b12761b4e46b91dcd10fb04c4c6",
+      "type": "skill"
+    },
+    {
+      "id": "lean-progressive-context",
+      "version": "0.6.0",
+      "checksum": "72271b02aa7794fa7bd2606281d6c0df49a62e24677e1358b95f5b7a16f21601",
+      "type": "skill"
+    },
+    {
+      "id": "project-intelligence",
+      "version": "0.6.0",
+      "checksum": "d0922c534ce900ee5da0376ececf7853cb930c42080cb9e324d648114804a5d3",
+      "type": "skill"
+    },
+    {
+      "id": "prumo-navigation",
+      "version": "0.6.0",
+      "checksum": "fd789d28608b596365fec7d28200d9a8ccfccedf8ad9bf42d16843fa3da5f941",
+      "type": "skill"
+    },
+    {
+      "id": "refactoring",
+      "version": "0.6.0",
+      "checksum": "f9ac8cbf13c5b7e73726e09ebef7d459cfbad65c2e99255e6ce51112cc96c60e",
+      "type": "skill"
+    },
+    {
+      "id": "release-engineering",
+      "version": "0.6.0",
+      "checksum": "9d6ff0b1a7fcf39d4e0af9eb8ee602d5fb57d624d0acb9ddfb7e63f14bccc929",
+      "type": "skill"
+    },
+    {
+      "id": "testing-quality",
+      "version": "0.6.0",
+      "checksum": "0d7844fc4994270a1122e3f5c8a0cc8f55f554df8e49542128eab504fda67c48",
+      "type": "skill"
+    }
+  ]
+}

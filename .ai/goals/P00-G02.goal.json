@@ -1,0 +1,84 @@
+{
+  "acceptance": [
+    "Native 2D sprite/image import via file dialog (.png, .jpg, .jpeg) and SDL_DROPFILE drag-and-drop into project assets and layer stack.",
+    "Customizable bones: create new bone, remove bone (with child reparenting), rename bone (id and display name), reparent bone, and edit rest coordinates.",
+    "Preconfigured bone presets: Humanoid (14 joints), Simple Biped (8 joints), Quadruped (11 joints), Prop (2 joints), and Empty/Custom.",
+    "Multi-clip animation library in AppState and UI clip switcher in the timeline/toolbar.",
+    "Pre-built animation pack (Idle, Walk, Run, Melee Attack, Shield Block) and smooth out-of-the-box functional sample animation on startup.",
+    "Automated tests for custom joints, hierarchy validation, rig presets, animation presets, and image import.",
+    "Clean build without errors: odin check src, odin test tests, and odin build src -out:bin/chocobones.",
+    "Updated canonical documentation in docs/ and synchronized CHANGELOG.md."
+  ],
+  "constraints": [
+    "Adhere to Clean Architecture and Odin memory tracking with zero leaks.",
+    "Keep exported PNG and existing project file backwards compatibility."
+  ],
+  "context": {
+    "budget_profile": "medium",
+    "max_delegation_depth": 1
+  },
+  "dependencies": [],
+  "evidence": [],
+  "gates": {
+    "documentation_impact": "required",
+    "project_intelligence": "required",
+    "review": "required",
+    "tests": "required"
+  },
+  "history": [
+    {
+      "at": "2026-10-11T19:55:33.552283189Z",
+      "event": "created",
+      "state": "DRAFT"
+    },
+    {
+      "at": "2026-10-11T19:57:23.381982669Z",
+      "event": "state-transition",
+      "from": "DRAFT",
+      "reason": "",
+      "to": "PLANNED"
+    },
+    {
+      "at": "2026-10-11T19:57:23.38500308Z",
+      "event": "state-transition",
+      "from": "PLANNED",
+      "reason": "",
+      "to": "LOCKED"
+    },
+    {
+      "at": "2026-10-11T19:57:23.523465626Z",
+      "event": "state-transition",
+      "from": "LOCKED",
+      "reason": "",
+      "to": "EXECUTING"
+    },
+    {
+      "at": "2026-10-11T20:29:23.514279069Z",
+      "event": "state-transition",
+      "from": "EXECUTING",
+      "reason": "",
+      "to": "VERIFYING"
+    },
+    {
+      "at": "2026-10-11T20:29:26.467326318Z",
+      "event": "state-transition",
+      "from": "VERIFYING",
+      "reason": "",
+      "to": "REVIEWING"
+    }
+  ],
+  "id": "P00-G02",
+  "lock": {
+    "digest": "07c92d2272ab1412b5107b990c1ce88a7e6b8faf0e02aef34393f8ee0ff00bf9",
+    "locked_at": "2026-10-11T19:57:23.385001176Z",
+    "revision": 1
+  },
+  "non_goals": [
+    "3D skeletal mesh skinning (keep focused on 2D puppet rig while preserving existing 3D viewer)."
+  ],
+  "objective": "Implement native 2D image import, customizable bones/rig presets, multi-clip animation library and fluid functional sample animation",
+  "phase": "P00",
+  "revision": 1,
+  "state": "REVIEWING",
+  "title": "Dynamic Rigging, Native Asset Import and Animation Library"
+}

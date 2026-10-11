@@ -1,0 +1,92 @@
+{
+  "generated_by": {
+    "prumo": "0.2.0"
+  },
+  "agents": [
+    "accessibility-reviewer",
+    "architect",
+    "compiler-engineer",
+    "debugger",
+    "design-researcher",
+    "design-system-engineer",
+    "documentation-maintainer",
+    "editor-engineer",
+    "engine-engineer",
+    "explorer",
+    "implementer",
+    "release-verifier",
+    "renderer-engineer",
+    "reviewer",
+    "security-architect",
+    "security-reviewer",
+    "tester",
+    "ux-architect"
+  ],
+  "reasons": {
+    "accessibility-reviewer": [
+      "feature",
+      "risk"
+    ],
+    "architect": [
+      "core"
+    ],
+    "compiler-engineer": [
+      "project-type"
+    ],
+    "debugger": [
+      "core"
+    ],
+    "design-researcher": [
+      "feature"
+    ],
+    "design-system-engineer": [
+      "feature"
+    ],
+    "documentation-maintainer": [
+      "core"
+    ],
+    "editor-engineer": [
+      "bundle:desktop",
+      "bundle:game-engine",
+      "feature",
+      "project-type"
+    ],
+    "engine-engineer": [
+      "bundle:game-engine",
+      "project-type"
+    ],
+    "explorer": [
+      "core"
+    ],
+    "implementer": [
+      "bundle:game-engine",
+      "core"
+    ],
+    "release-verifier": [
+      "core"
+    ],
+    "renderer-engineer": [
+      "bundle:game-engine",
+      "feature"
+    ],
+    "reviewer": [
+      "bundle:desktop",
+      "bundle:game-engine",
+      "core"
+    ],
+    "security-architect": [
+      "risk"
+    ],
+    "security-reviewer": [
+      "risk"
+    ],
+    "tester": [
+      "bundle:desktop",
+      "bundle:game-engine",
+      "core"
+    ],
+    "ux-architect": [
+      "feature"
+    ]
+  }
+}

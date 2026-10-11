@@ -1,0 +1,78 @@
+{
+  "id": "lang-odin",
+  "name": "Odin Context Management & Memory Control",
+  "version": 1,
+  "schema_version": 2,
+  "purpose": "Enforce Odin explicit context control, custom allocators, distinct type safety, and cache-friendly memory layouts (SoA/AoS).",
+  "risk_level": "critical",
+  "modes": [
+    "implementation",
+    "review",
+    "testing"
+  ],
+  "inputs": [
+    "Odin source files (.odin)",
+    "Odin project directory",
+    "Active task acceptance criteria"
+  ],
+  "outputs": [
+    "Type-safe Odin implementation",
+    "Tracking allocator verification evidence",
+    "Unit test evidence"
+  ],
+  "requires": [
+    "clean-code",
+    "testing-quality",
+    "secure-coding"
+  ],
+  "conflicts": [],
+  "capabilities": [
+    "filesystem.read",
+    "filesystem.write",
+    "process.spawn"
+  ],
+  "references": [
+    "references/odin-context.md"
+  ],
+  "templates": [
+    "templates/odin-verification-report.md"
+  ],
+  "checks": [
+    "checks/odin-rules.md"
+  ],
+  "scripts": [
+    "scripts/verify.sh"
+  ],
+  "examples": [
+    "examples/safe-odin.odin"
+  ],
+  "required_evidence": [
+    "test",
+    "build",
+    "lint"
+  ],
+  "stop_conditions": [
+    "Task acceptance criteria satisfied with evidence",
+    "Odin tracking allocator reports 0 leaks",
+    "Token budget exhausted",
+    "Blocked on external dependency"
+  ],
+  "provenance": {
+    "origin": "framework",
+    "license": "MIT",
+    "source": "prumo",
+    "version": "0.4.0",
+    "checksum": "",
+    "modified": "2026-09-09"
+  },
+  "select": {
+    "stack_any": [
+      "odin",
+      "odinlang"
+    ]
+  },
+  "requires_any": [],
+  "tools": [
+    "check-escape-hatches"
+  ]
+}

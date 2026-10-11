@@ -1,0 +1,2684 @@
+{
+  "schema": "frontier-survival.modular-characters.v1",
+  "originalArtwork": true,
+  "canvas": {
+    "width": 512,
+    "height": 768,
+    "unit": "px",
+    "origin": "top-left",
+    "background": "transparent"
+  },
+  "handedness": "l/r are anatomical; l appears at viewer right",
+  "models": [
+    "male",
+    "female"
+  ],
+  "characters": [
+    {
+      "id": "male",
+      "label": "Homem",
+      "parts": [
+        "male_upper_arm_r",
+        "male_upper_arm_l",
+        "male_forearm_r",
+        "male_forearm_l",
+        "male_hand_r",
+        "male_hand_l",
+        "male_thigh_r",
+        "male_thigh_l",
+        "male_shin_r",
+        "male_shin_l",
+        "male_foot_r",
+        "male_foot_l",
+        "male_pelvis",
+        "male_torso",
+        "male_head"
+      ],
+      "underwear": [
+        "underwear_male"
+      ],
+      "defaults": {
+        "hair": "hair_crop",
+        "eyes": "eyes_calm",
+        "brows": "brows_straight",
+        "nose": "nose_angular",
+        "mouth": "mouth_neutral",
+        "headShape": "head_male_oval"
+      }
+    },
+    {
+      "id": "female",
+      "label": "Mulher",
+      "parts": [
+        "female_upper_arm_r",
+        "female_upper_arm_l",
+        "female_forearm_r",
+        "female_forearm_l",
+        "female_hand_r",
+        "female_hand_l",
+        "female_thigh_r",
+        "female_thigh_l",
+        "female_shin_r",
+        "female_shin_l",
+        "female_foot_r",
+        "female_foot_l",
+        "female_pelvis",
+        "female_torso",
+        "female_head"
+      ],
+      "underwear": [
+        "underwear_female",
+        "underwear_female_top"
+      ],
+      "defaults": {
+        "hair": "hair_bob",
+        "eyes": "eyes_soft",
+        "brows": "brows_arched",
+        "nose": "nose_soft",
+        "mouth": "mouth_full",
+        "headShape": "head_female_oval"
+      }
+    }
+  ],
+  "skeleton": [
+    {
+      "id": "pelvis",
+      "pivot": [
+        256,
+        376
+      ],
+      "parent": null,
+      "z": 20
+    },
+    {
+      "id": "torso",
+      "pivot": [
+        256,
+        276
+      ],
+      "parent": "pelvis",
+      "z": 50
+    },
+    {
+      "id": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "parent": "torso",
+      "z": 60
+    },
+    {
+      "id": "upper_arm_r",
+      "pivot": [
+        210,
+        224
+      ],
+      "parent": "torso",
+      "z": 40,
+      "distal": [
+        181,
+        296
+      ]
+    },
+    {
+      "id": "upper_arm_l",
+      "pivot": [
+        302,
+        224
+      ],
+      "parent": "torso",
+      "z": 41,
+      "distal": [
+        331,
+        296
+      ]
+    },
+    {
+      "id": "forearm_r",
+      "pivot": [
+        180,
+        299
+      ],
+      "parent": "upper_arm_r",
+      "z": 30,
+      "distal": [
+        162,
+        374
+      ]
+    },
+    {
+      "id": "forearm_l",
+      "pivot": [
+        332,
+        299
+      ],
+      "parent": "upper_arm_l",
+      "z": 31,
+      "distal": [
+        350,
+        374
+      ]
+    },
+    {
+      "id": "hand_r",
+      "pivot": [
+        162,
+        380
+      ],
+      "parent": "forearm_r",
+      "z": 65
+    },
+    {
+      "id": "hand_l",
+      "pivot": [
+        350,
+        380
+      ],
+      "parent": "forearm_l",
+      "z": 66
+    },
+    {
+      "id": "thigh_r",
+      "pivot": [
+        220,
+        396
+      ],
+      "parent": "pelvis",
+      "z": 10,
+      "distal": [
+        220,
+        523
+      ]
+    },
+    {
+      "id": "thigh_l",
+      "pivot": [
+        292,
+        396
+      ],
+      "parent": "pelvis",
+      "z": 11,
+      "distal": [
+        292,
+        523
+      ]
+    },
+    {
+      "id": "shin_r",
+      "pivot": [
+        218,
+        524
+      ],
+      "parent": "thigh_r",
+      "z": 12,
+      "distal": [
+        213,
+        640
+      ]
+    },
+    {
+      "id": "shin_l",
+      "pivot": [
+        294,
+        524
+      ],
+      "parent": "thigh_l",
+      "z": 13,
+      "distal": [
+        299,
+        640
+      ]
+    },
+    {
+      "id": "foot_r",
+      "pivot": [
+        213,
+        644
+      ],
+      "parent": "shin_r",
+      "z": 14
+    },
+    {
+      "id": "foot_l",
+      "pivot": [
+        299,
+        644
+      ],
+      "parent": "shin_l",
+      "z": 15
+    }
+  ],
+  "faceAnchors": {
+    "headCenter": [
+      256,
+      132
+    ],
+    "eye_r": [
+      238,
+      130
+    ],
+    "eye_l": [
+      274,
+      130
+    ],
+    "brows": [
+      256,
+      121
+    ],
+    "nose": [
+      256,
+      141
+    ],
+    "mouth": [
+      256,
+      158
+    ]
+  },
+  "palette": {
+    "defaults": {
+      "ink": "#24383e",
+      "skin": "#c28d68",
+      "skin-shadow": "#a87052",
+      "skin-highlight": "#daa881",
+      "hair": "#353b38",
+      "hair-shadow": "#263331",
+      "iris": "#587c72",
+      "white": "#f1ede2"
+    },
+    "skinPresets": [
+      {
+        "id": "porcelain",
+        "label": "Claro rosado",
+        "values": {
+          "skin": "#efc7b0",
+          "skin-shadow": "#d19c86",
+          "skin-highlight": "#ffe1ca"
+        }
+      },
+      {
+        "id": "sand",
+        "label": "Claro dourado",
+        "values": {
+          "skin": "#deb48c",
+          "skin-shadow": "#bc8c68",
+          "skin-highlight": "#f4cfaa"
+        }
+      },
+      {
+        "id": "bronze",
+        "label": "Bronze",
+        "values": {
+          "skin": "#c28d68",
+          "skin-shadow": "#a87052",
+          "skin-highlight": "#daa881"
+        }
+      },
+      {
+        "id": "warm_umber",
+        "label": "Marrom quente",
+        "values": {
+          "skin": "#986b4f",
+          "skin-shadow": "#79523e",
+          "skin-highlight": "#bb8965"
+        }
+      },
+      {
+        "id": "deep_brown",
+        "label": "Marrom profundo",
+        "values": {
+          "skin": "#704b3b",
+          "skin-shadow": "#50382f",
+          "skin-highlight": "#956a50"
+        }
+      },
+      {
+        "id": "ebony",
+        "label": "Escuro neutro",
+        "values": {
+          "skin": "#513c35",
+          "skin-shadow": "#392d2a",
+          "skin-highlight": "#77594a"
+        }
+      }
+    ],
+    "hairPresets": [
+      {
+        "id": "charcoal",
+        "label": "Carvão",
+        "values": {
+          "hair": "#353b38",
+          "hair-shadow": "#263331"
+        }
+      },
+      {
+        "id": "brown",
+        "label": "Castanho",
+        "values": {
+          "hair": "#624637",
+          "hair-shadow": "#45352e"
+        }
+      },
+      {
+        "id": "auburn",
+        "label": "Ruivo",
+        "values": {
+          "hair": "#a45e42",
+          "hair-shadow": "#743f32"
+        }
+      },
+      {
+        "id": "blonde",
+        "label": "Loiro",
+        "values": {
+          "hair": "#d2b16d",
+          "hair-shadow": "#a68449"
+        }
+      },
+      {
+        "id": "silver",
+        "label": "Grisalho",
+        "values": {
+          "hair": "#b9c1b5",
+          "hair-shadow": "#8a9891"
+        }
+      },
+      {
+        "id": "teal",
+        "label": "Teal",
+        "values": {
+          "hair": "#5a8c86",
+          "hair-shadow": "#3f6665"
+        }
+      }
+    ],
+    "irisPresets": [
+      {
+        "id": "teal",
+        "label": "Verde",
+        "values": {
+          "iris": "#587c72"
+        }
+      },
+      {
+        "id": "brown",
+        "label": "Castanho",
+        "values": {
+          "iris": "#785442"
+        }
+      },
+      {
+        "id": "amber",
+        "label": "Âmbar",
+        "values": {
+          "iris": "#ae873d"
+        }
+      },
+      {
+        "id": "blue",
+        "label": "Azul",
+        "values": {
+          "iris": "#7096ad"
+        }
+      },
+      {
+        "id": "gray",
+        "label": "Cinza",
+        "values": {
+          "iris": "#767e83"
+        }
+      }
+    ],
+    "fillAttribute": "data-palette",
+    "strokeAttribute": "data-palette-stroke"
+  },
+  "defaults": {
+    "model": "male",
+    "hair": "hair_crop",
+    "eyes": "eyes_calm",
+    "brows": "brows_straight",
+    "nose": "nose_angular",
+    "mouth": "mouth_neutral",
+    "headShape": "head_male_oval",
+    "skin": "bronze",
+    "hairColor": "charcoal",
+    "iris": "teal",
+    "underwear": true
+  },
+  "bodyParts": [
+    {
+      "id": "male_upper_arm_r",
+      "slot": "upper_arm_r",
+      "model": "male",
+      "label": "Braço direito",
+      "category": "body",
+      "parent": "torso",
+      "pivot": [
+        210,
+        224
+      ],
+      "z": 40,
+      "distal": [
+        181,
+        296
+      ],
+      "svg": "svg/body/male/upper_arm_r.svg",
+      "png": "png/body/male/upper_arm_r.png"
+    },
+    {
+      "id": "male_upper_arm_l",
+      "slot": "upper_arm_l",
+      "model": "male",
+      "label": "Braço esquerdo",
+      "category": "body",
+      "parent": "torso",
+      "pivot": [
+        302,
+        224
+      ],
+      "z": 41,
+      "distal": [
+        331,
+        296
+      ],
+      "svg": "svg/body/male/upper_arm_l.svg",
+      "png": "png/body/male/upper_arm_l.png"
+    },
+    {
+      "id": "male_forearm_r",
+      "slot": "forearm_r",
+      "model": "male",
+      "label": "Antebraço direito",
+      "category": "body",
+      "parent": "upper_arm_r",
+      "pivot": [
+        180,
+        299
+      ],
+      "z": 30,
+      "distal": [
+        162,
+        374
+      ],
+      "svg": "svg/body/male/forearm_r.svg",
+      "png": "png/body/male/forearm_r.png"
+    },
+    {
+      "id": "male_forearm_l",
+      "slot": "forearm_l",
+      "model": "male",
+      "label": "Antebraço esquerdo",
+      "category": "body",
+      "parent": "upper_arm_l",
+      "pivot": [
+        332,
+        299
+      ],
+      "z": 31,
+      "distal": [
+        350,
+        374
+      ],
+      "svg": "svg/body/male/forearm_l.svg",
+      "png": "png/body/male/forearm_l.png"
+    },
+    {
+      "id": "male_hand_r",
+      "slot": "hand_r",
+      "model": "male",
+      "label": "Mão direita",
+      "category": "body",
+      "parent": "forearm_r",
+      "pivot": [
+        162,
+        380
+      ],
+      "z": 65,
+      "svg": "svg/body/male/hand_r.svg",
+      "png": "png/body/male/hand_r.png"
+    },
+    {
+      "id": "male_hand_l",
+      "slot": "hand_l",
+      "model": "male",
+      "label": "Mão esquerda",
+      "category": "body",
+      "parent": "forearm_l",
+      "pivot": [
+        350,
+        380
+      ],
+      "z": 66,
+      "svg": "svg/body/male/hand_l.svg",
+      "png": "png/body/male/hand_l.png"
+    },
+    {
+      "id": "male_thigh_r",
+      "slot": "thigh_r",
+      "model": "male",
+      "label": "Coxa direita",
+      "category": "body",
+      "parent": "pelvis",
+      "pivot": [
+        220,
+        396
+      ],
+      "z": 10,
+      "distal": [
+        220,
+        523
+      ],
+      "svg": "svg/body/male/thigh_r.svg",
+      "png": "png/body/male/thigh_r.png"
+    },
+    {
+      "id": "male_thigh_l",
+      "slot": "thigh_l",
+      "model": "male",
+      "label": "Coxa esquerda",
+      "category": "body",
+      "parent": "pelvis",
+      "pivot": [
+        292,
+        396
+      ],
+      "z": 11,
+      "distal": [
+        292,
+        523
+      ],
+      "svg": "svg/body/male/thigh_l.svg",
+      "png": "png/body/male/thigh_l.png"
+    },
+    {
+      "id": "male_shin_r",
+      "slot": "shin_r",
+      "model": "male",
+      "label": "Canela direita",
+      "category": "body",
+      "parent": "thigh_r",
+      "pivot": [
+        218,
+        524
+      ],
+      "z": 12,
+      "distal": [
+        213,
+        640
+      ],
+      "svg": "svg/body/male/shin_r.svg",
+      "png": "png/body/male/shin_r.png"
+    },
+    {
+      "id": "male_shin_l",
+      "slot": "shin_l",
+      "model": "male",
+      "label": "Canela esquerda",
+      "category": "body",
+      "parent": "thigh_l",
+      "pivot": [
+        294,
+        524
+      ],
+      "z": 13,
+      "distal": [
+        299,
+        640
+      ],
+      "svg": "svg/body/male/shin_l.svg",
+      "png": "png/body/male/shin_l.png"
+    },
+    {
+      "id": "male_foot_r",
+      "slot": "foot_r",
+      "model": "male",
+      "label": "Pé direito",
+      "category": "body",
+      "parent": "shin_r",
+      "pivot": [
+        213,
+        644
+      ],
+      "z": 14,
+      "svg": "svg/body/male/foot_r.svg",
+      "png": "png/body/male/foot_r.png"
+    },
+    {
+      "id": "male_foot_l",
+      "slot": "foot_l",
+      "model": "male",
+      "label": "Pé esquerdo",
+      "category": "body",
+      "parent": "shin_l",
+      "pivot": [
+        299,
+        644
+      ],
+      "z": 15,
+      "svg": "svg/body/male/foot_l.svg",
+      "png": "png/body/male/foot_l.png"
+    },
+    {
+      "id": "male_pelvis",
+      "slot": "pelvis",
+      "model": "male",
+      "label": "Quadril",
+      "category": "body",
+      "parent": null,
+      "pivot": [
+        256,
+        376
+      ],
+      "z": 20,
+      "svg": "svg/body/male/pelvis.svg",
+      "png": "png/body/male/pelvis.png"
+    },
+    {
+      "id": "male_torso",
+      "slot": "torso",
+      "model": "male",
+      "label": "Tronco",
+      "category": "body",
+      "parent": "pelvis",
+      "pivot": [
+        256,
+        276
+      ],
+      "z": 50,
+      "svg": "svg/body/male/torso.svg",
+      "png": "png/body/male/torso.png"
+    },
+    {
+      "id": "male_head",
+      "slot": "head",
+      "model": "male",
+      "label": "Cabeça base",
+      "category": "body",
+      "parent": "torso",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 60,
+      "svg": "svg/body/male/head.svg",
+      "png": "png/body/male/head.png"
+    },
+    {
+      "id": "female_upper_arm_r",
+      "slot": "upper_arm_r",
+      "model": "female",
+      "label": "Braço direito",
+      "category": "body",
+      "parent": "torso",
+      "pivot": [
+        210,
+        224
+      ],
+      "z": 40,
+      "distal": [
+        181,
+        296
+      ],
+      "svg": "svg/body/female/upper_arm_r.svg",
+      "png": "png/body/female/upper_arm_r.png"
+    },
+    {
+      "id": "female_upper_arm_l",
+      "slot": "upper_arm_l",
+      "model": "female",
+      "label": "Braço esquerdo",
+      "category": "body",
+      "parent": "torso",
+      "pivot": [
+        302,
+        224
+      ],
+      "z": 41,
+      "distal": [
+        331,
+        296
+      ],
+      "svg": "svg/body/female/upper_arm_l.svg",
+      "png": "png/body/female/upper_arm_l.png"
+    },
+    {
+      "id": "female_forearm_r",
+      "slot": "forearm_r",
+      "model": "female",
+      "label": "Antebraço direito",
+      "category": "body",
+      "parent": "upper_arm_r",
+      "pivot": [
+        180,
+        299
+      ],
+      "z": 30,
+      "distal": [
+        162,
+        374
+      ],
+      "svg": "svg/body/female/forearm_r.svg",
+      "png": "png/body/female/forearm_r.png"
+    },
+    {
+      "id": "female_forearm_l",
+      "slot": "forearm_l",
+      "model": "female",
+      "label": "Antebraço esquerdo",
+      "category": "body",
+      "parent": "upper_arm_l",
+      "pivot": [
+        332,
+        299
+      ],
+      "z": 31,
+      "distal": [
+        350,
+        374
+      ],
+      "svg": "svg/body/female/forearm_l.svg",
+      "png": "png/body/female/forearm_l.png"
+    },
+    {
+      "id": "female_hand_r",
+      "slot": "hand_r",
+      "model": "female",
+      "label": "Mão direita",
+      "category": "body",
+      "parent": "forearm_r",
+      "pivot": [
+        162,
+        380
+      ],
+      "z": 65,
+      "svg": "svg/body/female/hand_r.svg",
+      "png": "png/body/female/hand_r.png"
+    },
+    {
+      "id": "female_hand_l",
+      "slot": "hand_l",
+      "model": "female",
+      "label": "Mão esquerda",
+      "category": "body",
+      "parent": "forearm_l",
+      "pivot": [
+        350,
+        380
+      ],
+      "z": 66,
+      "svg": "svg/body/female/hand_l.svg",
+      "png": "png/body/female/hand_l.png"
+    },
+    {
+      "id": "female_thigh_r",
+      "slot": "thigh_r",
+      "model": "female",
+      "label": "Coxa direita",
+      "category": "body",
+      "parent": "pelvis",
+      "pivot": [
+        220,
+        396
+      ],
+      "z": 10,
+      "distal": [
+        220,
+        523
+      ],
+      "svg": "svg/body/female/thigh_r.svg",
+      "png": "png/body/female/thigh_r.png"
+    },
+    {
+      "id": "female_thigh_l",
+      "slot": "thigh_l",
+      "model": "female",
+      "label": "Coxa esquerda",
+      "category": "body",
+      "parent": "pelvis",
+      "pivot": [
+        292,
+        396
+      ],
+      "z": 11,
+      "distal": [
+        292,
+        523
+      ],
+      "svg": "svg/body/female/thigh_l.svg",
+      "png": "png/body/female/thigh_l.png"
+    },
+    {
+      "id": "female_shin_r",
+      "slot": "shin_r",
+      "model": "female",
+      "label": "Canela direita",
+      "category": "body",
+      "parent": "thigh_r",
+      "pivot": [
+        218,
+        524
+      ],
+      "z": 12,
+      "distal": [
+        213,
+        640
+      ],
+      "svg": "svg/body/female/shin_r.svg",
+      "png": "png/body/female/shin_r.png"
+    },
+    {
+      "id": "female_shin_l",
+      "slot": "shin_l",
+      "model": "female",
+      "label": "Canela esquerda",
+      "category": "body",
+      "parent": "thigh_l",
+      "pivot": [
+        294,
+        524
+      ],
+      "z": 13,
+      "distal": [
+        299,
+        640
+      ],
+      "svg": "svg/body/female/shin_l.svg",
+      "png": "png/body/female/shin_l.png"
+    },
+    {
+      "id": "female_foot_r",
+      "slot": "foot_r",
+      "model": "female",
+      "label": "Pé direito",
+      "category": "body",
+      "parent": "shin_r",
+      "pivot": [
+        213,
+        644
+      ],
+      "z": 14,
+      "svg": "svg/body/female/foot_r.svg",
+      "png": "png/body/female/foot_r.png"
+    },
+    {
+      "id": "female_foot_l",
+      "slot": "foot_l",
+      "model": "female",
+      "label": "Pé esquerdo",
+      "category": "body",
+      "parent": "shin_l",
+      "pivot": [
+        299,
+        644
+      ],
+      "z": 15,
+      "svg": "svg/body/female/foot_l.svg",
+      "png": "png/body/female/foot_l.png"
+    },
+    {
+      "id": "female_pelvis",
+      "slot": "pelvis",
+      "model": "female",
+      "label": "Quadril",
+      "category": "body",
+      "parent": null,
+      "pivot": [
+        256,
+        376
+      ],
+      "z": 20,
+      "svg": "svg/body/female/pelvis.svg",
+      "png": "png/body/female/pelvis.png"
+    },
+    {
+      "id": "female_torso",
+      "slot": "torso",
+      "model": "female",
+      "label": "Tronco",
+      "category": "body",
+      "parent": "pelvis",
+      "pivot": [
+        256,
+        276
+      ],
+      "z": 50,
+      "svg": "svg/body/female/torso.svg",
+      "png": "png/body/female/torso.png"
+    },
+    {
+      "id": "female_head",
+      "slot": "head",
+      "model": "female",
+      "label": "Cabeça base",
+      "category": "body",
+      "parent": "torso",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 60,
+      "svg": "svg/body/female/head.svg",
+      "png": "png/body/female/head.png"
+    }
+  ],
+  "cosmetics": [
+    {
+      "id": "eyes_calm",
+      "slot": "eyes",
+      "label": "Olhos tranquilos",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 63,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/eyes_calm.svg",
+      "png": "png/cosmetics/eyes_calm.png"
+    },
+    {
+      "id": "eyes_round",
+      "slot": "eyes",
+      "label": "Olhos arredondados",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 63,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/eyes_round.svg",
+      "png": "png/cosmetics/eyes_round.png"
+    },
+    {
+      "id": "eyes_focused",
+      "slot": "eyes",
+      "label": "Olhos atentos",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 63,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/eyes_focused.svg",
+      "png": "png/cosmetics/eyes_focused.png"
+    },
+    {
+      "id": "eyes_soft",
+      "slot": "eyes",
+      "label": "Olhos suaves",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 63,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/eyes_soft.svg",
+      "png": "png/cosmetics/eyes_soft.png"
+    },
+    {
+      "id": "brows_straight",
+      "slot": "brows",
+      "label": "Sobrancelhas retas",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 63,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/brows_straight.svg",
+      "png": "png/cosmetics/brows_straight.png"
+    },
+    {
+      "id": "brows_arched",
+      "slot": "brows",
+      "label": "Sobrancelhas arqueadas",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 63,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/brows_arched.svg",
+      "png": "png/cosmetics/brows_arched.png"
+    },
+    {
+      "id": "brows_thick",
+      "slot": "brows",
+      "label": "Sobrancelhas densas",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 63,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/brows_thick.svg",
+      "png": "png/cosmetics/brows_thick.png"
+    },
+    {
+      "id": "brows_slanted",
+      "slot": "brows",
+      "label": "Sobrancelhas inclinadas",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 63,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/brows_slanted.svg",
+      "png": "png/cosmetics/brows_slanted.png"
+    },
+    {
+      "id": "nose_angular",
+      "slot": "nose",
+      "label": "Nariz angular",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 63,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/nose_angular.svg",
+      "png": "png/cosmetics/nose_angular.png"
+    },
+    {
+      "id": "nose_soft",
+      "slot": "nose",
+      "label": "Nariz suave",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 63,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/nose_soft.svg",
+      "png": "png/cosmetics/nose_soft.png"
+    },
+    {
+      "id": "nose_broad",
+      "slot": "nose",
+      "label": "Nariz largo",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 63,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/nose_broad.svg",
+      "png": "png/cosmetics/nose_broad.png"
+    },
+    {
+      "id": "mouth_neutral",
+      "slot": "mouth",
+      "label": "Boca neutra",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 63,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/mouth_neutral.svg",
+      "png": "png/cosmetics/mouth_neutral.png"
+    },
+    {
+      "id": "mouth_smile",
+      "slot": "mouth",
+      "label": "Sorriso discreto",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 63,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/mouth_smile.svg",
+      "png": "png/cosmetics/mouth_smile.png"
+    },
+    {
+      "id": "mouth_full",
+      "slot": "mouth",
+      "label": "Lábios cheios",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 63,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/mouth_full.svg",
+      "png": "png/cosmetics/mouth_full.png"
+    },
+    {
+      "id": "mouth_stern",
+      "slot": "mouth",
+      "label": "Boca séria",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 63,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/mouth_stern.svg",
+      "png": "png/cosmetics/mouth_stern.png"
+    },
+    {
+      "id": "hair_crop",
+      "slot": "hair",
+      "label": "Cabelo curto",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 61,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/hair_crop.svg",
+      "png": "png/cosmetics/hair_crop.png"
+    },
+    {
+      "id": "hair_undercut",
+      "slot": "hair",
+      "label": "Undercut",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 61,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/hair_undercut.svg",
+      "png": "png/cosmetics/hair_undercut.png"
+    },
+    {
+      "id": "hair_curls",
+      "slot": "hair",
+      "label": "Cabelo cacheado",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 61,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/hair_curls.svg",
+      "png": "png/cosmetics/hair_curls.png"
+    },
+    {
+      "id": "hair_long",
+      "slot": "hair",
+      "label": "Cabelo longo",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 61,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/hair_long.svg",
+      "png": "png/cosmetics/hair_long.png"
+    },
+    {
+      "id": "hair_bob",
+      "slot": "hair",
+      "label": "Cabelo bob",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 61,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/hair_bob.svg",
+      "png": "png/cosmetics/hair_bob.png"
+    },
+    {
+      "id": "hair_ponytail",
+      "slot": "hair",
+      "label": "Rabo de cavalo",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 61,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/hair_ponytail.svg",
+      "png": "png/cosmetics/hair_ponytail.png"
+    },
+    {
+      "id": "hair_bun",
+      "slot": "hair",
+      "label": "Coque",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 61,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/hair_bun.svg",
+      "png": "png/cosmetics/hair_bun.png"
+    },
+    {
+      "id": "hair_braids",
+      "slot": "hair",
+      "label": "Tranças",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 61,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/hair_braids.svg",
+      "png": "png/cosmetics/hair_braids.png"
+    },
+    {
+      "id": "head_male_oval",
+      "slot": "head",
+      "model": "male",
+      "label": "Rosto oval masculino",
+      "category": "head-shape",
+      "parent": "torso",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 60,
+      "models": [
+        "male"
+      ],
+      "replacesBody": "head",
+      "svg": "svg/cosmetics/head_male_oval.svg",
+      "png": "png/cosmetics/head_male_oval.png"
+    },
+    {
+      "id": "head_male_square",
+      "slot": "head",
+      "model": "male",
+      "label": "Rosto quadrado masculino",
+      "category": "head-shape",
+      "parent": "torso",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 60,
+      "models": [
+        "male"
+      ],
+      "replacesBody": "head",
+      "svg": "svg/cosmetics/head_male_square.svg",
+      "png": "png/cosmetics/head_male_square.png"
+    },
+    {
+      "id": "head_male_round",
+      "slot": "head",
+      "model": "male",
+      "label": "Rosto arredondado masculino",
+      "category": "head-shape",
+      "parent": "torso",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 60,
+      "models": [
+        "male"
+      ],
+      "replacesBody": "head",
+      "svg": "svg/cosmetics/head_male_round.svg",
+      "png": "png/cosmetics/head_male_round.png"
+    },
+    {
+      "id": "head_female_oval",
+      "slot": "head",
+      "model": "female",
+      "label": "Rosto oval feminino",
+      "category": "head-shape",
+      "parent": "torso",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 60,
+      "models": [
+        "female"
+      ],
+      "replacesBody": "head",
+      "svg": "svg/cosmetics/head_female_oval.svg",
+      "png": "png/cosmetics/head_female_oval.png"
+    },
+    {
+      "id": "head_female_square",
+      "slot": "head",
+      "model": "female",
+      "label": "Rosto quadrado feminino",
+      "category": "head-shape",
+      "parent": "torso",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 60,
+      "models": [
+        "female"
+      ],
+      "replacesBody": "head",
+      "svg": "svg/cosmetics/head_female_square.svg",
+      "png": "png/cosmetics/head_female_square.png"
+    },
+    {
+      "id": "head_female_round",
+      "slot": "head",
+      "model": "female",
+      "label": "Rosto arredondado feminino",
+      "category": "head-shape",
+      "parent": "torso",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 60,
+      "models": [
+        "female"
+      ],
+      "replacesBody": "head",
+      "svg": "svg/cosmetics/head_female_round.svg",
+      "png": "png/cosmetics/head_female_round.png"
+    }
+  ],
+  "head_shapes": {
+    "male": [
+      "head_male_oval",
+      "head_male_square",
+      "head_male_round"
+    ],
+    "female": [
+      "head_female_oval",
+      "head_female_square",
+      "head_female_round"
+    ]
+  },
+  "cosmetic_groups": {
+    "hair": [
+      "hair_crop",
+      "hair_undercut",
+      "hair_curls",
+      "hair_long",
+      "hair_bob",
+      "hair_ponytail",
+      "hair_bun",
+      "hair_braids"
+    ],
+    "eyes": [
+      "eyes_calm",
+      "eyes_round",
+      "eyes_focused",
+      "eyes_soft"
+    ],
+    "brows": [
+      "brows_straight",
+      "brows_arched",
+      "brows_thick",
+      "brows_slanted"
+    ],
+    "nose": [
+      "nose_angular",
+      "nose_soft",
+      "nose_broad"
+    ],
+    "mouth": [
+      "mouth_neutral",
+      "mouth_smile",
+      "mouth_full",
+      "mouth_stern"
+    ]
+  },
+  "underwear": [
+    {
+      "id": "underwear_male",
+      "slot": "underwear_bottom",
+      "model": "male",
+      "label": "Roupa base masculina",
+      "category": "underwear",
+      "parent": "pelvis",
+      "pivot": [
+        256,
+        376
+      ],
+      "z": 52,
+      "defaultVisible": true,
+      "svg": "svg/underwear/male.svg",
+      "png": "png/underwear/male.png"
+    },
+    {
+      "id": "underwear_female",
+      "slot": "underwear_bottom",
+      "model": "female",
+      "label": "Roupa base inferior feminina",
+      "category": "underwear",
+      "parent": "pelvis",
+      "pivot": [
+        256,
+        376
+      ],
+      "z": 52,
+      "defaultVisible": true,
+      "svg": "svg/underwear/female.svg",
+      "png": "png/underwear/female.png"
+    },
+    {
+      "id": "underwear_female_top",
+      "slot": "underwear_top",
+      "model": "female",
+      "label": "Top base feminino",
+      "category": "underwear",
+      "parent": "torso",
+      "pivot": [
+        256,
+        276
+      ],
+      "z": 52,
+      "defaultVisible": true,
+      "svg": "svg/underwear/female_top.svg",
+      "png": "png/underwear/female_top.png"
+    }
+  ],
+  "parts": [
+    {
+      "id": "male_upper_arm_r",
+      "slot": "upper_arm_r",
+      "model": "male",
+      "label": "Braço direito",
+      "category": "body",
+      "parent": "torso",
+      "pivot": [
+        210,
+        224
+      ],
+      "z": 40,
+      "distal": [
+        181,
+        296
+      ],
+      "svg": "svg/body/male/upper_arm_r.svg",
+      "png": "png/body/male/upper_arm_r.png"
+    },
+    {
+      "id": "male_upper_arm_l",
+      "slot": "upper_arm_l",
+      "model": "male",
+      "label": "Braço esquerdo",
+      "category": "body",
+      "parent": "torso",
+      "pivot": [
+        302,
+        224
+      ],
+      "z": 41,
+      "distal": [
+        331,
+        296
+      ],
+      "svg": "svg/body/male/upper_arm_l.svg",
+      "png": "png/body/male/upper_arm_l.png"
+    },
+    {
+      "id": "male_forearm_r",
+      "slot": "forearm_r",
+      "model": "male",
+      "label": "Antebraço direito",
+      "category": "body",
+      "parent": "upper_arm_r",
+      "pivot": [
+        180,
+        299
+      ],
+      "z": 30,
+      "distal": [
+        162,
+        374
+      ],
+      "svg": "svg/body/male/forearm_r.svg",
+      "png": "png/body/male/forearm_r.png"
+    },
+    {
+      "id": "male_forearm_l",
+      "slot": "forearm_l",
+      "model": "male",
+      "label": "Antebraço esquerdo",
+      "category": "body",
+      "parent": "upper_arm_l",
+      "pivot": [
+        332,
+        299
+      ],
+      "z": 31,
+      "distal": [
+        350,
+        374
+      ],
+      "svg": "svg/body/male/forearm_l.svg",
+      "png": "png/body/male/forearm_l.png"
+    },
+    {
+      "id": "male_hand_r",
+      "slot": "hand_r",
+      "model": "male",
+      "label": "Mão direita",
+      "category": "body",
+      "parent": "forearm_r",
+      "pivot": [
+        162,
+        380
+      ],
+      "z": 65,
+      "svg": "svg/body/male/hand_r.svg",
+      "png": "png/body/male/hand_r.png"
+    },
+    {
+      "id": "male_hand_l",
+      "slot": "hand_l",
+      "model": "male",
+      "label": "Mão esquerda",
+      "category": "body",
+      "parent": "forearm_l",
+      "pivot": [
+        350,
+        380
+      ],
+      "z": 66,
+      "svg": "svg/body/male/hand_l.svg",
+      "png": "png/body/male/hand_l.png"
+    },
+    {
+      "id": "male_thigh_r",
+      "slot": "thigh_r",
+      "model": "male",
+      "label": "Coxa direita",
+      "category": "body",
+      "parent": "pelvis",
+      "pivot": [
+        220,
+        396
+      ],
+      "z": 10,
+      "distal": [
+        220,
+        523
+      ],
+      "svg": "svg/body/male/thigh_r.svg",
+      "png": "png/body/male/thigh_r.png"
+    },
+    {
+      "id": "male_thigh_l",
+      "slot": "thigh_l",
+      "model": "male",
+      "label": "Coxa esquerda",
+      "category": "body",
+      "parent": "pelvis",
+      "pivot": [
+        292,
+        396
+      ],
+      "z": 11,
+      "distal": [
+        292,
+        523
+      ],
+      "svg": "svg/body/male/thigh_l.svg",
+      "png": "png/body/male/thigh_l.png"
+    },
+    {
+      "id": "male_shin_r",
+      "slot": "shin_r",
+      "model": "male",
+      "label": "Canela direita",
+      "category": "body",
+      "parent": "thigh_r",
+      "pivot": [
+        218,
+        524
+      ],
+      "z": 12,
+      "distal": [
+        213,
+        640
+      ],
+      "svg": "svg/body/male/shin_r.svg",
+      "png": "png/body/male/shin_r.png"
+    },
+    {
+      "id": "male_shin_l",
+      "slot": "shin_l",
+      "model": "male",
+      "label": "Canela esquerda",
+      "category": "body",
+      "parent": "thigh_l",
+      "pivot": [
+        294,
+        524
+      ],
+      "z": 13,
+      "distal": [
+        299,
+        640
+      ],
+      "svg": "svg/body/male/shin_l.svg",
+      "png": "png/body/male/shin_l.png"
+    },
+    {
+      "id": "male_foot_r",
+      "slot": "foot_r",
+      "model": "male",
+      "label": "Pé direito",
+      "category": "body",
+      "parent": "shin_r",
+      "pivot": [
+        213,
+        644
+      ],
+      "z": 14,
+      "svg": "svg/body/male/foot_r.svg",
+      "png": "png/body/male/foot_r.png"
+    },
+    {
+      "id": "male_foot_l",
+      "slot": "foot_l",
+      "model": "male",
+      "label": "Pé esquerdo",
+      "category": "body",
+      "parent": "shin_l",
+      "pivot": [
+        299,
+        644
+      ],
+      "z": 15,
+      "svg": "svg/body/male/foot_l.svg",
+      "png": "png/body/male/foot_l.png"
+    },
+    {
+      "id": "male_pelvis",
+      "slot": "pelvis",
+      "model": "male",
+      "label": "Quadril",
+      "category": "body",
+      "parent": null,
+      "pivot": [
+        256,
+        376
+      ],
+      "z": 20,
+      "svg": "svg/body/male/pelvis.svg",
+      "png": "png/body/male/pelvis.png"
+    },
+    {
+      "id": "male_torso",
+      "slot": "torso",
+      "model": "male",
+      "label": "Tronco",
+      "category": "body",
+      "parent": "pelvis",
+      "pivot": [
+        256,
+        276
+      ],
+      "z": 50,
+      "svg": "svg/body/male/torso.svg",
+      "png": "png/body/male/torso.png"
+    },
+    {
+      "id": "male_head",
+      "slot": "head",
+      "model": "male",
+      "label": "Cabeça base",
+      "category": "body",
+      "parent": "torso",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 60,
+      "svg": "svg/body/male/head.svg",
+      "png": "png/body/male/head.png"
+    },
+    {
+      "id": "female_upper_arm_r",
+      "slot": "upper_arm_r",
+      "model": "female",
+      "label": "Braço direito",
+      "category": "body",
+      "parent": "torso",
+      "pivot": [
+        210,
+        224
+      ],
+      "z": 40,
+      "distal": [
+        181,
+        296
+      ],
+      "svg": "svg/body/female/upper_arm_r.svg",
+      "png": "png/body/female/upper_arm_r.png"
+    },
+    {
+      "id": "female_upper_arm_l",
+      "slot": "upper_arm_l",
+      "model": "female",
+      "label": "Braço esquerdo",
+      "category": "body",
+      "parent": "torso",
+      "pivot": [
+        302,
+        224
+      ],
+      "z": 41,
+      "distal": [
+        331,
+        296
+      ],
+      "svg": "svg/body/female/upper_arm_l.svg",
+      "png": "png/body/female/upper_arm_l.png"
+    },
+    {
+      "id": "female_forearm_r",
+      "slot": "forearm_r",
+      "model": "female",
+      "label": "Antebraço direito",
+      "category": "body",
+      "parent": "upper_arm_r",
+      "pivot": [
+        180,
+        299
+      ],
+      "z": 30,
+      "distal": [
+        162,
+        374
+      ],
+      "svg": "svg/body/female/forearm_r.svg",
+      "png": "png/body/female/forearm_r.png"
+    },
+    {
+      "id": "female_forearm_l",
+      "slot": "forearm_l",
+      "model": "female",
+      "label": "Antebraço esquerdo",
+      "category": "body",
+      "parent": "upper_arm_l",
+      "pivot": [
+        332,
+        299
+      ],
+      "z": 31,
+      "distal": [
+        350,
+        374
+      ],
+      "svg": "svg/body/female/forearm_l.svg",
+      "png": "png/body/female/forearm_l.png"
+    },
+    {
+      "id": "female_hand_r",
+      "slot": "hand_r",
+      "model": "female",
+      "label": "Mão direita",
+      "category": "body",
+      "parent": "forearm_r",
+      "pivot": [
+        162,
+        380
+      ],
+      "z": 65,
+      "svg": "svg/body/female/hand_r.svg",
+      "png": "png/body/female/hand_r.png"
+    },
+    {
+      "id": "female_hand_l",
+      "slot": "hand_l",
+      "model": "female",
+      "label": "Mão esquerda",
+      "category": "body",
+      "parent": "forearm_l",
+      "pivot": [
+        350,
+        380
+      ],
+      "z": 66,
+      "svg": "svg/body/female/hand_l.svg",
+      "png": "png/body/female/hand_l.png"
+    },
+    {
+      "id": "female_thigh_r",
+      "slot": "thigh_r",
+      "model": "female",
+      "label": "Coxa direita",
+      "category": "body",
+      "parent": "pelvis",
+      "pivot": [
+        220,
+        396
+      ],
+      "z": 10,
+      "distal": [
+        220,
+        523
+      ],
+      "svg": "svg/body/female/thigh_r.svg",
+      "png": "png/body/female/thigh_r.png"
+    },
+    {
+      "id": "female_thigh_l",
+      "slot": "thigh_l",
+      "model": "female",
+      "label": "Coxa esquerda",
+      "category": "body",
+      "parent": "pelvis",
+      "pivot": [
+        292,
+        396
+      ],
+      "z": 11,
+      "distal": [
+        292,
+        523
+      ],
+      "svg": "svg/body/female/thigh_l.svg",
+      "png": "png/body/female/thigh_l.png"
+    },
+    {
+      "id": "female_shin_r",
+      "slot": "shin_r",
+      "model": "female",
+      "label": "Canela direita",
+      "category": "body",
+      "parent": "thigh_r",
+      "pivot": [
+        218,
+        524
+      ],
+      "z": 12,
+      "distal": [
+        213,
+        640
+      ],
+      "svg": "svg/body/female/shin_r.svg",
+      "png": "png/body/female/shin_r.png"
+    },
+    {
+      "id": "female_shin_l",
+      "slot": "shin_l",
+      "model": "female",
+      "label": "Canela esquerda",
+      "category": "body",
+      "parent": "thigh_l",
+      "pivot": [
+        294,
+        524
+      ],
+      "z": 13,
+      "distal": [
+        299,
+        640
+      ],
+      "svg": "svg/body/female/shin_l.svg",
+      "png": "png/body/female/shin_l.png"
+    },
+    {
+      "id": "female_foot_r",
+      "slot": "foot_r",
+      "model": "female",
+      "label": "Pé direito",
+      "category": "body",
+      "parent": "shin_r",
+      "pivot": [
+        213,
+        644
+      ],
+      "z": 14,
+      "svg": "svg/body/female/foot_r.svg",
+      "png": "png/body/female/foot_r.png"
+    },
+    {
+      "id": "female_foot_l",
+      "slot": "foot_l",
+      "model": "female",
+      "label": "Pé esquerdo",
+      "category": "body",
+      "parent": "shin_l",
+      "pivot": [
+        299,
+        644
+      ],
+      "z": 15,
+      "svg": "svg/body/female/foot_l.svg",
+      "png": "png/body/female/foot_l.png"
+    },
+    {
+      "id": "female_pelvis",
+      "slot": "pelvis",
+      "model": "female",
+      "label": "Quadril",
+      "category": "body",
+      "parent": null,
+      "pivot": [
+        256,
+        376
+      ],
+      "z": 20,
+      "svg": "svg/body/female/pelvis.svg",
+      "png": "png/body/female/pelvis.png"
+    },
+    {
+      "id": "female_torso",
+      "slot": "torso",
+      "model": "female",
+      "label": "Tronco",
+      "category": "body",
+      "parent": "pelvis",
+      "pivot": [
+        256,
+        276
+      ],
+      "z": 50,
+      "svg": "svg/body/female/torso.svg",
+      "png": "png/body/female/torso.png"
+    },
+    {
+      "id": "female_head",
+      "slot": "head",
+      "model": "female",
+      "label": "Cabeça base",
+      "category": "body",
+      "parent": "torso",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 60,
+      "svg": "svg/body/female/head.svg",
+      "png": "png/body/female/head.png"
+    },
+    {
+      "id": "eyes_calm",
+      "slot": "eyes",
+      "label": "Olhos tranquilos",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 63,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/eyes_calm.svg",
+      "png": "png/cosmetics/eyes_calm.png"
+    },
+    {
+      "id": "eyes_round",
+      "slot": "eyes",
+      "label": "Olhos arredondados",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 63,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/eyes_round.svg",
+      "png": "png/cosmetics/eyes_round.png"
+    },
+    {
+      "id": "eyes_focused",
+      "slot": "eyes",
+      "label": "Olhos atentos",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 63,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/eyes_focused.svg",
+      "png": "png/cosmetics/eyes_focused.png"
+    },
+    {
+      "id": "eyes_soft",
+      "slot": "eyes",
+      "label": "Olhos suaves",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 63,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/eyes_soft.svg",
+      "png": "png/cosmetics/eyes_soft.png"
+    },
+    {
+      "id": "brows_straight",
+      "slot": "brows",
+      "label": "Sobrancelhas retas",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 63,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/brows_straight.svg",
+      "png": "png/cosmetics/brows_straight.png"
+    },
+    {
+      "id": "brows_arched",
+      "slot": "brows",
+      "label": "Sobrancelhas arqueadas",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 63,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/brows_arched.svg",
+      "png": "png/cosmetics/brows_arched.png"
+    },
+    {
+      "id": "brows_thick",
+      "slot": "brows",
+      "label": "Sobrancelhas densas",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 63,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/brows_thick.svg",
+      "png": "png/cosmetics/brows_thick.png"
+    },
+    {
+      "id": "brows_slanted",
+      "slot": "brows",
+      "label": "Sobrancelhas inclinadas",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 63,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/brows_slanted.svg",
+      "png": "png/cosmetics/brows_slanted.png"
+    },
+    {
+      "id": "nose_angular",
+      "slot": "nose",
+      "label": "Nariz angular",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 63,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/nose_angular.svg",
+      "png": "png/cosmetics/nose_angular.png"
+    },
+    {
+      "id": "nose_soft",
+      "slot": "nose",
+      "label": "Nariz suave",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 63,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/nose_soft.svg",
+      "png": "png/cosmetics/nose_soft.png"
+    },
+    {
+      "id": "nose_broad",
+      "slot": "nose",
+      "label": "Nariz largo",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 63,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/nose_broad.svg",
+      "png": "png/cosmetics/nose_broad.png"
+    },
+    {
+      "id": "mouth_neutral",
+      "slot": "mouth",
+      "label": "Boca neutra",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 63,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/mouth_neutral.svg",
+      "png": "png/cosmetics/mouth_neutral.png"
+    },
+    {
+      "id": "mouth_smile",
+      "slot": "mouth",
+      "label": "Sorriso discreto",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 63,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/mouth_smile.svg",
+      "png": "png/cosmetics/mouth_smile.png"
+    },
+    {
+      "id": "mouth_full",
+      "slot": "mouth",
+      "label": "Lábios cheios",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 63,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/mouth_full.svg",
+      "png": "png/cosmetics/mouth_full.png"
+    },
+    {
+      "id": "mouth_stern",
+      "slot": "mouth",
+      "label": "Boca séria",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 63,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/mouth_stern.svg",
+      "png": "png/cosmetics/mouth_stern.png"
+    },
+    {
+      "id": "hair_crop",
+      "slot": "hair",
+      "label": "Cabelo curto",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 61,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/hair_crop.svg",
+      "png": "png/cosmetics/hair_crop.png"
+    },
+    {
+      "id": "hair_undercut",
+      "slot": "hair",
+      "label": "Undercut",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 61,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/hair_undercut.svg",
+      "png": "png/cosmetics/hair_undercut.png"
+    },
+    {
+      "id": "hair_curls",
+      "slot": "hair",
+      "label": "Cabelo cacheado",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 61,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/hair_curls.svg",
+      "png": "png/cosmetics/hair_curls.png"
+    },
+    {
+      "id": "hair_long",
+      "slot": "hair",
+      "label": "Cabelo longo",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 61,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/hair_long.svg",
+      "png": "png/cosmetics/hair_long.png"
+    },
+    {
+      "id": "hair_bob",
+      "slot": "hair",
+      "label": "Cabelo bob",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 61,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/hair_bob.svg",
+      "png": "png/cosmetics/hair_bob.png"
+    },
+    {
+      "id": "hair_ponytail",
+      "slot": "hair",
+      "label": "Rabo de cavalo",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 61,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/hair_ponytail.svg",
+      "png": "png/cosmetics/hair_ponytail.png"
+    },
+    {
+      "id": "hair_bun",
+      "slot": "hair",
+      "label": "Coque",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 61,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/hair_bun.svg",
+      "png": "png/cosmetics/hair_bun.png"
+    },
+    {
+      "id": "hair_braids",
+      "slot": "hair",
+      "label": "Tranças",
+      "category": "cosmetic",
+      "parent": "head",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 61,
+      "models": [
+        "male",
+        "female"
+      ],
+      "svg": "svg/cosmetics/hair_braids.svg",
+      "png": "png/cosmetics/hair_braids.png"
+    },
+    {
+      "id": "head_male_oval",
+      "slot": "head",
+      "model": "male",
+      "label": "Rosto oval masculino",
+      "category": "head-shape",
+      "parent": "torso",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 60,
+      "models": [
+        "male"
+      ],
+      "replacesBody": "head",
+      "svg": "svg/cosmetics/head_male_oval.svg",
+      "png": "png/cosmetics/head_male_oval.png"
+    },
+    {
+      "id": "head_male_square",
+      "slot": "head",
+      "model": "male",
+      "label": "Rosto quadrado masculino",
+      "category": "head-shape",
+      "parent": "torso",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 60,
+      "models": [
+        "male"
+      ],
+      "replacesBody": "head",
+      "svg": "svg/cosmetics/head_male_square.svg",
+      "png": "png/cosmetics/head_male_square.png"
+    },
+    {
+      "id": "head_male_round",
+      "slot": "head",
+      "model": "male",
+      "label": "Rosto arredondado masculino",
+      "category": "head-shape",
+      "parent": "torso",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 60,
+      "models": [
+        "male"
+      ],
+      "replacesBody": "head",
+      "svg": "svg/cosmetics/head_male_round.svg",
+      "png": "png/cosmetics/head_male_round.png"
+    },
+    {
+      "id": "head_female_oval",
+      "slot": "head",
+      "model": "female",
+      "label": "Rosto oval feminino",
+      "category": "head-shape",
+      "parent": "torso",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 60,
+      "models": [
+        "female"
+      ],
+      "replacesBody": "head",
+      "svg": "svg/cosmetics/head_female_oval.svg",
+      "png": "png/cosmetics/head_female_oval.png"
+    },
+    {
+      "id": "head_female_square",
+      "slot": "head",
+      "model": "female",
+      "label": "Rosto quadrado feminino",
+      "category": "head-shape",
+      "parent": "torso",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 60,
+      "models": [
+        "female"
+      ],
+      "replacesBody": "head",
+      "svg": "svg/cosmetics/head_female_square.svg",
+      "png": "png/cosmetics/head_female_square.png"
+    },
+    {
+      "id": "head_female_round",
+      "slot": "head",
+      "model": "female",
+      "label": "Rosto arredondado feminino",
+      "category": "head-shape",
+      "parent": "torso",
+      "pivot": [
+        256,
+        190
+      ],
+      "z": 60,
+      "models": [
+        "female"
+      ],
+      "replacesBody": "head",
+      "svg": "svg/cosmetics/head_female_round.svg",
+      "png": "png/cosmetics/head_female_round.png"
+    },
+    {
+      "id": "underwear_male",
+      "slot": "underwear_bottom",
+      "model": "male",
+      "label": "Roupa base masculina",
+      "category": "underwear",
+      "parent": "pelvis",
+      "pivot": [
+        256,
+        376
+      ],
+      "z": 52,
+      "defaultVisible": true,
+      "svg": "svg/underwear/male.svg",
+      "png": "png/underwear/male.png"
+    },
+    {
+      "id": "underwear_female",
+      "slot": "underwear_bottom",
+      "model": "female",
+      "label": "Roupa base inferior feminina",
+      "category": "underwear",
+      "parent": "pelvis",
+      "pivot": [
+        256,
+        376
+      ],
+      "z": 52,
+      "defaultVisible": true,
+      "svg": "svg/underwear/female.svg",
+      "png": "png/underwear/female.png"
+    },
+    {
+      "id": "underwear_female_top",
+      "slot": "underwear_top",
+      "model": "female",
+      "label": "Top base feminino",
+      "category": "underwear",
+      "parent": "torso",
+      "pivot": [
+        256,
+        276
+      ],
+      "z": 52,
+      "defaultVisible": true,
+      "svg": "svg/underwear/female_top.svg",
+      "png": "png/underwear/female_top.png"
+    }
+  ],
+  "instructions": "All layers share 512×768 coordinates. Stack ascending z. Resolve body parent by slot, not model-prefixed id. Cosmetics attach to head. Head-shape variants replace the head body slot and use its matrix. Underwear is a separate overlay; keep enabled for base previews. Palette changes replace tagged fills/strokes only. No animation or native integration is claimed."
+}

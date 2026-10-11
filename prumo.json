@@ -1,0 +1,167 @@
+{
+  "ai": {
+    "autonomy": "agentic",
+    "orchestrator": "antigravity",
+    "preferred_models": [
+      {
+        "id": "google/gemini-2.5-pro",
+        "provider": "google"
+      },
+      {
+        "id": "google/gemini-2.5-flash",
+        "provider": "google"
+      },
+      {
+        "id": "anthropic/claude-3-7-sonnet",
+        "provider": "anthropic"
+      }
+    ]
+  },
+  "context": {
+    "architecture": "progressive-context-architecture",
+    "budget_profile": "medium",
+    "deep_recursion": {
+      "enabled": false,
+      "experimental": true
+    },
+    "methodology": "lean-progressive-context",
+    "mode": "progressive",
+    "profiles": {
+      "large": {
+        "context_hard_tokens": 32000,
+        "context_target_tokens": 16000,
+        "max_delegation_depth": 1,
+        "max_expansion_rounds": 3,
+        "output_hard_tokens": 6000,
+        "output_target_tokens": 3000
+      },
+      "medium": {
+        "context_hard_tokens": 16000,
+        "context_target_tokens": 8000,
+        "max_delegation_depth": 1,
+        "max_expansion_rounds": 2,
+        "output_hard_tokens": 3000,
+        "output_target_tokens": 1500
+      },
+      "small": {
+        "context_hard_tokens": 6000,
+        "context_target_tokens": 3000,
+        "max_delegation_depth": 0,
+        "max_expansion_rounds": 1,
+        "output_hard_tokens": 1000,
+        "output_target_tokens": 500
+      }
+    },
+    "runtime": {
+      "completed_context_ttl": "0d",
+      "database": ".prumo/runtime/prumo.db",
+      "failed_context_ttl": "7d"
+    }
+  },
+  "documentation": {
+    "audiences": [
+      "user",
+      "developer",
+      "operations",
+      "agent"
+    ],
+    "canonical_format": "markdown",
+    "entrypoint": "docs/PRUMO.md",
+    "site": {
+      "enabled": true,
+      "generated": true,
+      "public_internal_views": true,
+      "source": "docs"
+    },
+    "virtual_chunking": true
+  },
+  "features": [
+    "rendering",
+    "rendering-2d",
+    "rendering-3d",
+    "shaders",
+    "sprites",
+    "mesh",
+    "rig",
+    "animation",
+    "motion",
+    "components",
+    "ui",
+    "editor",
+    "scene-graph",
+    "timeline",
+    "inspector",
+    "canvas",
+    "history",
+    "undo-redo",
+    "serialization",
+    "export",
+    "state-management",
+    "input-handling",
+    "memory-management",
+    "performance",
+    "asset-pipeline",
+    "testing",
+    "documentation",
+    "docs-site"
+  ],
+  "framework": {
+    "name": "prumo",
+    "version": "0.6.0"
+  },
+  "goals": {
+    "active_goal": "P00-G02",
+    "active_phase": "P00"
+  },
+  "intelligence": {
+    "distinguish_observed_estimated": true,
+    "enabled": true,
+    "path": ".prumo/history/project-intelligence.json",
+    "task_reports": true,
+    "track_cost": true,
+    "track_input_tokens": true,
+    "track_output_tokens": true
+  },
+  "orchestration": {
+    "autonomy": "agentic",
+    "orchestrator": "antigravity",
+    "protocol": "POP"
+  },
+  "project": {
+    "description": "2D/3D character puppet creator and skeletal animation studio in Odin (DOD, Memory Arenas, MLS mesh deformation, 14-joint FK/IK rig, Bezier timelines, ImGui docking UI)",
+    "name": "chocoBones-std",
+    "type": [
+      "game-engine",
+      "desktop",
+      "library"
+    ]
+  },
+  "protocol": {
+    "compatible": "\u003e=3 \u003c4",
+    "version": 3
+  },
+  "quality": {
+    "accessibility": true,
+    "performance": "high",
+    "security": "high",
+    "static_analysis": "strict"
+  },
+  "risk": [
+    "performance-critical",
+    "security"
+  ],
+  "stack": {
+    "languages": [
+      "odin"
+    ],
+    "runtime": [
+      "raylib",
+      "cimgui",
+      "odin-core"
+    ],
+    "tooling": [
+      "odin"
+    ]
+  },
+  "version": 3
+}

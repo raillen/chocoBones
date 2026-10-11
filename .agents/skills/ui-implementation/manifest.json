@@ -1,0 +1,56 @@
+{
+  "id": "ui-implementation",
+  "name": "UI Component Implementation",
+  "version": 1,
+  "schema_version": 2,
+  "purpose": "Implement reusable design system UI components.",
+  "risk_level": "low",
+  "modes": [
+    "implementation"
+  ],
+  "inputs": [
+    "API specifications",
+    "Domain models",
+    "UI wireframes"
+  ],
+  "outputs": [
+    "Tested web / backend service",
+    "API test evidence"
+  ],
+  "requires": [],
+  "conflicts": [],
+  "capabilities": [
+    "filesystem.read",
+    "filesystem.write",
+    "process.spawn"
+  ],
+  "references": [],
+  "templates": [],
+  "checks": [],
+  "scripts": [],
+  "examples": [],
+  "required_evidence": [
+    "test"
+  ],
+  "stop_conditions": [
+    "Task acceptance criteria satisfied with evidence",
+    "Token budget exhausted",
+    "Blocked on external dependency"
+  ],
+  "provenance": {
+    "origin": "framework",
+    "license": "MIT",
+    "source": "prumo",
+    "version": "0.3.0",
+    "checksum": "",
+    "modified": "2026-08-14"
+  },
+  "select": {
+    "features_any": [
+      "ui",
+      "frontend"
+    ]
+  },
+  "requires_any": [],
+  "tools": []
+}

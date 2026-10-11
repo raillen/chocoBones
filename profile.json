@@ -1,0 +1,71 @@
+{
+  "version": 2,
+  "project": {
+    "name": "chocoBones-std",
+    "description": "2D/3D character puppet creator and skeletal animation studio in Odin (DOD, Memory Arenas, MLS mesh deformation, 14-joint FK/IK rig, Bezier timelines, ImGui docking UI)",
+    "type": ["game-engine", "desktop", "library"]
+  },
+  "stack": {
+    "languages": ["odin"],
+    "runtime": ["raylib", "cimgui", "odin-core"],
+    "tooling": ["odin"]
+  },
+  "features": [
+    "rendering",
+    "rendering-2d",
+    "rendering-3d",
+    "shaders",
+    "sprites",
+    "mesh",
+    "rig",
+    "animation",
+    "motion",
+    "components",
+    "ui",
+    "editor",
+    "scene-graph",
+    "timeline",
+    "inspector",
+    "canvas",
+    "history",
+    "undo-redo",
+    "serialization",
+    "export",
+    "state-management",
+    "input-handling",
+    "memory-management",
+    "performance",
+    "asset-pipeline",
+    "testing",
+    "documentation",
+    "docs-site"
+  ],
+  "quality": {
+    "performance": "high",
+    "accessibility": true,
+    "security": "high",
+    "static_analysis": "strict"
+  },
+  "risk": [
+    "performance-critical",
+    "security"
+  ],
+  "ai": {
+    "orchestrator": "antigravity",
+    "autonomy": "agentic",
+    "preferred_models": [
+      {
+        "id": "google/gemini-2.5-pro",
+        "provider": "google"
+      },
+      {
+        "id": "google/gemini-2.5-flash",
+        "provider": "google"
+      },
+      {
+        "id": "anthropic/claude-3-7-sonnet",
+        "provider": "anthropic"
+      }
+    ]
+  }
+}

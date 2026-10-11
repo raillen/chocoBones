@@ -1,0 +1,26 @@
+{
+  "id": "ui-ux-review",
+  "name": "UI/UX Review",
+  "version": 1,
+  "schema_version": 2,
+  "select": {
+    "features_any": [
+      "ui",
+      "dashboard",
+      "editor"
+    ]
+  },
+  "purpose": "Review hierarchy, discoverability, interaction cost, and responsiveness.",
+  "risk_level": "low",
+  "modes": [
+    "review"
+  ],
+  "requires_any": [],
+  "tools": [],
+  "provenance": {
+    "source": "prumo",
+    "version": "0.3.0",
+    "checksum": "",
+    "modified": "2026-08-14"
+  }
+}

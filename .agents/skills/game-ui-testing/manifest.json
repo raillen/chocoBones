@@ -1,0 +1,28 @@
+{
+  "id": "game-ui-testing",
+  "name": "Game UI Testing",
+  "version": 1,
+  "schema_version": 2,
+  "select": {
+    "project_types": [
+      "game",
+      "game-engine"
+    ],
+    "features_any": [
+      "ui"
+    ]
+  },
+  "purpose": "Verify controller/keyboard navigation, safe areas, localization, and UI state transitions.",
+  "risk_level": "low",
+  "modes": [
+    "testing"
+  ],
+  "requires_any": [],
+  "tools": [],
+  "provenance": {
+    "source": "prumo",
+    "version": "0.3.0",
+    "checksum": "",
+    "modified": "2026-08-14"
+  }
+}

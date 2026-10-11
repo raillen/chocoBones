@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Frontier Survival · Rig vetorial</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;color:#e9ede2;background:#182327;--muted:#a9b6af;--edge:#3b4c50;--accent:#d4b678}
+*{box-sizing:border-box}body{margin:0}button,select,input{font:inherit}button,select{background:#29383c;color:#e9ede2;border:1px solid #586b6b;border-radius:6px;min-height:40px;padding:7px 11px}button{cursor:pointer}button:hover{background:#3b4c50}button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:3px}select{width:100%}input[type=range]{width:100%;accent-color:var(--accent)}input[type=checkbox]{accent-color:var(--accent);width:18px;height:18px}header{display:flex;gap:18px;align-items:center;justify-content:space-between;padding:18px 25px;border-bottom:1px solid var(--edge)}h1{font-size:20px;line-height:1.25;margin:3px 0}.eyebrow{color:var(--accent);font-size:11px;letter-spacing:.16em;text-transform:uppercase}.badge{font-size:12px;color:var(--muted);border:1px solid var(--edge);border-radius:30px;padding:6px 12px;white-space:nowrap}main{display:grid;grid-template-columns:245px minmax(0,1fr);height:calc(100vh - 89px);min-height:590px}aside{padding:24px 20px;border-right:1px solid var(--edge);display:flex;flex-direction:column;gap:22px}label,.control-label{font-size:13px;font-weight:600;display:block;margin:0 0 8px}p{font-size:12px;line-height:1.65;color:var(--muted);margin:0}output{font-weight:400;color:var(--muted)}.inline{display:flex;gap:10px;align-items:center}.inline label{margin:0}#motion{width:100%}.note{margin-top:auto;border-top:1px solid var(--edge);padding-top:18px}.stage-panel{padding:20px;display:flex;min-width:0;min-height:0;flex-direction:column;gap:12px}.stage{flex:1;min-height:400px;overflow:auto;display:grid;align-items:safe center;justify-items:safe center;border:1px solid #6b7675;border-radius:10px;position:relative;background-color:#d7ded6;background-image:linear-gradient(45deg,#c5cec7 25%,transparent 25%),linear-gradient(-45deg,#c5cec7 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#c5cec7 75%),linear-gradient(-45deg,transparent 75%,#c5cec7 75%);background-size:32px 32px;background-position:0 0,0 16px,16px -16px,-16px 0}.stage.light{background:#eef0e6}.stage.dark{background:#24383e}.stage svg{display:block;flex:none;overflow:visible}.caption{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}.error{color:#ffb5a6}@media(max-width:740px){header{padding:16px;gap:10px}.badge{display:none}main{display:flex;flex-direction:column;height:auto;min-height:0}aside{border-right:0;border-bottom:1px solid var(--edge);display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:18px}.note{grid-column:1/-1;margin:0}.stage-panel{padding:16px}.stage{height:600px;flex:none}.caption{font-size:11px}}
+</style>
+</head>
+<body>
+<header><div><div class="eyebrow">Frontier Survival · estudo de recorte</div><h1>Sobrevivente vetorial</h1></div><span class="badge">15 peças + 6 acessórios · SVG original</span></header>
+<main>
+<aside aria-label="Controles de visualização">
+<div><label for="outfit">Conjunto</label><select id="outfit"><option value="base">Humano base</option><option value="equipped" selected>Explorador equipado</option><option value="cold">Parka polar</option></select></div>
+<div><span class="control-label">Movimento</span><button id="motion" type="button" aria-pressed="false">Iniciar balanço de marcha</button><p style="margin-top:8px">Movimento frontal simples para examinar a ligação entre as peças.</p></div>
+<div><label for="zoom">Zoom <output id="zoomValue" for="zoom">100%</output></label><input id="zoom" type="range" min="60" max="180" step="10" value="100"></div>
+<div><label for="background">Fundo</label><select id="background"><option value="checker">Transparência</option><option value="light">Claro</option><option value="dark">Escuro</option></select></div>
+<div class="inline"><input id="pivots" type="checkbox"><label for="pivots">Mostrar pivôs</label></div>
+<div class="note"><p>Fontes e manifest estão embutidos neste arquivo. Funciona offline, inclusive por <code>file://</code>.</p><p style="margin-top:10px">Demonstração de montagem independente; não é uma validação do rig nativo do chocoBones.</p></div>
+</aside>
+<section class="stage-panel" aria-label="Preview do humano modular">
+<div id="stage" class="stage"><svg id="rig" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 768" role="img" aria-labelledby="rigTitle rigDescription"><title id="rigTitle">Sobrevivente vetorial com acessórios</title><desc id="rigDescription">Humano em pose frontal composto de peças independentes, transformadas em seus pivôs.</desc></svg></div>
+<div class="caption"><span id="status" role="status">Montando fontes vetoriais…</span><span>512 × 768 · ordem global de camadas</span></div>
+<noscript><p class="error">Ative JavaScript para montar as peças e usar os controles.</p></noscript>
+</section>
+</main>
+<script id="asset-data" type="application/json"><!-- EMBEDDED_ASSETS --></script>
+<script>
+'use strict';
+const {manifest,sources}=JSON.parse(document.getElementById('asset-data').textContent);
+const NS='http://www.w3.org/2000/svg';
+const rig=document.getElementById('rig'),stage=document.getElementById('stage');
+const byId=Object.fromEntries(manifest.parts.map(part=>[part.id,part]));
+const parts=[...manifest.parts].sort((a,b)=>a.z-b.z),groups={},markers={};
+const identity=()=>[1,0,0,1,0,0];
+function multiply(a,b){return[a[0]*b[0]+a[2]*b[1],a[1]*b[0]+a[3]*b[1],a[0]*b[2]+a[2]*b[3],a[1]*b[2]+a[3]*b[3],a[0]*b[4]+a[2]*b[5]+a[4],a[1]*b[4]+a[3]*b[5]+a[5]]}
+function rotateAt(degrees,pivot){const r=degrees*Math.PI/180,c=Math.cos(r),s=Math.sin(r),[x,y]=pivot;return[c,s,-s,c,x-c*x+s*y,y-s*x-c*y]}
+function transformPoint(m,p){return[m[0]*p[0]+m[2]*p[1]+m[4],m[1]*p[0]+m[3]*p[1]+m[5]]}
+for(const part of parts){
+  const source=new DOMParser().parseFromString(sources[part.id],'image/svg+xml');
+  if(source.querySelector('parsererror'))throw new Error('SVG inválido: '+part.id);
+  const group=document.createElementNS(NS,'g');group.dataset.part=part.id;
+  for(const child of source.documentElement.children)if(child.localName!=='title')group.appendChild(document.importNode(child,true));
+  rig.appendChild(group);groups[part.id]=group;
+}
+const markerLayer=document.createElementNS(NS,'g');markerLayer.setAttribute('aria-hidden','true');rig.appendChild(markerLayer);
+for(const part of parts){const circle=document.createElementNS(NS,'circle');circle.setAttribute('r','4.5');circle.setAttribute('fill','#f4cd72');circle.setAttribute('stroke','#24383e');circle.setAttribute('stroke-width','1.5');markerLayer.appendChild(circle);markers[part.id]=circle}
+const controls={outfit:document.getElementById('outfit'),motion:document.getElementById('motion'),zoom:document.getElementById('zoom'),background:document.getElementById('background'),pivots:document.getElementById('pivots')};
+let running=false,startTime=0,phase=0,raf=0;
+function anglesAt(t){const s=Math.sin(t),k=Math.cos(t);return{pelvis:0,torso:s*.7,head:-s*.7,upper_arm_r:-s*9,upper_arm_l:s*9,forearm_r:2+k*2,forearm_l:2-k*2,hand_r:s*2,hand_l:-s*2,thigh_r:s*10,thigh_l:-s*10,shin_r:Math.max(0,s)*13,shin_l:Math.max(0,-s)*13,foot_r:-Math.max(0,s)*5,foot_l:-Math.max(0,-s)*5}}
+function matricesAt(t,moving){const angles=moving?anglesAt(t):{},world={};
+  function resolve(id){if(world[id])return world[id];const part=byId[id],parent=part.parent?resolve(part.parent):identity();let local=rotateAt(angles[id]||0,part.pivot);if(!part.parent&&moving)local=multiply([1,0,0,1,0,Math.cos(t*2)*1.5],local);return world[id]=multiply(parent,local)}
+  for(const part of parts)resolve(part.id);return world;
+}
+function visible(part){const outfit=controls.outfit.value;if(part.category==='body')return!(outfit==='cold'&&part.id==='torso');if(outfit==='base')return false;if(outfit==='equipped')return['backpack','vest','helmet','visor','rifle'].includes(part.id);return['backpack','cold_jacket_torso','helmet','visor'].includes(part.id)}
+function render(){const matrices=matricesAt(phase,running);let count=0;for(const part of parts){const show=visible(part),matrix=matrices[part.id];groups[part.id].style.display=show?'':'none';groups[part.id].setAttribute('transform','matrix('+matrix.join(' ')+')');markers[part.id].style.display=show?'':'none';const p=transformPoint(matrix,part.pivot);markers[part.id].setAttribute('cx',p[0]);markers[part.id].setAttribute('cy',p[1]);if(show)count++}markerLayer.style.display=controls.pivots.checked?'':'none';document.getElementById('status').textContent=count+' peças visíveis · '+(running?'balanço de marcha':'pose estática')}
+function fit(){const mobile=window.matchMedia('(max-width:740px)').matches;const h=mobile?600:stage.clientHeight;const scale=Math.min((stage.clientWidth-30)/512,(h-20)/768)*Number(controls.zoom.value)/100;rig.style.width=(512*scale)+'px';rig.style.height=(768*scale)+'px';document.getElementById('zoomValue').textContent=controls.zoom.value+'%'}
+function tick(time){if(!running)return;phase=(time-startTime)/850;render();raf=requestAnimationFrame(tick)}
+controls.motion.addEventListener('click',()=>{running=!running;controls.motion.setAttribute('aria-pressed',String(running));controls.motion.textContent=running?'Pausar e voltar à pose':'Iniciar balanço de marcha';if(running){startTime=performance.now();raf=requestAnimationFrame(tick)}else{cancelAnimationFrame(raf);phase=0;render()}});
+controls.outfit.addEventListener('change',render);controls.pivots.addEventListener('change',render);controls.zoom.addEventListener('input',fit);controls.background.addEventListener('change',()=>stage.className='stage '+(controls.background.value==='checker'?'':controls.background.value));window.addEventListener('resize',fit);
+render();fit();
+// Inspection API for independent browser checks. No network, storage or native app bridge.
+window.rigPreview={manifest,matricesAt,transformPoint,renderAt(value){phase=value;const wasRunning=running;running=true;render();running=wasRunning},getState(){return{outfit:controls.outfit.value,running,phase,visible:parts.filter(visible).map(p=>p.id),order:parts.map(p=>p.id)}}};
+</script>
+</body>
+</html>
