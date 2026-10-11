@@ -74,6 +74,7 @@ AppState :: struct {
 	editor:                 EditorShellState,
 	text_editor:            ui.TextEditorModal,
 	file_dialog:            ui.FileDialog,
+	new_project:            NewProjectState,
 
 	// Recursos 3D & WGPU
 	active_mesh3d:          mesh3d.Mesh3D,
@@ -195,6 +196,7 @@ init_app_state :: proc(state: ^AppState) {
 	ui.toast_manager_init(&state.toasts)
 	ui.text_editor_modal_init(&state.text_editor)
 	ui.file_dialog_init(&state.file_dialog)
+	new_project_modal_init(&state.new_project)
 
 	// Grava estado inicial no histórico de Undo
 	history.history_push(&state.history, "Criação do Projeto", state.character_joints[:], state.character_layers[:], &state.character_pose)
@@ -302,6 +304,7 @@ destroy_app_state :: proc(state: ^AppState) {
 
 	ui.toast_manager_destroy(&state.toasts)
 	ui.text_editor_modal_destroy(&state.text_editor)
+	new_project_modal_destroy(&state.new_project)
 	ui.selection_state_destroy(&state.selection)
 	history.history_destroy(&state.history)
 
@@ -623,6 +626,10 @@ load_project_file :: proc(state: ^AppState, filename: string) -> bool {
 
 render_main_menu :: proc(state: ^AppState) {
 	if im.BeginMenu(ui.ICON_PH_FOLDER + " Arquivo") {
+		if im.MenuItem(ui.ICON_PH_FILE_PLUS + " Novo Projeto...", "Ctrl+N") {
+			new_project_modal_open(&state.new_project)
+		}
+
 		if im.MenuItem(ui.ICON_PH_FILE_PLUS + " Novo Projeto Vazio") {
 			save_undo(state, "Novo Projeto Vazio")
 			clear(&state.character_joints)
@@ -654,10 +661,16 @@ render_main_menu :: proc(state: ^AppState) {
 			}
 		}
 
-		if im.MenuItem(ui.ICON_PH_IMAGE + " Importar Imagem 2D (.png, .jpg)...", "Ctrl+I") {
-			if path, ok := ui.open_system_file_dialog("Importar Imagem 2D", .Open, .Image); ok {
-				defer delete(path)
-				import_image_as_layer(state, path)
+		if im.MenuItem(ui.ICON_PH_IMAGE + " Importar Imagens 2D (.png, .jpg)...", "Ctrl+I") {
+			paths := ui.open_system_file_dialog_multiple("Importar Imagens 2D", .Image)
+			defer {
+				for p in paths do delete(p)
+				delete(paths)
+			}
+			if len(paths) == 1 {
+				import_image_as_layer(state, paths[0])
+			} else if len(paths) > 1 {
+				import_images_as_layers(state, paths[:])
 			}
 		}
 
@@ -1544,9 +1557,15 @@ render_layers_panel :: proc(state: ^AppState) {
 	if !visible^ do return
 	if im.Begin(editor_panel_name(state, .Layers), visible) {
 		if im.Button(ui.ICON_PH_PLUS + " Importar Imagem") {
-			if path, ok := ui.open_system_file_dialog("Importar Imagem 2D", .Open, .Image); ok {
-				defer delete(path)
-				import_image_as_layer(state, path)
+			paths := ui.open_system_file_dialog_multiple("Importar Imagens 2D", .Image)
+			defer {
+				for p in paths do delete(p)
+				delete(paths)
+			}
+			if len(paths) == 1 {
+				import_image_as_layer(state, paths[0])
+			} else if len(paths) > 1 {
+				import_images_as_layers(state, paths[:])
 			}
 		}
 		im.Separator()
@@ -1895,6 +1914,9 @@ main :: proc() {
 			if io.KeyCtrl && (im.IsKeyPressed(.Y) || (io.KeyShift && im.IsKeyPressed(.Z))) {
 				trigger_redo(&state)
 			}
+			if io.KeyCtrl && im.IsKeyPressed(.N) {
+				new_project_modal_open(&state.new_project)
+			}
 			if io.KeyCtrl && im.IsKeyPressed(.S) {
 				if save_current_project(&state, "chocobones_project.puppet.json") {
 					ui.toast_add(&state.toasts, "Projeto salvo com sucesso!", .Success)
@@ -1961,6 +1983,9 @@ main :: proc() {
 
 		// Modal de Código / JSON (ImGuiColorTextEdit)
 		ui.text_editor_modal_render(&state.text_editor)
+
+		// Modal de Novo Projeto / Personagem
+		new_project_modal_render(&state)
 
 		// Notificações flutuantes (ImNotify)
 		ui.toast_render(&state.toasts)

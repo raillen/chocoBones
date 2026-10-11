@@ -29,7 +29,13 @@
 
 ## Next action
 
-Todas as entregas do Goal P00-G02 (Rigging Dinâmico, Predefinições de Esqueleto, Pacote de Animações Prontas e Importação Nativa de Imagens 2D) foram concluídas, testadas (48 testes passando com zero vazamentos) e integradas à interface gráfica. Próximo passo: validação com o usuário ou expansão das ferramentas de deformação/peso.
+Todas as entregas do Goal P00-G02 foram concluídas, testadas (54 testes passando com zero vazamentos) e integradas:
+1. Resolução do travamento/congelamento na importação de imagens pelo diálogo nativo do sistema.
+2. Assistente modal de Novo Projeto (`Ctrl+N` / menu) com 4 modos: Imagem Única (Sprite), Personagem Modular (Multi-imagem), Vitrines Prontas e Vazio.
+3. Importação simultânea de múltiplas imagens com mapeamento anatômico heurístico (`auto_guess_joint_for_layer`).
+4. Rigging Dinâmico com adição, remoção, renomeação, reparentamento e predefinições esqueléticas completas.
+5. Pacote de animações prontas integrado com playback ativo.
+Próximo passo: validação e novas interações com o usuário.
 
 ## Recovery order
 

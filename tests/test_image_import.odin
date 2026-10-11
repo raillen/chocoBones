@@ -53,3 +53,34 @@ test_layer_creation_from_image_metadata :: proc(t: ^testing.T) {
 	testing.expect(t, layer.transform.pivot.x == 64, "Pivô X deve ser o centro da imagem")
 	testing.expect(t, layer.transform.pivot.y == 128, "Pivô Y deve ser o centro da imagem")
 }
+
+@(test)
+test_auto_guess_joint_humanoid :: proc(t: ^testing.T) {
+	joints := rig.rig_create_preset(.Humanoid)
+	defer delete(joints)
+
+	testing.expect_value(t, rig.auto_guess_joint_for_layer(joints[:], "head.png"), "head")
+	testing.expect_value(t, rig.auto_guess_joint_for_layer(joints[:], "upper_arm_r_layer"), "upper_arm_near")
+	testing.expect_value(t, rig.auto_guess_joint_for_layer(joints[:], "forearm_r"), "forearm_near")
+	testing.expect_value(t, rig.auto_guess_joint_for_layer(joints[:], "hand_r"), "hand_near")
+	testing.expect_value(t, rig.auto_guess_joint_for_layer(joints[:], "upper_arm_l"), "upper_arm_far")
+	testing.expect_value(t, rig.auto_guess_joint_for_layer(joints[:], "forearm_l"), "forearm_far")
+	testing.expect_value(t, rig.auto_guess_joint_for_layer(joints[:], "hand_l"), "hand_far")
+	testing.expect_value(t, rig.auto_guess_joint_for_layer(joints[:], "torso"), "root")
+	testing.expect_value(t, rig.auto_guess_joint_for_layer(joints[:], "thigh_r"), "thigh_near")
+	testing.expect_value(t, rig.auto_guess_joint_for_layer(joints[:], "shin_r"), "shin_near")
+	testing.expect_value(t, rig.auto_guess_joint_for_layer(joints[:], "foot_r"), "foot_near")
+	testing.expect_value(t, rig.auto_guess_joint_for_layer(joints[:], "thigh_l"), "thigh_far")
+	testing.expect_value(t, rig.auto_guess_joint_for_layer(joints[:], "shin_l"), "shin_far")
+	testing.expect_value(t, rig.auto_guess_joint_for_layer(joints[:], "foot_l"), "foot_far")
+}
+
+@(test)
+test_auto_guess_joint_fallback :: proc(t: ^testing.T) {
+	joints := rig.rig_create_preset(.Humanoid)
+	defer delete(joints)
+
+	// Arquivo sem padrão anatômico específico deve retornar a junta raiz (root)
+	testing.expect_value(t, rig.auto_guess_joint_for_layer(joints[:], "unknown_accessory_item"), "root")
+}
+

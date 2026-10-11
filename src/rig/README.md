@@ -7,7 +7,7 @@ Este pacote implementa a estrutura esquelética, cinemática direta (FK), cinem�
 | `joint.odin` | Estrutura `Joint`, `JointDelta`, `Layer`, `Pose` e busca básica de nós |
 | `fk.odin` | Resolução hierárquica de matrizes afins 2D de ossos e camadas (`bone_matrices`, `layer_matrix`) |
 | `ik.odin` | Solver analítico de cinemática inversa para membros de 2 juntas (`solve_ik`) |
-| `presets.odin` | Operações dinâmicas de nós (`joint_add`, `joint_remove`, `joint_rename`, `joint_set_parent`, detecção de ciclos) e predefinições prontas (`Humanoid`, `BipedSimple`, `Quadruped`, `Prop`, `Empty`) |
+| `presets.odin` | Operações dinâmicas de nós (`joint_add`, `joint_remove`, `joint_rename`, `joint_set_parent`, detecção de ciclos), predefinições prontas (`Humanoid`, `BipedSimple`, `Quadruped`, `Prop`, `Empty`) e heurística de mapeamento anatômico de camadas (`auto_guess_joint_for_layer`) |
 
 ## Convenções
 

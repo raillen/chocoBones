@@ -7,8 +7,11 @@ O formato baseia-se no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0
 
 ### Adicionado
 
+- Assistente modal de criação de "Novo Projeto / Personagem" (`Ctrl+N` ou `Arquivo -> Novo Projeto...`), permitindo criar personagens a partir de: Imagem Única (Sprite com auto-posicionamento de esqueleto), Personagem Modular (seleção múltipla de imagens com lista gerenciável de peças), Vitrine Pronta de Demonstração ou Projeto em Branco.
+- Importação nativa simultânea de múltiplas imagens 2D no painel de camadas e no menu (`Ctrl+I`), integrando automaticamente cada peça à anatomia do esqueleto através da heurística `auto_guess_joint_for_layer`.
+- Resolução do congelamento na abertura do diálogo nativo de arquivos: substituição do monitoramento bloqueante do DBus por invocação direta de utilitários gráficos (`zenity`, `kdialog` e `tkinter`), eliminando bloqueios da fila de eventos SDL2 e restabelecendo estabilidade total no Linux/Wayland/X11.
 - Kit de teste original Frontier Survival em `assets/test-kits/frontier-survival/`: seis humanos, seis animais e 24 roupas/equipamentos PNG transparentes, fontes SVG de humano modular com 15 partes e seis acessórios, manifests e catálogo local.
-- Importação nativa de imagens 2D (.png, .jpg, .jpeg, .bmp, .tga) no editor via janela de diálogo nativa do sistema operacional (`Zenity`, `KDialog`, `XDG Desktop Portal`, `Tkinter`) acionada por `Ctrl+I`, botão no painel de Camadas e arrasto de arquivos (`SDL_DROPFILE`).
+- Importação nativa de imagens 2D (.png, .jpg, .jpeg, .bmp, .tga) no editor via janela de diálogo nativa do sistema operacional (`Zenity`, `KDialog`, `Tkinter`) acionada por `Ctrl+I`, botão no painel de Camadas e arrasto de arquivos (`SDL_DROPFILE`).
 - Janela de diálogo nativa do sistema também integrada para Abrir Projeto (`Ctrl+O`), Salvar Como e Importar Modelo 3D.
 - Vitrine de animação integrada usando os assets originais de Frontier Survival: Sobrevivente Modular (18 camadas com textura real, rifle, mochila e colete tático sobre esqueleto humanoide de 14 juntas) e Lobo da Fronteira (quadrúpede), selecionáveis via `Arquivo -> Vitrine de Exemplos` e carregados por padrão na inicialização com playback de animação contínua.
 - Sistema de rigging dinâmico: adição (`+ Nova Junta`), exclusão, renomeação e reparentamento de juntas com validação anti-ciclos e predefinições esqueléticas completas (`Humanoide`, `Bípede Simplificado`, `Quadrúpede`, `Prop`, `Vazio`).

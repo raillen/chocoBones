@@ -223,3 +223,73 @@ rig_create_preset :: proc(preset: RigPreset, allocator := context.allocator) -> 
 
 	return joints
 }
+
+// Heurística anatômica que deduz o ID da junta correspondente a partir do nome do arquivo da camada (ex: "head.png" -> "head")
+auto_guess_joint_for_layer :: proc(joints: []Joint, layer_name: string) -> string {
+	lower := strings.to_lower(layer_name, context.temp_allocator)
+	if strings.contains(lower, "head") || strings.contains(lower, "cabeca") {
+		if _, ok := find_joint(joints, "head"); ok do return "head"
+	}
+
+	// Antebraço (verificar antes de arm_r/arm_l para não colidir com substring "arm")
+	if strings.contains(lower, "forearm_r") || strings.contains(lower, "antabraco_d") {
+		if _, ok := find_joint(joints, "forearm_near"); ok do return "forearm_near"
+	}
+	if strings.contains(lower, "forearm_l") || strings.contains(lower, "antabraco_e") {
+		if _, ok := find_joint(joints, "forearm_far"); ok do return "forearm_far"
+	}
+
+	// Mão / Punho
+	if strings.contains(lower, "hand_r") || strings.contains(lower, "mao_d") {
+		if _, ok := find_joint(joints, "hand_near"); ok do return "hand_near"
+		if _, ok := find_joint(joints, "hand_r"); ok do return "hand_r"
+	}
+	if strings.contains(lower, "hand_l") || strings.contains(lower, "mao_e") {
+		if _, ok := find_joint(joints, "hand_far"); ok do return "hand_far"
+		if _, ok := find_joint(joints, "hand_l"); ok do return "hand_l"
+	}
+
+	// Braço superior / ombro
+	if strings.contains(lower, "upper_arm_r") || strings.contains(lower, "braco_d") || strings.contains(lower, "arm_r") {
+		if _, ok := find_joint(joints, "upper_arm_near"); ok do return "upper_arm_near"
+		if _, ok := find_joint(joints, "arm_r"); ok do return "arm_r"
+	}
+	if strings.contains(lower, "upper_arm_l") || strings.contains(lower, "braco_e") || strings.contains(lower, "arm_l") {
+		if _, ok := find_joint(joints, "upper_arm_far"); ok do return "upper_arm_far"
+		if _, ok := find_joint(joints, "arm_l"); ok do return "arm_l"
+	}
+
+	// Pé / Bota (verificar antes de perna)
+	if strings.contains(lower, "foot_r") || strings.contains(lower, "pe_d") || strings.contains(lower, "bota_d") {
+		if _, ok := find_joint(joints, "foot_near"); ok do return "foot_near"
+	}
+	if strings.contains(lower, "foot_l") || strings.contains(lower, "pe_e") || strings.contains(lower, "bota_e") {
+		if _, ok := find_joint(joints, "foot_far"); ok do return "foot_far"
+	}
+
+	// Canela / Joelho
+	if strings.contains(lower, "shin_r") || strings.contains(lower, "canela_d") {
+		if _, ok := find_joint(joints, "shin_near"); ok do return "shin_near"
+	}
+	if strings.contains(lower, "shin_l") || strings.contains(lower, "canela_e") {
+		if _, ok := find_joint(joints, "shin_far"); ok do return "shin_far"
+	}
+
+	// Coxa / Perna
+	if strings.contains(lower, "thigh_r") || strings.contains(lower, "coxa_d") || strings.contains(lower, "leg_r") {
+		if _, ok := find_joint(joints, "thigh_near"); ok do return "thigh_near"
+		if _, ok := find_joint(joints, "leg_r"); ok do return "leg_r"
+	}
+	if strings.contains(lower, "thigh_l") || strings.contains(lower, "coxa_e") || strings.contains(lower, "leg_l") {
+		if _, ok := find_joint(joints, "thigh_far"); ok do return "thigh_far"
+		if _, ok := find_joint(joints, "leg_l"); ok do return "leg_l"
+	}
+
+	// Tronco / Pélvis / Raiz
+	if strings.contains(lower, "torso") || strings.contains(lower, "tronco") || strings.contains(lower, "pelvis") || strings.contains(lower, "corpo") {
+		if _, ok := find_joint(joints, "root"); ok do return "root"
+		if _, ok := find_joint(joints, "spine_root"); ok do return "spine_root"
+	}
+	return len(joints) > 0 ? joints[0].id : ""
+}
+
