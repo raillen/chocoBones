@@ -8,7 +8,8 @@ O formato baseia-se no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0
 ### Adicionado
 
 - Kit de teste original Frontier Survival em `assets/test-kits/frontier-survival/`: seis humanos, seis animais e 24 roupas/equipamentos PNG transparentes, fontes SVG de humano modular com 15 partes e seis acessórios, manifests e catálogo local.
-- Importação nativa de imagens 2D (.png, .jpg, .jpeg, .bmp, .tga) no editor via diálogo de arquivos (`Ctrl+I`), botão na aba de Camadas e arrasto de arquivos (`SDL_DROPFILE`).
+- Importação nativa de imagens 2D (.png, .jpg, .jpeg, .bmp, .tga) no editor via janela de diálogo nativa do sistema operacional (`Zenity`, `KDialog`, `XDG Desktop Portal`, `Tkinter`) acionada por `Ctrl+I`, botão no painel de Camadas e arrasto de arquivos (`SDL_DROPFILE`).
+- Janela de diálogo nativa do sistema também integrada para Abrir Projeto (`Ctrl+O`), Salvar Como e Importar Modelo 3D.
 - Sistema de rigging dinâmico: adição (`+ Nova Junta`), exclusão, renomeação e reparentamento de juntas com validação anti-ciclos e predefinições esqueléticas completas (`Humanoide`, `Bípede Simplificado`, `Quadrúpede`, `Prop`, `Vazio`).
 - Pacote integrado de animações prontas (`Idle`, `Walk Cycle`, `Run Cycle`, `Melee Attack`, `Shield Block`) com seletor de clipes ativos na linha do tempo, criação de novos clipes e amostragem procedural.
 - Temas Dark/Light com paleta semântica, accent livre/HEX e presets ciano, azul, violeta, rosa, verde e âmbar.

@@ -650,15 +650,38 @@ render_main_menu :: proc(state: ^AppState) {
 		}
 
 		if im.MenuItem(ui.ICON_PH_FOLDER_OPEN + " Abrir Projeto (Diálogo)...", "Ctrl+O") {
-			ui.file_dialog_open(&state.file_dialog, .OpenFile, "chocobones_project.puppet.json")
+			if path, ok := ui.open_system_file_dialog("Abrir Projeto ChocoBones", .Open, .Project); ok {
+				defer delete(path)
+				if load_project_file(state, path) {
+					ui.toast_add(&state.toasts, fmt.tprintf("Projeto carregado: %s", path), .Success)
+				} else {
+					ui.toast_add(&state.toasts, "Erro ao abrir arquivo de projeto", .Error)
+				}
+			}
 		}
 
 		if im.MenuItem(ui.ICON_PH_IMAGE + " Importar Imagem 2D (.png, .jpg)...", "Ctrl+I") {
-			ui.file_dialog_open(&state.file_dialog, .OpenFile, "imagem.png")
+			if path, ok := ui.open_system_file_dialog("Importar Imagem 2D", .Open, .Image); ok {
+				defer delete(path)
+				import_image_as_layer(state, path)
+			}
 		}
 
 		if im.MenuItem(ui.ICON_PH_CUBE + " Importar Modelo 3D (.obj, .gltf, .glb)...") {
-			ui.file_dialog_open(&state.file_dialog, .OpenFile, "modelo.glb")
+			if path, ok := ui.open_system_file_dialog("Importar Modelo 3D", .Open, .Mesh); ok {
+				defer delete(path)
+				new_mesh, mesh_ok := mesh3d.load_mesh3d_from_file(path)
+				if mesh_ok {
+					if state.has_mesh3d do mesh3d.mesh3d_destroy(&state.active_mesh3d)
+					state.active_mesh3d = new_mesh
+					state.has_mesh3d = true
+					state.viewport_mode = .Mode3D
+					core.orbit_camera_init(&state.camera3d, {0, 0, 0}, 4.0)
+					ui.toast_add(&state.toasts, fmt.tprintf("Modelo 3D importado: %s", new_mesh.name), .Success)
+				} else {
+					ui.toast_add(&state.toasts, "Erro ao carregar modelo 3D (.obj, .gltf, .glb)", .Error)
+				}
+			}
 		}
 
 		if im.MenuItem(ui.ICON_PH_FLOPPY_DISK + " Salvar Projeto", "Ctrl+S") {
@@ -672,7 +695,14 @@ render_main_menu :: proc(state: ^AppState) {
 		}
 
 		if im.MenuItem(ui.ICON_PH_FLOPPY_DISK_BACK + " Salvar Como...") {
-			ui.file_dialog_open(&state.file_dialog, .SaveFile, "chocobones_project.puppet.json")
+			if path, ok := ui.open_system_file_dialog("Salvar Projeto Como...", .Save, .Project); ok {
+				defer delete(path)
+				if save_current_project(state, path) {
+					ui.toast_add(&state.toasts, fmt.tprintf("Projeto salvo: %s", path), .Success)
+				} else {
+					ui.toast_add(&state.toasts, "Erro ao salvar arquivo de projeto", .Error)
+				}
+			}
 		}
 
 		im.Separator()
@@ -1520,7 +1550,10 @@ render_layers_panel :: proc(state: ^AppState) {
 	if !visible^ do return
 	if im.Begin(editor_panel_name(state, .Layers), visible) {
 		if im.Button(ui.ICON_PH_PLUS + " Importar Imagem") {
-			ui.file_dialog_open(&state.file_dialog, .OpenFile, "sprite.png")
+			if path, ok := ui.open_system_file_dialog("Importar Imagem 2D", .Open, .Image); ok {
+				defer delete(path)
+				import_image_as_layer(state, path)
+			}
 		}
 		im.Separator()
 
