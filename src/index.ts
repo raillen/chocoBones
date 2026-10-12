@@ -17,7 +17,7 @@ async function main(): Promise<void> {
 
   const cleanup = bindSlintWindow(window, state);
 
-  console.log("🦴 chocoBones Desktop (TypeScript + Node + pnpm + Slint) inicializado com sucesso!");
+  console.log("chocoBones Desktop (TypeScript + Node + pnpm + Slint) inicializado com sucesso!");
   console.log("   - Workspaces: Montagem, Rig, Animação, Foco");
   console.log("   - Cinemática: FK / 2-Bone IK");
   console.log("   - Deformação: MLS Rígido 2D");

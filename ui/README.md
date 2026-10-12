@@ -1,13 +1,11 @@
-# Interface Gráfica Declarativa Slint (`ui/`)
+# Interface Slint
 
-Contém os arquivos de layout compilados e interpretados pelo **Slint**.
+`main.slint` compõe um editor de personagens com duas barras compactas, ferramentas Phosphor, palco proporcional e painéis contínuos. `studio-controls.slint` define os controles e a paleta compartilhada de Dark, Dim e Light, com seis acentos.
 
-## Componentes
+Montagem prioriza camadas; Rig, juntas; Animação inclui timeline sob o palco; Foco amplia o palco. Em larguras abaixo de 1100 px, Elementos e Inspetor usam abas. Listas e propriedades têm rolagem; o mínimo é 760×560.
 
-* [`main.slint`](main.slint):
-  * **MainWindow**: Janela desktop com resolução preferida 1280×768 e tema escuro (#18181b).
-  * **Barra de Navegação**: Alternador entre os quatro espaços de trabalho (*Montagem*, *Rig*, *Animação* e *Foco*).
-  * **Painel Esquerdo**: Árvore hierárquica de camadas e esqueleto de juntas.
-  * **Viewport Central**: Container dinâmico com superfície `<Image>` recebendo o buffer de pixels 2D/3D gerado pelo motor da aplicação.
-  * **Painel Direito**: Inspetor de propriedades, parâmetros de deformação MLS e shaders.
-  * **Linha do Tempo (Timeline)**: Régua temporal, controles de Play/Pause e slider para scrubbing em tempo real.
+Todos os ícones são SVGs Phosphor existentes em `assets/icons/`. Fontes Inter vêm de `assets/fonts/`. Não há emojis ou seletores de cores do personagem sem ação real.
+
+As ações permanecem conectadas à bridge TypeScript. O palco preserva proporção e usa coordenadas convertidas para picking e arrasto. Botões, cores de destaque e timeline oferecem foco e navegação por teclado.
+
+A análise da referência, os detalhes de adaptação e os comandos de QA estão em [Interface do editor](../docs/development/editor-ui.md).

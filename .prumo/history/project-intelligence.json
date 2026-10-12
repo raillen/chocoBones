@@ -27,16 +27,37 @@
         "Exportacao de personagem invariavel entre temas e accents extremos"
       ],
       "verification": {
-        "odin_check": {"command": "odin check src", "result": "passed"},
-        "odin_build": {"command": "odin build src -out:bin/chocobones", "result": "passed"},
-        "odin_tests": {"command": "odin test tests", "result": "passed", "test_count": 41},
+        "odin_check": {
+          "command": "odin check src",
+          "result": "passed"
+        },
+        "odin_build": {
+          "command": "odin build src -out:bin/chocobones",
+          "result": "passed"
+        },
+        "odin_tests": {
+          "command": "odin test tests",
+          "result": "passed",
+          "test_count": 41
+        },
         "native_matrix": {
           "script": "scripts/qa_editor_ui.py",
           "result": "passed",
           "case_count": 18,
-          "themes": ["dark", "light"],
-          "resolutions": ["1280x720", "1440x900", "1920x1080"],
-          "scales": [1, 1.5, 2],
+          "themes": [
+            "dark",
+            "light"
+          ],
+          "resolutions": [
+            "1280x720",
+            "1440x900",
+            "1920x1080"
+          ],
+          "scales": [
+            1,
+            1.5,
+            2
+          ],
           "report": "/home/raillen/.codex/visualizations/2026/10/11/01a12c37-d2a6-7871-8894-44640df44ef9/chocobones/matrix.json"
         },
         "native_interactions": {
@@ -59,8 +80,65 @@
         "user_hardware_validated": false
       },
       "remaining_implementation": [],
-      "limitations": ["Native QA used Xvfb and software OpenGL; physical desktop, DPI and GPU/driver acceptance on user hardware were not run"],
+      "limitations": [
+        "Native QA used Xvfb and software OpenGL; physical desktop, DPI and GPU/driver acceptance on user hardware were not run"
+      ],
       "schema_note": "No machine-readable TaskEntry schema was available in the project. This named evidence record preserves the existing version/summary/tasks/debt envelope and is not a formal Prumo TaskEntry."
+    },
+    {
+      "id": "slint-reference-adaptability-phosphor-2026-10-12",
+      "kind": "local-implementation-evidence",
+      "recorded_on": "2026-10-12",
+      "status": "implemented-and-validated-in-xvfb",
+      "formal_goal": null,
+      "canonical_document": "docs/development/editor-ui.md",
+      "changes": [
+        "Chrome neutro contínuo, barras compactas, Phosphor SVG sem emojis e fontes Inter",
+        "Painéis contextuais e adaptação por abas abaixo de 1100px; mínimo760x560",
+        "Entrega de RGBA público ao Slint corrigida no runtime ESM",
+        "Picking/drag mapeados pela proporção do palco e margens",
+        "Timeline e acentos com teclado; popup bloqueia cliques nas áreas vazias"
+      ],
+      "verification": {
+        "typecheck": {
+          "result": "passed"
+        },
+        "build": {
+          "result": "passed"
+        },
+        "vitest": {
+          "result": "passed",
+          "test_count": 132,
+          "suite_count": 16
+        },
+        "native_ui": {
+          "result": "passed",
+          "check_count": 28,
+          "capture_count": 15,
+          "themes": [
+            "Dark",
+            "Dim",
+            "Light"
+          ],
+          "resolutions": [
+            "900x640",
+            "1280x720",
+            "1400x900",
+            "760x560"
+          ],
+          "report": "docs/development/screenshots/slint-studio/report.json"
+        },
+        "qa_script_strict_typecheck": {
+          "result": "passed"
+        },
+        "integration_base": "7d1c24e07bc141190f846bd857b5a0991dfdf6a7"
+      },
+      "limitations": [
+        "Sem docking livre ou persistência de layouts Slint",
+        "GPU física não validada",
+        "Cores de fundo do preview/export mantêm comportamento prévio do renderizador"
+      ],
+      "metrics_note": "Custos e tokens não medidos; baseline de summary preservado."
     }
   ]
 }

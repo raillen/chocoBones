@@ -1,0 +1,335 @@
+{
+  "display": ":102",
+  "checks": [
+    "native-window-visible",
+    "dark-900x640",
+    "dark-1280x720",
+    "dark-1400x900",
+    "dim-900x640",
+    "dim-1280x720",
+    "dim-1400x900",
+    "light-900x640",
+    "light-1280x720",
+    "light-1400x900",
+    "themes-preserve-selection-and-update-pixels",
+    "light-minimum-760x560",
+    "workspace-montagem",
+    "workspace-rig",
+    "workspace-animacao",
+    "workspace-foco",
+    "appearance",
+    "appearance-and-accent-callbacks",
+    "native-appearance-blocks-click-through",
+    "native-accent-keyboard-activation",
+    "native-persona-clicks",
+    "native-stage-keyboard-playback",
+    "native-timeline-keyboard-navigation",
+    "native-button-keyboard-activation",
+    "zoom-callbacks",
+    "edit-and-undo",
+    "timeline-seek-and-live-playback",
+    "png-export-dimensions"
+  ],
+  "captures": [
+    {
+      "name": "dark-900x640",
+      "file": "dark-900x640.png",
+      "theme": "Dark",
+      "workspace": "Animacao",
+      "width": 900,
+      "height": 640,
+      "viewportWidth": 628,
+      "viewportHeight": 419.0000305175781,
+      "inspectorWidth": 232,
+      "compact": true,
+      "short": true,
+      "frameHash": "357867739ac042297e13ade51975b2f1a3b7d60afd26a5312e089d300dd40f25",
+      "screenshotHash": "37a71c2df1d1be1acad7a4ef4ced18235838d2ab100bed844126edc5e827caf8",
+      "chromeRGB": [
+        32,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "dark-1280x720",
+      "file": "dark-1280x720.png",
+      "theme": "Dark",
+      "workspace": "Animacao",
+      "width": 1280,
+      "height": 720,
+      "viewportWidth": 972,
+      "viewportHeight": 467,
+      "inspectorWidth": 268,
+      "compact": false,
+      "short": false,
+      "frameHash": "357867739ac042297e13ade51975b2f1a3b7d60afd26a5312e089d300dd40f25",
+      "screenshotHash": "3965c3fe941ffd06e83c6aed1781647e600b1aa2c43fcfe10ded96ab227c3427",
+      "chromeRGB": [
+        32,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "dark-1400x900",
+      "file": "dark-1400x900.png",
+      "theme": "Dark",
+      "workspace": "Animacao",
+      "width": 1400,
+      "height": 900,
+      "viewportWidth": 1092,
+      "viewportHeight": 647,
+      "inspectorWidth": 268,
+      "compact": false,
+      "short": false,
+      "frameHash": "357867739ac042297e13ade51975b2f1a3b7d60afd26a5312e089d300dd40f25",
+      "screenshotHash": "1306152369735293b08a9cd8487e3ba1a3bfabbc5b434b3fef76f6afd3d1698e",
+      "chromeRGB": [
+        32,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "dim-900x640",
+      "file": "dim-900x640.png",
+      "theme": "Dim",
+      "workspace": "Animacao",
+      "width": 900,
+      "height": 640,
+      "viewportWidth": 628,
+      "viewportHeight": 419.0000305175781,
+      "inspectorWidth": 232,
+      "compact": true,
+      "short": true,
+      "frameHash": "1fbab388b06d0bca6374c07b72b4f48019eb468ed1142edff1b9b8b2f656965b",
+      "screenshotHash": "e4ba6372131675a3d35142d7d22b9abcf298f538cc0ea9db8a36bb2e4e895889",
+      "chromeRGB": [
+        57,
+        57,
+        57
+      ]
+    },
+    {
+      "name": "dim-1280x720",
+      "file": "dim-1280x720.png",
+      "theme": "Dim",
+      "workspace": "Animacao",
+      "width": 1280,
+      "height": 720,
+      "viewportWidth": 972,
+      "viewportHeight": 467,
+      "inspectorWidth": 268,
+      "compact": false,
+      "short": false,
+      "frameHash": "1fbab388b06d0bca6374c07b72b4f48019eb468ed1142edff1b9b8b2f656965b",
+      "screenshotHash": "864a567114275c33a43ca292e46344392f2ee080c3db4dea995ed015f29995de",
+      "chromeRGB": [
+        57,
+        57,
+        57
+      ]
+    },
+    {
+      "name": "dim-1400x900",
+      "file": "dim-1400x900.png",
+      "theme": "Dim",
+      "workspace": "Animacao",
+      "width": 1400,
+      "height": 900,
+      "viewportWidth": 1092,
+      "viewportHeight": 647,
+      "inspectorWidth": 268,
+      "compact": false,
+      "short": false,
+      "frameHash": "1fbab388b06d0bca6374c07b72b4f48019eb468ed1142edff1b9b8b2f656965b",
+      "screenshotHash": "ba7c2f59558a5b2fef809353ced5ee5f4a2ab2d68ba73a2e4760dc092022e438",
+      "chromeRGB": [
+        57,
+        57,
+        57
+      ]
+    },
+    {
+      "name": "light-900x640",
+      "file": "light-900x640.png",
+      "theme": "Light",
+      "workspace": "Animacao",
+      "width": 900,
+      "height": 640,
+      "viewportWidth": 628,
+      "viewportHeight": 419.0000305175781,
+      "inspectorWidth": 232,
+      "compact": true,
+      "short": true,
+      "frameHash": "18c72e76beb2cc8f7f78a9b77793fa00708c1d97380f7c42f5741f849d3621fa",
+      "screenshotHash": "125cf0f5dceb4823c4b417d7ba86c336c2add23586a402de21f33d0131a99fae",
+      "chromeRGB": [
+        222,
+        222,
+        222
+      ]
+    },
+    {
+      "name": "light-1280x720",
+      "file": "light-1280x720.png",
+      "theme": "Light",
+      "workspace": "Animacao",
+      "width": 1280,
+      "height": 720,
+      "viewportWidth": 972,
+      "viewportHeight": 467,
+      "inspectorWidth": 268,
+      "compact": false,
+      "short": false,
+      "frameHash": "18c72e76beb2cc8f7f78a9b77793fa00708c1d97380f7c42f5741f849d3621fa",
+      "screenshotHash": "0927f27c1d4a26db42bdfd48eb25764eb6fe94cf3d5e945cfd5c70ca85cd43b4",
+      "chromeRGB": [
+        222,
+        222,
+        222
+      ]
+    },
+    {
+      "name": "light-1400x900",
+      "file": "light-1400x900.png",
+      "theme": "Light",
+      "workspace": "Animacao",
+      "width": 1400,
+      "height": 900,
+      "viewportWidth": 1092,
+      "viewportHeight": 647,
+      "inspectorWidth": 268,
+      "compact": false,
+      "short": false,
+      "frameHash": "18c72e76beb2cc8f7f78a9b77793fa00708c1d97380f7c42f5741f849d3621fa",
+      "screenshotHash": "13868a4e20780be8aa2717e149a74be2d8ff4f5475fdb7f9c27349ce01d15e7a",
+      "chromeRGB": [
+        222,
+        222,
+        222
+      ]
+    },
+    {
+      "name": "light-minimum-760x560",
+      "file": "light-minimum-760x560.png",
+      "theme": "Light",
+      "workspace": "Animacao",
+      "width": 760,
+      "height": 560,
+      "viewportWidth": 488,
+      "viewportHeight": 339,
+      "inspectorWidth": 232,
+      "compact": true,
+      "short": true,
+      "frameHash": "18c72e76beb2cc8f7f78a9b77793fa00708c1d97380f7c42f5741f849d3621fa",
+      "screenshotHash": "b9d9ef550fe5d4fd0b825a386e74603941751d5de086090b1c7f0cb0f55709e3",
+      "chromeRGB": [
+        222,
+        222,
+        222
+      ]
+    },
+    {
+      "name": "workspace-montagem",
+      "file": "workspace-montagem.png",
+      "theme": "Dark",
+      "workspace": "Montagem",
+      "width": 1400,
+      "height": 900,
+      "viewportWidth": 1092,
+      "viewportHeight": 775,
+      "inspectorWidth": 268,
+      "compact": false,
+      "short": false,
+      "frameHash": "357867739ac042297e13ade51975b2f1a3b7d60afd26a5312e089d300dd40f25",
+      "screenshotHash": "74f8df1469d12684739d855f05e1406a95a065db74436e3f6d02018d5c61e3dc",
+      "chromeRGB": [
+        32,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "workspace-rig",
+      "file": "workspace-rig.png",
+      "theme": "Dark",
+      "workspace": "Rig",
+      "width": 1400,
+      "height": 900,
+      "viewportWidth": 1092,
+      "viewportHeight": 775,
+      "inspectorWidth": 268,
+      "compact": false,
+      "short": false,
+      "frameHash": "357867739ac042297e13ade51975b2f1a3b7d60afd26a5312e089d300dd40f25",
+      "screenshotHash": "4da96e223bfafdbbba02cbbaec40404642d65bf43150e78fb1fcd92981e89ddf",
+      "chromeRGB": [
+        32,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "workspace-animacao",
+      "file": "workspace-animacao.png",
+      "theme": "Dark",
+      "workspace": "Animacao",
+      "width": 1400,
+      "height": 900,
+      "viewportWidth": 1092,
+      "viewportHeight": 647,
+      "inspectorWidth": 268,
+      "compact": false,
+      "short": false,
+      "frameHash": "357867739ac042297e13ade51975b2f1a3b7d60afd26a5312e089d300dd40f25",
+      "screenshotHash": "1306152369735293b08a9cd8487e3ba1a3bfabbc5b434b3fef76f6afd3d1698e",
+      "chromeRGB": [
+        32,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "workspace-foco",
+      "file": "workspace-foco.png",
+      "theme": "Dark",
+      "workspace": "Foco",
+      "width": 1400,
+      "height": 900,
+      "viewportWidth": 1360,
+      "viewportHeight": 775,
+      "inspectorWidth": 0,
+      "compact": false,
+      "short": false,
+      "frameHash": "357867739ac042297e13ade51975b2f1a3b7d60afd26a5312e089d300dd40f25",
+      "screenshotHash": "6e5e47677318636afc22e128dfb17ff8785b0fe2f1dfde293149ec8e43e44aff",
+      "chromeRGB": [
+        32,
+        32,
+        32
+      ]
+    },
+    {
+      "name": "appearance",
+      "file": "appearance.png",
+      "theme": "Dark",
+      "workspace": "Rig",
+      "width": 1400,
+      "height": 900,
+      "viewportWidth": 1092,
+      "viewportHeight": 775,
+      "inspectorWidth": 268,
+      "compact": false,
+      "short": false,
+      "frameHash": "357867739ac042297e13ade51975b2f1a3b7d60afd26a5312e089d300dd40f25",
+      "screenshotHash": "c79823032ac687335b46753aff19831b871ccf34e208feee7726e65effa3042f",
+      "chromeRGB": [
+        32,
+        32,
+        32
+      ]
+    }
+  ]
+}

@@ -5,6 +5,19 @@ O formato baseia-se no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0
 
 ## [Não lançado]
 
+### Alterado
+
+- Interface Slint reestruturada a partir da referência: chrome neutro e contínuo, barras compactas, rail Phosphor sem emojis, painéis de elementos/transformação/navegador e aparência separada das propriedades do personagem.
+- Layout adapta painéis por abas abaixo de 1100 px, reduz timeline em alturas menores e amplia o palco em Foco; ações existentes de montagem, rig e animação permanecem conectadas.
+- Botões, acentos, timeline e opacidade com foco e teclado; áreas vazias do painel de aparência interceptam cliques.
+
+### Corrigido
+
+- Palco preto no runtime ESM: entrega de RGBA pela API pública ImageData do Slint, em vez de require indisponível e construtor privado que ignorava os pixels.
+- Picking e arrasto com imagem proporcional após redimensionar a janela; cliques nas margens não alteram o documento.
+- Códigos especiais de teclado Slint convertidos para Home/Delete/Backspace, mantendo a navegação de foco.
+
+
 ### Adicionado
 
 - **Dossiê P2 (perf/export/skinning)**: `rig/compiled.ts` (rig pré-compilado O(n)), `mesh/cache.ts` (`MeshCache` + `VertexPool` + `GpuBufferManager` dirty-only), `export/runtime.ts` (contratos runtime v2/export v1, sequência determinística, spritesheet), `deform/lbs.ts` (LBS + DQ planar, ordem `bones-then-mls` v1).

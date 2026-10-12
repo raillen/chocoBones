@@ -8,6 +8,7 @@ import { boneMatrices } from "../rig/fk";
 import { meshWorld } from "../mesh/mesh";
 import { stepSpring } from "../physics2d/spring";
 import type { AppState } from "../ui/store";
+import type { ImageData } from "slint-ui";
 
 export interface LoopOptions {
   fps?: number;
@@ -126,15 +127,6 @@ export function renderOffscreen(state: AppState, time: number): void {
 export function startRenderLoop(state: AppState, window: unknown, opts: LoopOptions = {}): () => void {
   const intervalMs = 1000 / (opts.fps ?? 60);
   let last = Date.now();
-  // Lazy-require slint apenas no runtime desktop (evita custo em testes)
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  let slintApi: { private_api?: { SlintImageData?: new (w: number, h: number, data: Buffer) => unknown } } | null = null;
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    slintApi = require("slint-ui") as typeof slintApi;
-  } catch {
-    slintApi = null;
-  }
 
   const id = setInterval(() => {
     const now = Date.now();
@@ -143,18 +135,19 @@ export function startRenderLoop(state: AppState, window: unknown, opts: LoopOpti
     tickAnimation(state, dt);
     renderFrame(state);
     try {
-      const api = slintApi as unknown as { private_api?: { SlintImageData?: new (w: number, h: number, data: Buffer) => unknown } } | null;
-      const SlintImageData = api?.private_api?.SlintImageData;
       const w = window as Record<string, unknown>;
-      if (SlintImageData && typeof w === "object" && w !== null) {
+      if (typeof w === "object" && w !== null) {
         const buf = state.viewportBuffer;
-        w["viewport_frame"] = new SlintImageData(
-          buf.width,
-          buf.height,
-          Buffer.from(buf.pixels.buffer, buf.pixels.byteOffset, buf.pixels.byteLength)
-        );
+        // Slint's public ImageData setter copies RGBA pixels into its native image.
+        // A type-only import keeps offscreen rendering free of the desktop runtime.
+        const frame: ImageData = {
+          width: buf.width,
+          height: buf.height,
+          data: Buffer.from(buf.pixels.buffer, buf.pixels.byteOffset, buf.pixels.byteLength),
+        };
+        w["viewport_frame"] = frame;
+        if (typeof w["timeline_time"] !== "undefined") w["timeline_time"] = state.timelineTime;
       }
-      if (typeof w["timeline_time"] !== "undefined") w["timeline_time"] = state.timelineTime;
     } catch {
       // janela fechada: ignora
     }

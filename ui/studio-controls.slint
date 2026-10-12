@@ -1,0 +1,160 @@
+// Controles do chrome: mesma paleta em todos os temas, inclusive hover e foco.
+import "../assets/fonts/Inter-Regular.ttf";
+import "../assets/fonts/Inter-Medium.ttf";
+
+export global StudioPalette {
+    in-out property <string> theme: "Dark";
+    in-out property <string> accent-name: "Ciano";
+    out property <color> bg: theme == "Light" ? #dedede : theme == "Dim" ? #393939 : #202020;
+    out property <color> surface: theme == "Light" ? #ededed : theme == "Dim" ? #424242 : #282828;
+    out property <color> raised: theme == "Light" ? #f7f7f7 : theme == "Dim" ? #4c4c4c : #333333;
+    out property <color> field: theme == "Light" ? #ffffff : theme == "Dim" ? #333333 : #1b1b1b;
+    out property <color> border: theme == "Light" ? #c0c0c0 : theme == "Dim" ? #555555 : #3d3d3d;
+    out property <color> text: theme == "Light" ? #272727 : #ececec;
+    out property <color> muted: theme == "Light" ? #606060 : #b6b6b6;
+    out property <color> accent: accent-name == "Azul" ? #3b82f6 : accent-name == "Violeta" ? #8b5cf6 :
+        accent-name == "Rosa" ? #ec4899 : accent-name == "Verde" ? #10b981 :
+        accent-name == "Ambar" ? #f59e0b : #06b6d4;
+    out property <color> on-accent: #101010;
+    out property <color> selection: accent.with-alpha(theme == "Light" ? 0.16 : 0.20);
+}
+
+export component StudioButton inherits Rectangle {
+    in property <string> label;
+    in property <string> description: label;
+    in property <image> icon;
+    in property <bool> has-icon: false;
+    in property <bool> active: false;
+    in property <bool> quiet: true;
+    in property <bool> enabled: true;
+    in property <bool> pill: false;
+    callback clicked();
+    height: 28px;
+    min-width: content.preferred-width;
+    border-radius: pill ? 14px : 3px;
+    background: active ? StudioPalette.accent : touch.has-hover && enabled ? StudioPalette.raised :
+        quiet ? #00000000 : StudioPalette.field;
+    border-width: focus.has-focus || !quiet ? 1px : 0px;
+    border-color: focus.has-focus ? StudioPalette.accent : StudioPalette.border;
+    opacity: enabled ? 1 : 0.4;
+    accessible-role: button;
+    accessible-label: description;
+    accessible-enabled: enabled;
+    content := HorizontalLayout {
+        padding-left: root.has-icon && root.label == "" ? 6px : 8px;
+        padding-right: root.has-icon && root.label == "" ? 6px : 8px;
+        spacing: root.has-icon && root.label != "" ? 5px : 0px;
+        if root.has-icon: Image {
+            width: 16px; height: 16px;
+            source: root.icon;
+            colorize: root.active ? StudioPalette.on-accent : StudioPalette.text;
+        }
+        if root.label != "": Text {
+            text: root.label;
+            font-size: 11px;
+            font-weight: root.active ? 600 : 400;
+            color: root.active ? StudioPalette.on-accent : StudioPalette.text;
+            vertical-alignment: center;
+        }
+    }
+    focus := FocusScope {
+        enabled: root.enabled;
+        key-pressed(event) => {
+            if event.text == " " || event.text == "\n" {
+                root.clicked();
+                accept
+            } else { reject }
+        }
+    }
+    touch := TouchArea {
+        enabled: root.enabled;
+        mouse-cursor: pointer;
+        clicked => { focus.focus(); root.clicked(); }
+    }
+}
+
+export component PanelTitle inherits Rectangle {
+    in property <string> label;
+    in property <string> detail;
+    height: 28px;
+    background: StudioPalette.bg;
+    HorizontalLayout {
+        padding-left: 10px; padding-right: 10px;
+        Text { text: root.label; font-size: 11px; font-weight: 600; color: StudioPalette.text; vertical-alignment: center; }
+        Text { text: root.detail; font-size: 10px; color: StudioPalette.muted; horizontal-alignment: right; vertical-alignment: center; }
+    }
+    Rectangle { y: parent.height - 1px; height: 1px; width: 100%; background: StudioPalette.border; }
+}
+
+export component StudioScrub inherits Rectangle {
+    in property <float> value;
+    in property <float> maximum: 1;
+    in property <string> description: "Tempo da animação";
+    in property <float> step: maximum / 100;
+    callback changed(float);
+    height: 26px;
+    accessible-role: slider;
+    accessible-label: description;
+    background: StudioPalette.field;
+    border-width: scrub-focus.has-focus ? 1px : 0px;
+    border-color: StudioPalette.accent;
+    Rectangle {
+        x: 6px; y: parent.height / 2; height: 2px; width: parent.width - 12px;
+        background: StudioPalette.border;
+    }
+    Rectangle {
+        x: 6px; y: parent.height / 2; height: 2px;
+        width: (parent.width - 12px) * clamp(root.value / max(root.maximum, 0.001), 0, 1);
+        background: StudioPalette.accent;
+    }
+    Rectangle {
+        x: 2px + (parent.width - 12px) * clamp(root.value / max(root.maximum, 0.001), 0, 1);
+        y: parent.height / 2 - 4px; width: 8px; height: 10px;
+        border-radius: 2px; background: StudioPalette.accent;
+    }
+    scrub-focus := FocusScope {
+        key-pressed(event) => {
+            if event.text == Key.LeftArrow || event.text == Key.DownArrow {
+                root.changed(max(0, root.value - root.step)); accept
+            } else if event.text == Key.RightArrow || event.text == Key.UpArrow {
+                root.changed(min(root.maximum, root.value + root.step)); accept
+            } else if event.text == Key.Home {
+                root.changed(0); accept
+            } else if event.text == Key.End {
+                root.changed(root.maximum); accept
+            } else { reject }
+        }
+    }
+    touch := TouchArea {
+        mouse-cursor: pointer;
+        pointer-event(event) => {
+            if event.kind == PointerEventKind.down { scrub-focus.focus(); root.changed(clamp((self.mouse-x - 6px) / max(1px, self.width - 12px), 0, 1) * root.maximum); }
+        }
+        moved => {
+            if self.pressed { root.changed(clamp((self.mouse-x - 6px) / max(1px, self.width - 12px), 0, 1) * root.maximum); }
+        }
+    }
+}
+
+export component StudioSwatch inherits Rectangle {
+    in property <color> swatch-color;
+    in property <string> name;
+    in property <bool> active;
+    callback clicked();
+    width: 25px; height: 25px;
+    border-radius: 3px;
+    background: swatch-color;
+    border-width: active || swatch-focus.has-focus ? 2px : 0px;
+    border-color: StudioPalette.text;
+    accessible-role: button;
+    accessible-label: name;
+    swatch-focus := FocusScope {
+        key-pressed(event) => {
+            if event.text == " " || event.text == Key.Return { root.clicked(); accept } else { reject }
+        }
+    }
+    TouchArea {
+        mouse-cursor: pointer;
+        clicked => { swatch-focus.focus(); root.clicked(); }
+    }
+}

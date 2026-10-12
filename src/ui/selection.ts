@@ -55,7 +55,7 @@ export function mapKeyToAction(
   if (key === " " || key === "Spacebar") return "toggle-play";
   if ((key === "Delete" || key === "Backspace") && opts.hasLayerSelection) return "delete-selection";
   if ((key === "r" || key === "R") && opts.alt) return "reset-bind";
-  if (key === "F" || key === "Home") return "reset-view";
+  if (key === "f" || key === "F" || key === "Home") return "reset-view";
   if (key === "c" || key === "C") return "new-bone-mode";
   return "none";
 }
