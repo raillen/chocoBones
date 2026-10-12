@@ -384,3 +384,173 @@ mesh_auto_skin_to_joints :: proc(m: ^Mesh, layer: rig.Layer, joints: []rig.Joint
 	}
 }
 
+mesh_smooth_weights :: proc(m: ^Mesh, local_pt: core.Vec2, radius, strength: f32, target_joint: string) {
+	if m == nil || len(m.vertices) == 0 || len(m.triangles) == 0 || target_joint == "" do return
+
+	indices := make([dynamic]int, context.temp_allocator)
+	for v, i in m.vertices {
+		if core.vec2_dist(local_pt, v) <= radius {
+			append(&indices, i)
+		}
+	}
+	if len(indices) == 0 do return
+
+	for v_idx in indices {
+		neighbor_sum: f32 = 0
+		neighbor_count: int = 0
+
+		for tri in m.triangles {
+			has_v := tri[0] == u32(v_idx) || tri[1] == u32(v_idx) || tri[2] == u32(v_idx)
+			if has_v {
+				for t_idx in 0..<3 {
+					n_idx := int(tri[t_idx])
+					if n_idx != v_idx && n_idx < len(m.weights) {
+						for inf in m.weights[n_idx] {
+							if inf.joint == target_joint {
+								neighbor_sum += inf.weight
+								break
+							}
+						}
+						neighbor_count += 1
+					}
+				}
+			}
+		}
+
+		if neighbor_count > 0 {
+			avg_weight := neighbor_sum / f32(neighbor_count)
+			found := false
+			for &inf in m.weights[v_idx] {
+				if inf.joint == target_joint {
+					inf.weight = core.clamp(inf.weight + (avg_weight - inf.weight) * strength, 0.0, 1.0)
+					found = true
+					break
+				}
+			}
+			if !found && avg_weight > 0.01 {
+				append(&m.weights[v_idx], Influence{joint = target_joint, weight = avg_weight * strength})
+			}
+			sum: f32 = 0
+			for inf in m.weights[v_idx] do sum += inf.weight
+			if sum > 1e-5 {
+				for &inf in m.weights[v_idx] do inf.weight /= sum
+			}
+		}
+	}
+}
+
+mesh_set_weights :: proc(m: ^Mesh, local_pt: core.Vec2, radius: f32, target_weight: f32, target_joint: string) {
+	if m == nil || len(m.vertices) == 0 || target_joint == "" do return
+
+	for v, i in m.vertices {
+		if core.vec2_dist(local_pt, v) <= radius {
+			found := false
+			for &inf in m.weights[i] {
+				if inf.joint == target_joint {
+					inf.weight = target_weight
+					found = true
+					break
+				}
+			}
+			if !found && target_weight > 0.001 {
+				append(&m.weights[i], Influence{joint = target_joint, weight = target_weight})
+			}
+			sum: f32 = 0
+			for inf in m.weights[i] do sum += inf.weight
+			if sum > 1e-5 {
+				for &inf in m.weights[i] do inf.weight /= sum
+			}
+		}
+	}
+}
+
+build_hull_mesh_from_rgba :: proc(width, height: f32, pixels: [^]u8, img_w, img_h: int, density: int = 6, allocator := context.allocator) -> Mesh {
+	if pixels == nil || img_w <= 0 || img_h <= 0 || density <= 0 {
+		return build_grid_mesh(width, height, density, allocator)
+	}
+
+	dens := clamp(density, 2, 32)
+	cell_active := make([]bool, dens * dens, context.temp_allocator)
+	active_cell_count := 0
+
+	dx := width / f32(dens)
+	dy := height / f32(dens)
+
+	for cy in 0..<dens {
+		for cx in 0..<dens {
+			min_px := clamp(int((f32(cx) / f32(dens)) * f32(img_w)), 0, img_w - 1)
+			max_px := clamp(int((f32(cx + 1) / f32(dens)) * f32(img_w)), 0, img_w - 1)
+			min_py := clamp(int((f32(cy) / f32(dens)) * f32(img_h)), 0, img_h - 1)
+			max_py := clamp(int((f32(cy + 1) / f32(dens)) * f32(img_h)), 0, img_h - 1)
+
+			has_alpha := false
+			sample_x := [5]int{min_px, max_px, min_px, max_px, (min_px + max_px) / 2}
+			sample_y := [5]int{min_py, min_py, max_py, max_py, (min_py + max_py) / 2}
+			for s in 0..<5 {
+				px := sample_x[s]
+				py := sample_y[s]
+				idx := (py * img_w + px) * 4 + 3
+				if pixels[idx] > 15 {
+					has_alpha = true
+					break
+				}
+			}
+
+			if has_alpha {
+				cell_active[cy * dens + cx] = true
+				active_cell_count += 1
+			}
+		}
+	}
+
+	if active_cell_count == 0 {
+		return build_grid_mesh(width, height, density, allocator)
+	}
+
+	grid_w := dens + 1
+	grid_h := dens + 1
+	vertex_lookup := make([]int, grid_w * grid_h, context.temp_allocator)
+	for i in 0..<len(vertex_lookup) do vertex_lookup[i] = -1
+
+	m := Mesh{
+		density   = dens,
+		vertices  = make([dynamic]core.Vec2, 0, active_cell_count * 4, allocator),
+		triangles = make([dynamic][3]u32, 0, active_cell_count * 2, allocator),
+		weights   = make([dynamic][dynamic]Influence, 0, active_cell_count * 4, allocator),
+		erased    = make([dynamic]u32, 0, 8, allocator),
+		mode      = .Pins,
+		skinning  = .DualQuaternion,
+		strength  = 1.0,
+	}
+
+	get_or_add_vertex :: proc(m: ^Mesh, lookup: []int, gx, gy, grid_w: int, dx, dy: f32, alloc := context.allocator) -> u32 {
+		idx := gy * grid_w + gx
+		if lookup[idx] >= 0 {
+			return u32(lookup[idx])
+		}
+		new_idx := len(m.vertices)
+		vx := f32(gx) * dx
+		vy := f32(gy) * dy
+		append(&m.vertices, core.Vec2{vx, vy})
+		append(&m.weights, make([dynamic]Influence, 0, 4, alloc))
+		lookup[idx] = new_idx
+		return u32(new_idx)
+	}
+
+	for cy in 0..<dens {
+		for cx in 0..<dens {
+			if !cell_active[cy * dens + cx] do continue
+
+			v0 := get_or_add_vertex(&m, vertex_lookup, cx, cy, grid_w, dx, dy, allocator)
+			v1 := get_or_add_vertex(&m, vertex_lookup, cx + 1, cy, grid_w, dx, dy, allocator)
+			v2 := get_or_add_vertex(&m, vertex_lookup, cx + 1, cy + 1, grid_w, dx, dy, allocator)
+			v3 := get_or_add_vertex(&m, vertex_lookup, cx, cy + 1, grid_w, dx, dy, allocator)
+
+			append(&m.triangles, [3]u32{v0, v1, v2})
+			append(&m.triangles, [3]u32{v0, v2, v3})
+		}
+	}
+
+	return m
+}
+

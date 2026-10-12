@@ -241,6 +241,22 @@ clip_add_or_update_keyframe :: proc(clip: ^Clip, time: f32, pose: ^rig.Pose, eas
 	inject_at(&clip.frames, insert_idx, k)
 }
 
+clip_find_nearest_keyframe_index :: proc(clip: ^Clip, time: f32) -> int {
+	if clip == nil || len(clip.frames) == 0 do return -1
+
+	nearest_idx := -1
+	min_dist: f32 = 999999.0
+
+	for f, idx in clip.frames {
+		dist := math.abs(f.time - time)
+		if dist < min_dist {
+			min_dist = dist
+			nearest_idx = idx
+		}
+	}
+	return nearest_idx
+}
+
 clip_remove_nearest_keyframe :: proc(clip: ^Clip, time: f32) -> bool {
 	if clip == nil || len(clip.frames) <= 1 do return false
 

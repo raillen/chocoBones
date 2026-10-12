@@ -158,6 +158,11 @@ editor_select_workspace :: proc(state: ^AppState, workspace: Workspace) {
 	editor_save_layouts(state)
 	state.current_workspace = workspace
 	state.editor.preferences.workspace = workspace
+	if workspace == .Animate {
+		state.editor_mode = .Animate
+	} else if workspace == .Rig || workspace == .Assembly {
+		state.editor_mode = .Setup
+	}
 	state.is_dragging_viewport = false
 	state.selection.is_box_selecting = false
 	state.selection.is_lasso_selecting = false
@@ -296,6 +301,19 @@ editor_render_contextbar :: proc(state: ^AppState, geometry: EditorGeometry) {
 				im.Checkbox("Girar", &state.auto_rotate_3d)
 			}
 		} else {
+			mode_label: cstring = state.editor_mode == .Setup ? "Modo: Setup (Repouso)" : "Modo: Animar"
+			mode_tip: cstring = state.editor_mode == .Setup ? "Clique para alternar para modo Animar" : "Clique para alternar para modo Setup (Bind Pose)"
+			if editor_icon_button(mode_label, mode_tip, state.editor_mode == .Animate) {
+				state.editor_mode = state.editor_mode == .Setup ? .Animate : .Setup
+			}
+			im.SameLine()
+			if editor_icon_button(ui.ICON_PH_ARROWS_COUNTER_CLOCKWISE, "Resetar para Pose de Repouso (Alt+R)") {
+				editor_reset_pose_to_rest(state)
+			}
+			im.SameLine()
+			im.TextDisabled("|")
+			im.SameLine()
+
 			for descriptor in ui.TOOL_DESCRIPTORS {
 				if descriptor.tool == state.active_tool do im.Text("%s", descriptor.label)
 			}
@@ -303,14 +321,28 @@ editor_render_contextbar :: proc(state: ^AppState, geometry: EditorGeometry) {
 				im.SameLine()
 				im.SetNextItemWidth(135 * state.editor.ui_scale)
 				#partial switch state.active_tool {
-				case .Eraser: editor_slider_value("Raio", &state.eraser_radius, 5, 100, "%.0f px", 210 * state.editor.ui_scale)
+				case .CreateBone:
+					im.TextColored(ui.current_palette.accent, "Clique e arraste na Viewport para desenhar osso. [Esc] Cancelar.")
+				case .Eraser:
+					editor_slider_value("Raio", &state.eraser_radius, 5, 100, "%.0f px", 210 * state.editor.ui_scale)
 				case .Weight:
-					editor_slider_value("Raio", &state.weight_brush_radius, 5, 150, "%.0f px", 210 * state.editor.ui_scale)
+					editor_slider_value("Raio", &state.weight_brush_radius, 5, 150, "%.0f px", 160 * state.editor.ui_scale)
 					im.SameLine()
-					im.SetNextItemWidth(100 * state.editor.ui_scale)
-					editor_slider_value("Força", &state.weight_brush_strength, 0.05, 1, "%.2f", 160 * state.editor.ui_scale)
-				case .Pose, .Joint: im.Checkbox("IK", &state.ik_enabled)
-				case: im.TextDisabled("Camada: %s", cstring(raw_data(state.selected_layer_id)))
+					editor_slider_value("Força", &state.weight_brush_strength, 0.05, 1, "%.2f", 120 * state.editor.ui_scale)
+					im.SameLine()
+					if editor_icon_button("+ Add", "Modo Adicionar Peso", state.weight_brush_mode == .Add) do state.weight_brush_mode = .Add
+					im.SameLine()
+					if editor_icon_button("~ Smooth", "Modo Suavizar/Relaxar com Vizinhos", state.weight_brush_mode == .Smooth) do state.weight_brush_mode = .Smooth
+					im.SameLine()
+					if editor_icon_button("= Set", "Modo Definir Peso Fixo", state.weight_brush_mode == .Set) do state.weight_brush_mode = .Set
+					if state.weight_brush_mode == .Set {
+						im.SameLine()
+						editor_slider_value("Alvo", &state.weight_brush_target, 0, 1, "%.2f", 100 * state.editor.ui_scale)
+					}
+				case .Pose, .Joint:
+					im.Checkbox("IK", &state.ik_enabled)
+				case:
+					im.TextDisabled("Camada: %s", cstring(raw_data(state.selected_layer_id)))
 				}
 			}
 		}
@@ -349,6 +381,7 @@ editor_handle_tool_shortcuts :: proc(state: ^AppState) {
 	if im.IsKeyPressed(.S) do state.active_tool = .Scale
 	if im.IsKeyPressed(.P) do state.active_tool = .Pivot
 	if im.IsKeyPressed(.J) do state.active_tool = .Joint
+	if im.IsKeyPressed(.C) do state.active_tool = .CreateBone
 	if im.IsKeyPressed(.Space) do state.active_tool = .Pose
 	if im.IsKeyPressed(.N) do state.active_tool = .Pin
 	if im.IsKeyPressed(.K) do state.active_tool = .Weight
@@ -607,11 +640,35 @@ editor_render_timeline_ruler :: proc(state: ^AppState) {
 			im.DrawList_AddText(draw, {x + 4, pos.y + 4}, ui.color_u32(p.text_muted), label)
 		}
 	}
-	for frame in state.current_clip.frames {
+	io := im.GetIO()
+	mouse_pos := io.MousePos
+	hovered_key_idx := -1
+
+	for frame, f_idx in state.current_clip.frames {
 		x := pos.x + core.clamp(frame.time / math.max(0.001, state.timeline_duration), 0, 1) * width
 		y := pos.y + math.min(40 * state.editor.ui_scale, height * 0.5)
-		r := math.min(5 * state.editor.ui_scale, height * 0.35)
-		im.DrawList_AddQuadFilled(draw, {x, y - r}, {x + r, y}, {x, y + r}, {x - r, y}, ui.color_u32(p.accent))
+		r := math.min(6 * state.editor.ui_scale, height * 0.35)
+
+		dist_k := math.sqrt((mouse_pos.x - x) * (mouse_pos.x - x) + (mouse_pos.y - y) * (mouse_pos.y - y))
+		is_hovered := dist_k <= r + 3.0
+		if is_hovered {
+			hovered_key_idx = f_idx
+		}
+
+		is_current := math.abs(state.timeline_time - frame.time) < 0.03
+		k_col := is_hovered ? ui.color_u32(p.focus) : (is_current ? ui.color_u32(p.accent_hover) : ui.color_u32(p.accent))
+
+		im.DrawList_AddQuadFilled(draw, {x, y - r}, {x + r, y}, {x, y + r}, {x - r, y}, k_col)
+		im.DrawList_AddQuad(draw, {x, y - r}, {x + r, y}, {x, y + r}, {x - r, y}, ui.color_u32(p.text), 1.0)
+	}
+
+	if hovered_key_idx >= 0 && hovered_key_idx < len(state.current_clip.frames) {
+		kf := &state.current_clip.frames[hovered_key_idx]
+		im.SetTooltip("Quadro %d: %.2fs (%v)\nClique para posicionar", hovered_key_idx + 1, kf.time, kf.easing)
+		if im.IsMouseClicked(.Left) {
+			state.timeline_time = kf.time
+			animation.sample_clip(&state.current_clip, state.timeline_time, &state.character_pose)
+		}
 	}
 	playhead := pos.x + core.clamp(state.timeline_time / math.max(0.001, state.timeline_duration), 0, 1) * width
 	im.DrawList_AddLine(draw, {playhead, pos.y}, {playhead, pos.y + height}, ui.color_u32(p.accent), 2)

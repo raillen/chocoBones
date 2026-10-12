@@ -4,10 +4,21 @@ import im "../../libs/odin-imgui"
 import "../core"
 
 Tool :: enum {
-	Move, Rotate, Scale, Pivot, Joint, Pose, Pin, Weight, BoxSelect, LassoSelect, Eraser,
+	Move, Rotate, Scale, Pivot, Joint, CreateBone, Pose, Pin, Weight, BoxSelect, LassoSelect, Eraser,
 }
 
 Workspace :: enum { Assembly, Rig, Animate, Focus }
+
+EditorMode :: enum {
+	Setup,
+	Animate,
+}
+
+WeightBrushMode :: enum {
+	Add,
+	Smooth,
+	Set,
+}
 
 ToolDescriptor :: struct {
 	tool: Tool,
@@ -21,6 +32,7 @@ TOOL_DESCRIPTORS :: [?]ToolDescriptor{
 	{.Scale, ICON_PH_ARROWS_OUT_SIMPLE, "Escala", "S"},
 	{.Pivot, ICON_PH_CROSSHAIR, "Pivô", "P"},
 	{.Joint, ICON_PH_BONE, "Juntas", "J"},
+	{.CreateBone, ICON_PH_PLUS, "Criar Osso", "C"},
 	{.Pose, ICON_PH_PERSON_ARMS_SPREAD, "Pose", "Espaço"},
 	{.BoxSelect, ICON_PH_BOUNDING_BOX, "Seleção em caixa", "B"},
 	{.LassoSelect, ICON_PH_SELECTION, "Seleção em laço", "L"},

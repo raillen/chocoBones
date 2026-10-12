@@ -48,16 +48,17 @@ test_theme_scale_is_not_cumulative :: proc(t: ^testing.T) {
 
 @(test)
 test_tool_rail_ids_are_independent_of_visual_order :: proc(t: ^testing.T) {
-	seen: [11]bool
+	seen: [len(ui.Tool)]bool
 	for descriptor in ui.TOOL_DESCRIPTORS {
 		id := int(descriptor.tool)
 		testing.expect(t, !seen[id], "Each tool appears once")
 		seen[id] = true
 		testing.expect_value(t, ui.tool_descriptor(descriptor.tool).tool, descriptor.tool)
 	}
-	for exists in seen do testing.expect(t,exists)
-	testing.expect_value(t, ui.TOOL_DESCRIPTORS[6].tool, ui.Tool.BoxSelect)
-	testing.expect_value(t, ui.TOOL_DESCRIPTORS[8].tool, ui.Tool.Pin)
+	for exists in seen do testing.expect(t, exists)
+	testing.expect_value(t, ui.TOOL_DESCRIPTORS[5].tool, ui.Tool.CreateBone)
+	testing.expect_value(t, ui.TOOL_DESCRIPTORS[7].tool, ui.Tool.BoxSelect)
+	testing.expect_value(t, ui.TOOL_DESCRIPTORS[9].tool, ui.Tool.Pin)
 }
 
 @(test)

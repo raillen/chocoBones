@@ -65,6 +65,11 @@ AppState :: struct {
 	eraser_radius:          f32,
 	weight_brush_radius:    f32,
 	weight_brush_strength:  f32,
+	weight_brush_mode:      ui.WeightBrushMode,
+	weight_brush_target:    f32,
+	editor_mode:            ui.EditorMode,
+	is_creating_bone:       bool,
+	bone_create_start:      core.Vec2,
 	current_clip:           animation.Clip,
 	animation_clips:        [dynamic]animation.Clip,
 	current_clip_index:     int,
@@ -105,6 +110,11 @@ init_app_state :: proc(state: ^AppState) {
 	state.viewport_zoom = 1.0
 	state.is_dragging_viewport = false
 	state.drag_joint_id = ""
+	state.editor_mode = .Setup
+	state.is_creating_bone = false
+	state.bone_create_start = {0, 0}
+	state.weight_brush_mode = .Add
+	state.weight_brush_target = 1.0
 
 	core.arena_context_init(&state.scratch_arena, 1024 * 1024 * 8) // 8MB scratch
 	rig.pose_init(&state.character_pose)
@@ -430,6 +440,12 @@ editor_load_default_animation_pack :: proc(state: ^AppState) {
 	ui.toast_add(&state.toasts, "Pacote padrão (5 clipes) carregado!", .Success)
 }
 
+editor_reset_pose_to_rest :: proc(state: ^AppState) {
+	clear(&state.character_pose.joints)
+	clear(&state.character_pose.layers)
+	ui.toast_add(&state.toasts, "Pose restaurada para o repouso canônico (Bind Pose)", .Info)
+}
+
 viewport_scene_bounds :: proc(state: ^AppState) -> (left, right, top, bottom: f32) {
 	zoom := state.viewport_zoom > 0.05 ? state.viewport_zoom : 1.0
 	pan := state.viewport_pan
@@ -494,6 +510,42 @@ editor_delete_selected_layers :: proc(state: ^AppState) {
 	state.selected_layer_id = len(state.character_layers) > 0 ? state.character_layers[0].id : ""
 
 	ui.toast_add(&state.toasts, fmt.tprintf("%d camada(s) excluída(s)", deleted_count), .Info)
+}
+
+editor_move_selected_layer_up :: proc(state: ^AppState) {
+	if state.selected_layer_id == "" do return
+	idx := -1
+	for l, i in state.character_layers {
+		if l.id == state.selected_layer_id {
+			idx = i
+			break
+		}
+	}
+	if idx > 0 {
+		save_undo(state, "Mover Camada para Cima")
+		temp := state.character_layers[idx]
+		state.character_layers[idx] = state.character_layers[idx - 1]
+		state.character_layers[idx - 1] = temp
+		ui.toast_add(&state.toasts, "Ordem de desenho da camada alterada", .Info)
+	}
+}
+
+editor_move_selected_layer_down :: proc(state: ^AppState) {
+	if state.selected_layer_id == "" do return
+	idx := -1
+	for l, i in state.character_layers {
+		if l.id == state.selected_layer_id {
+			idx = i
+			break
+		}
+	}
+	if idx >= 0 && idx < len(state.character_layers) - 1 {
+		save_undo(state, "Mover Camada para Baixo")
+		temp := state.character_layers[idx]
+		state.character_layers[idx] = state.character_layers[idx + 1]
+		state.character_layers[idx + 1] = temp
+		ui.toast_add(&state.toasts, "Ordem de desenho da camada alterada", .Info)
+	}
 }
 
 import_image_as_layer :: proc(state: ^AppState, file_path: string) -> bool {
@@ -982,7 +1034,20 @@ render_viewport_panel :: proc(state: ^AppState) {
 			state.is_dragging_viewport = true
 			state.drag_start_pos = {scene_mx, scene_my}
 
-			if hovered_joint_id != "" {
+			if state.active_tool == .CreateBone {
+				state.is_creating_bone = true
+				if hovered_joint_id != "" {
+					state.selected_joint_id = hovered_joint_id
+					if jp, ok_jp := rig.find_joint(state.character_joints[:], hovered_joint_id); ok_jp {
+						mat_j := bones[hovered_joint_id]
+						state.bone_create_start = core.mat_apply(mat_j, {0, 0})
+					} else {
+						state.bone_create_start = {scene_mx, scene_my}
+					}
+				} else {
+					state.bone_create_start = {scene_mx, scene_my}
+				}
+			} else if hovered_joint_id != "" {
 				state.selected_joint_id = hovered_joint_id
 				state.drag_joint_id = hovered_joint_id
 				ui.selection_select_joint(&state.selection, hovered_joint_id, io.KeyShift, io.KeyCtrl)
@@ -1105,6 +1170,8 @@ render_viewport_panel :: proc(state: ^AppState) {
 						inv_mat := core.mat_inverse(l_mat)
 						local_pt := core.mat_apply(inv_mat, {scene_mx, scene_my})
 						r_local := state.weight_brush_radius / math.max(layer.transform.scale.x, 0.01)
+						switch state.weight_brush_mode {
+						case .Add:
 							for v, i in m_ptr.vertices {
 								if core.vec2_dist(local_pt, v) <= r_local {
 									found := false
@@ -1125,7 +1192,12 @@ render_viewport_panel :: proc(state: ^AppState) {
 									}
 								}
 							}
+						case .Smooth:
+							mesh.mesh_smooth_weights(m_ptr, local_pt, r_local, state.weight_brush_strength, state.selected_joint_id)
+						case .Set:
+							mesh.mesh_set_weights(m_ptr, local_pt, r_local, state.weight_brush_target, state.selected_joint_id)
 						}
+					}
 					}
 
 			case .Pose:
@@ -1196,6 +1268,28 @@ render_viewport_panel :: proc(state: ^AppState) {
 			state.is_dragging_viewport = false
 			state.drag_joint_id = ""
 			state.drag_pin_id = ""
+
+			if state.is_creating_bone {
+				state.is_creating_bone = false
+				bone_len := core.vec2_dist(state.bone_create_start, {scene_mx, scene_my})
+				if bone_len >= 8.0 {
+					new_num := len(state.character_joints) + 1
+					new_id := fmt.tprintf("bone_%d", new_num)
+					parent_id := state.selected_joint_id
+					new_joint := rig.Joint{
+						id     = strings.clone(new_id),
+						name   = strings.clone(new_id),
+						parent = strings.clone(parent_id),
+						x      = scene_mx,
+						y      = scene_my,
+						color  = "#ffd700",
+					}
+					append(&state.character_joints, new_joint)
+					state.selected_joint_id = new_joint.id
+					save_undo(state, fmt.tprintf("Criar Osso %s", new_id))
+					ui.toast_add(&state.toasts, fmt.tprintf("Osso %s criado!", new_id), .Success)
+				}
+			}
 
 			if state.selection.is_box_selecting {
 				state.selection.is_box_selecting = false
@@ -1369,6 +1463,79 @@ render_viewport_panel :: proc(state: ^AppState) {
 			}
 		}
 
+		// Preview em tempo real de criação de osso
+		if state.is_creating_bone {
+			sp_start := viewport_to_screen(state.bone_create_start, cursor_pos, display_w, display_h, v_left, v_top, scene_span_x, scene_span_y)
+			sp_end := viewport_to_screen({scene_mx, scene_my}, cursor_pos, display_w, display_h, v_left, v_top, scene_span_x, scene_span_y)
+
+			im.DrawList_AddLine(draw_list, sp_start, sp_end, 0xff_ff_d7_00, 3.0)
+			im.DrawList_AddCircleFilled(draw_list, sp_start, 6.0 * state.editor.ui_scale, 0xff_00_aa_ff)
+			im.DrawList_AddCircleFilled(draw_list, sp_end, 5.0 * state.editor.ui_scale, 0xff_ff_d7_00)
+
+			dist_px := core.vec2_dist(state.bone_create_start, {scene_mx, scene_my})
+			len_txt := fmt.tprintf("%.1f px", dist_px)
+			im.DrawList_AddText(draw_list, {sp_end.x + 10, sp_end.y - 8}, canvas_text, cstring(raw_data(len_txt)))
+		}
+
+		// Renderização da malha wireframe e mapa de calor (Heatmap) no modo de Pesos
+		if state.active_tool == .Weight && state.selected_layer_id != "" && state.selected_layer_id in state.layer_meshes {
+			m_weight := &state.layer_meshes[state.selected_layer_id]
+			if layer_w, ok_lw := find_layer_by_id(state.character_layers[:], state.selected_layer_id); ok_lw {
+				lw_mat := rig.layer_matrix(layer_w, state.character_joints[:], &state.character_pose, bones)
+
+				// Triângulos em wireframe
+				wire_color: u32 = 0x44_ff_ff_ff
+				for tri, t_i in m_weight.triangles {
+					is_erased := false
+					for er in m_weight.erased {
+						if er == u32(t_i) { is_erased = true; break }
+					}
+					if is_erased do continue
+
+					wp0 := core.mat_apply(lw_mat, m_weight.vertices[tri[0]])
+					wp1 := core.mat_apply(lw_mat, m_weight.vertices[tri[1]])
+					wp2 := core.mat_apply(lw_mat, m_weight.vertices[tri[2]])
+
+					sw0 := viewport_to_screen(wp0, cursor_pos, display_w, display_h, v_left, v_top, scene_span_x, scene_span_y)
+					sw1 := viewport_to_screen(wp1, cursor_pos, display_w, display_h, v_left, v_top, scene_span_x, scene_span_y)
+					sw2 := viewport_to_screen(wp2, cursor_pos, display_w, display_h, v_left, v_top, scene_span_x, scene_span_y)
+
+					im.DrawList_AddTriangle(draw_list, sw0, sw1, sw2, wire_color, 1.0)
+				}
+
+				// Vértices coloridos pelo mapa de calor do osso selecionado
+				for v, v_idx in m_weight.vertices {
+					w_val: f32 = 0.0
+					if v_idx < len(m_weight.weights) {
+						for inf in m_weight.weights[v_idx] {
+							if inf.joint == state.selected_joint_id {
+								w_val = inf.weight
+								break
+							}
+						}
+					}
+
+					// Gradiente de calor: 0.0 (Azul/Ciano) -> 0.5 (Amarelo/Verde) -> 1.0 (Vermelho)
+					r_col: f32 = core.clamp(w_val * 2.0, 0.0, 1.0)
+					g_col: f32 = w_val < 0.5 ? w_val * 2.0 : 2.0 - w_val * 2.0
+					b_col: f32 = core.clamp(1.0 - w_val * 2.0, 0.0, 1.0)
+					heat_u32 := ui.color_u32(im.Vec4{r_col, g_col, b_col, 0.85})
+
+					wp_v := core.mat_apply(lw_mat, v)
+					sw_v := viewport_to_screen(wp_v, cursor_pos, display_w, display_h, v_left, v_top, scene_span_x, scene_span_y)
+					im.DrawList_AddCircleFilled(draw_list, sw_v, 4.0 * state.editor.ui_scale, heat_u32)
+
+					// Dica de peso sob o cursor
+					d_m := math.sqrt((mouse_pos.x - sw_v.x) * (mouse_pos.x - sw_v.x) + (mouse_pos.y - sw_v.y) * (mouse_pos.y - sw_v.y))
+					if d_m <= 10.0 * state.editor.ui_scale {
+						im.DrawList_AddCircle(draw_list, sw_v, 7.0 * state.editor.ui_scale, canvas_focus, 12, 2.0)
+						tip_w := fmt.tprintf("%.0f%%", w_val * 100.0)
+						im.DrawList_AddText(draw_list, {sw_v.x + 8, sw_v.y - 12}, canvas_text, cstring(raw_data(tip_w)))
+					}
+				}
+			}
+		}
+
 		// 6. Círculo do pincel da borracha e pintura de pesos
 		if mouse_in_canvas {
 			if state.active_tool == .Eraser {
@@ -1525,6 +1692,29 @@ render_inspector_panel :: proc(state: ^AppState) {
 					if im.Button("Alternar para Skin") {
 						m_ptr.mode = .Skin
 						ui.toast_add(&state.toasts, "Modo de deformação: Deformação por Ossos (Skin)", .Info)
+					}
+				}
+
+				if im.Button(ui.ICON_PH_SCISSORS + " Gerar Malha por Contorno (Hull)") {
+					if layer, ok_l := find_layer_by_id(state.character_layers[:], state.selected_layer_id); ok_l {
+						if layer.asset != "" {
+							img_raw, ok_raw := render.image_load_raw(layer.asset)
+							if ok_raw {
+								defer render.image_free_raw(&img_raw)
+								dims := get_layer_dimensions(state, layer.id)
+								dens := m_ptr.density > 0 ? m_ptr.density : 6
+								mesh.mesh_destroy(m_ptr)
+								new_mesh := mesh.build_hull_mesh_from_rgba(dims.x, dims.y, cast([^]u8)img_raw.pixels, img_raw.width, img_raw.height, dens)
+								mesh.mesh_auto_skin_to_joints(&new_mesh, layer, state.character_joints[:])
+								state.layer_meshes[state.selected_layer_id] = new_mesh
+								save_undo(state, "Gerar Malha por Contorno (Hull)")
+								ui.toast_add(&state.toasts, fmt.tprintf("Malha por contorno gerada: %d triângulos", len(new_mesh.triangles)), .Success)
+							} else {
+								ui.toast_add(&state.toasts, "Não foi possível carregar pixels do asset", .Warning)
+							}
+						} else {
+							ui.toast_add(&state.toasts, "Camada não possui arquivo de imagem", .Warning)
+						}
 					}
 				}
 				im.Separator()
@@ -1721,6 +1911,14 @@ render_layers_panel :: proc(state: ^AppState) {
 		if im.Button(ui.ICON_PH_TRASH + " Excluir") && has_layer_selection {
 			editor_delete_selected_layers(state)
 		}
+		im.SameLine()
+		if editor_icon_button(ui.ICON_PH_ARROW_UP, "Subir camada (Z-Index)", enabled = has_layer_selection) {
+			editor_move_selected_layer_up(state)
+		}
+		im.SameLine()
+		if editor_icon_button(ui.ICON_PH_ARROW_DOWN, "Descer camada (Z-Index)", enabled = has_layer_selection) {
+			editor_move_selected_layer_down(state)
+		}
 		im.Separator()
 
 		io := im.GetIO()
@@ -1744,6 +1942,15 @@ render_layers_panel :: proc(state: ^AppState) {
 
 			if im.BeginPopupContextItem("##layer_ctx") {
 				im.TextDisabled("Camada: %s", cstring(raw_data(layer.name)))
+				im.Separator()
+				if im.MenuItem(ui.ICON_PH_ARROW_UP + " Mover para Cima") {
+					state.selected_layer_id = layer.id
+					editor_move_selected_layer_up(state)
+				}
+				if im.MenuItem(ui.ICON_PH_ARROW_DOWN + " Mover para Baixo") {
+					state.selected_layer_id = layer.id
+					editor_move_selected_layer_down(state)
+				}
 				im.Separator()
 				if im.MenuItem(ui.ICON_PH_TRASH + " Excluir Camada") {
 					state.selected_layer_id = layer.id
@@ -1816,6 +2023,35 @@ render_timeline_panel :: proc(state: ^AppState) {
 		if editor_icon_button(ui.ICON_PH_TRASH, "Remover keyframe mais próximo") {
 			ok_rem := animation.clip_remove_nearest_keyframe(&state.current_clip, state.timeline_time)
 			state.status_message = ok_rem ? "Keyframe removido." : "Nenhum keyframe próximo."
+		}
+
+		nearest_kf_idx := animation.clip_find_nearest_keyframe_index(&state.current_clip, state.timeline_time)
+		if nearest_kf_idx >= 0 && nearest_kf_idx < len(state.current_clip.frames) {
+			kf := &state.current_clip.frames[nearest_kf_idx]
+			if math.abs(kf.time - state.timeline_time) <= 0.08 {
+				im.SameLine()
+				im.TextDisabled("|")
+				im.SameLine()
+				im.Text("Curva:")
+				im.SameLine()
+				if editor_icon_button(kf.easing == .Linear ? "[Lin]" : "Lin", "Curva Linear", kf.easing == .Linear) {
+					save_undo(state, "Alterar Interpolação para Linear")
+					kf.easing = .Linear
+					ui.toast_add(&state.toasts, "Interpolação: Linear", .Info)
+				}
+				im.SameLine()
+				if editor_icon_button(kf.easing == .Smooth ? "[Suave]" : "Suave", "Curva Suave (Ease In/Out)", kf.easing == .Smooth) {
+					save_undo(state, "Alterar Interpolação para Suave")
+					kf.easing = .Smooth
+					ui.toast_add(&state.toasts, "Interpolação: Suave", .Info)
+				}
+				im.SameLine()
+				if editor_icon_button(kf.easing == .Hold ? "[Hold]" : "Hold", "Interpolação em degrau (Hold)", kf.easing == .Hold) {
+					save_undo(state, "Alterar Interpolação para Hold")
+					kf.easing = .Hold
+					ui.toast_add(&state.toasts, "Interpolação: Hold", .Info)
+				}
+			}
 		}
 		if !compact && available_width > 760 * state.editor.ui_scale {
 			im.SameLine()
@@ -2075,6 +2311,12 @@ main :: proc() {
 			}
 			if im.IsKeyPressed(.Delete) || im.IsKeyPressed(.Backspace) {
 				editor_delete_selected_layers(&state)
+			}
+			if io.KeyAlt && im.IsKeyPressed(.R) {
+				editor_reset_pose_to_rest(&state)
+			}
+			if im.IsKeyPressed(.Escape) && state.is_creating_bone {
+				state.is_creating_bone = false
 			}
 		}
 

@@ -144,3 +144,49 @@ test_mesh_auto_skin_to_joints :: proc(t: ^testing.T) {
 	}
 	testing.expect(t, bottom_w > 0.5, "Vértice na base deve ter peso dominante de bottom_joint")
 }
+
+@(test)
+test_mesh_weight_brush_modes :: proc(t: ^testing.T) {
+	m := mesh.build_grid_mesh(100, 100, 2)
+	defer mesh.mesh_destroy(&m)
+
+	mesh.mesh_set_weights(&m, {50, 50}, 30.0, 1.0, "joint_1")
+	center_idx := 4
+	found_w: f32 = 0.0
+	for inf in m.weights[center_idx] {
+		if inf.joint == "joint_1" do found_w = inf.weight
+	}
+	testing.expect(t, math.abs(found_w - 1.0) < 1e-4, "Peso em (50,50) deve ser 1.0 após mesh_set_weights")
+
+	mesh.mesh_smooth_weights(&m, {50, 50}, 60.0, 0.5, "joint_1")
+	neighbor_idx := 1
+	neighbor_w: f32 = 0.0
+	for inf in m.weights[neighbor_idx] {
+		if inf.joint == "joint_1" do neighbor_w = inf.weight
+	}
+	testing.expect(t, neighbor_w > 0.0, "Vértice vizinho deve ter recebido peso após mesh_smooth_weights")
+}
+
+@(test)
+test_hull_mesh_from_rgba :: proc(t: ^testing.T) {
+	img_w := 16
+	img_h := 16
+	pixels := make([]u8, img_w * img_h * 4, context.temp_allocator)
+	for y in 0..<8 {
+		for x in 0..<8 {
+			idx := (y * img_w + x) * 4
+			pixels[idx + 0] = 255
+			pixels[idx + 1] = 255
+			pixels[idx + 2] = 255
+			pixels[idx + 3] = 255
+		}
+	}
+
+	hull := mesh.build_hull_mesh_from_rgba(100, 100, raw_data(pixels), img_w, img_h, 4)
+	defer mesh.mesh_destroy(&hull)
+
+	testing.expect(t, len(hull.vertices) > 0, "Hull deve gerar vértices para quadrante opaco")
+	testing.expect(t, len(hull.triangles) > 0, "Hull deve gerar triângulos para quadrante opaco")
+	testing.expect(t, len(hull.triangles) < 32, "Hull deve conter menos triângulos que a grade completa de 32 triângulos")
+}
+
