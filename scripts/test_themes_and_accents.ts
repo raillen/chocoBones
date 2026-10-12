@@ -20,7 +20,7 @@ async function main(): Promise<void> {
   renderFrame(state);
   const darkPng = exportPngSync(state);
   fs.writeFileSync("/tmp/chocobones_dark_2d.png", darkPng);
-  console.log("✓ Tema Dark: PNG exportado com sucesso (", darkPng.length, "bytes)");
+  console.log("OK: Tema Dark: PNG exportado com sucesso (", darkPng.length, "bytes)");
 
   // 2. Transição para Tema Claro (Light)
   window.change_theme("Light");
@@ -34,7 +34,7 @@ async function main(): Promise<void> {
   expectEqual(state.viewportBuffer.pixels[idx + 2], 246, "Light B");
   const lightPng = exportPngSync(state);
   fs.writeFileSync("/tmp/chocobones_light_2d.png", lightPng);
-  console.log("✓ Tema Light: fundo reativo (244, 244, 246) e PNG exportado (", lightPng.length, "bytes)");
+  console.log("OK: Tema Light: fundo reativo (244, 244, 246) e PNG exportado (", lightPng.length, "bytes)");
 
   // 3. Transição para Tema Dim (Grafite)
   window.change_theme("Dim");
@@ -46,7 +46,7 @@ async function main(): Promise<void> {
   expectEqual(state.viewportBuffer.pixels[idx + 2], 36, "Dim B");
   const dimPng = exportPngSync(state);
   fs.writeFileSync("/tmp/chocobones_dim_2d.png", dimPng);
-  console.log("✓ Tema Dim: fundo reativo (32, 32, 36) e PNG exportado (", dimPng.length, "bytes)");
+  console.log("OK: Tema Dim: fundo reativo (32, 32, 36) e PNG exportado (", dimPng.length, "bytes)");
 
   // 4. Teste de 3D nos 3 Temas
   window.set_viewport_mode("3D");
@@ -54,13 +54,13 @@ async function main(): Promise<void> {
   renderFrame(state);
   const dim3dPng = exportPngSync(state);
   fs.writeFileSync("/tmp/chocobones_dim_3d.png", dim3dPng);
-  console.log("✓ Palco 3D em Dim exportado (", dim3dPng.length, "bytes)");
+  console.log("OK: Palco 3D em Dim exportado (", dim3dPng.length, "bytes)");
 
   window.change_theme("Light");
   renderFrame(state);
   const light3dPng = exportPngSync(state);
   fs.writeFileSync("/tmp/chocobones_light_3d.png", light3dPng);
-  console.log("✓ Palco 3D em Light exportado (", light3dPng.length, "bytes)");
+  console.log("OK: Palco 3D em Light exportado (", light3dPng.length, "bytes)");
 
   // 5. Troca de Cores de Acento (ACCENT_PRESETS)
   const accents = ["Ciano", "Azul", "Violeta", "Rosa", "Verde", "Ambar"];
@@ -69,7 +69,7 @@ async function main(): Promise<void> {
     expectEqual(window.accent_name, acc, `Acento ${acc}`);
     expectEqual(state.accentName, acc, `AppState acento ${acc}`);
   }
-  console.log("✓ Todos os 6 acentos WCAG AA validados com sucesso");
+  console.log("OK: Troca dos 6 acentos validada com sucesso");
 
   // 6. Troca de Ferramentas e Abas
   const tools = ["Move", "Rotate", "Scale", "Pivot", "Joint", "CreateBone", "Pose", "Pin", "Weight"];
@@ -77,15 +77,15 @@ async function main(): Promise<void> {
     window.select_tool(t);
     expectEqual(window.active_tool, t, `Ferramenta ${t}`);
   }
-  console.log("✓ Todas as ferramentas de manipulação validadas com sucesso");
+  console.log("OK: Todas as ferramentas de manipulação validadas com sucesso");
 
   window.set_element_tab("Camadas");
   expectEqual(window.element_tab, "Camadas", "Aba de elementos: Camadas");
   window.set_element_tab("Juntas");
   expectEqual(window.element_tab, "Juntas", "Aba de elementos: Juntas");
-  console.log("✓ Abas do inspetor de elementos validadas com sucesso");
+  console.log("OK: Abas do inspetor de elementos validadas com sucesso");
 
-  console.log("\n🎯 TODOS OS TESTES DE ADAPTABILIDADE E ESTILO PASSARAM COM SUCESSO!");
+  console.log("\nTODOS OS TESTES DE ADAPTABILIDADE E ESTILO PASSARAM COM SUCESSO!");
   cleanup();
   process.exit(0);
 }

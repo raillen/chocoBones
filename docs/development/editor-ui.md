@@ -1,82 +1,80 @@
 # Interface do editor
 
-A interface do chocoBones usa Odin, Dear ImGui com docking e o backend SDL2/OpenGL. A reformulação aproxima a composição de um editor criativo compacto: barra principal com espaços de trabalho, barra contextual, ferramentas verticais, palco central, painéis à direita e rodapé de estado. As ações de montagem, rig e animação continuam pertencendo ao editor existente.
+O editor atual usa TypeScript, Node.js e Slint. `ui/main.slint` compõe os espaços de trabalho; `ui/studio-controls.slint` define paleta e controles; `src/ui/bridge.ts` liga as ações ao documento. As descrições antigas de docking em Odin/ImGui não representam esta implementação.
 
-## Temas, fontes e ferramentas
+## Leitura da referência e adaptação
 
-`src/ui/theme.odin` define `ThemeMode`, `AppearanceSettings`, `ThemePalette` e `apply_theme`. O estilo ImGui e os widgets personalizados compartilham cores semânticas para superfícies, campos, texto, divisórias, seleção e foco. Dark usa grafite; Light usa cinzas claros. A paleta deriva variantes do accent para alcançar os alvos de contraste de 4,5:1 em texto e 3:1 nos indicadores essenciais, sem alterar a cor escolhida nas preferências.
+A imagem de referência apresenta a mesma interface em quatro níveis de luminosidade. A estrutura permanece estável: duas barras superiores, ferramentas verticais à esquerda, documento dominante e painéis contínuos à direita. O azul externo é o fundo da apresentação. As grandes áreas azuis, laranjas e rosas dentro das janelas pertencem à ilustração, não ao tema do editor.
 
-Aparência oferece Dark/Light, seletor RGB e campo `#RRGGBB`. Os presets são Ciano `#00B8D9`, Azul `#3B82F6`, Violeta `#8B5CF6`, Rosa `#EC4899`, Verde `#10B981` e Âmbar `#F59E0B`. A aplicação é imediata. Cores de erros e avisos mantêm papéis próprios; as cores do personagem pertencem ao documento.
+O primeiro plano dedica aproximadamente 80% da largura interna ao documento. O chrome é neutro, com divisórias finas e poucos elementos em destaque. A persona ativa usa uma cápsula ciano; alternativas ficam discretas. Cabeçalhos e abas organizam painéis encaixados, sem margens entre cards. Ícones monocromáticos e controles curtos sustentam a densidade. Mudar a luminosidade mantém posição, hierarquia e leitura dos controles.
 
-As fontes Inter Regular/Medium 4.1 estão em `assets/fonts/`, com licença SIL Open Font License 1.1 em `assets/fonts/LICENSE.txt`. Os ícones Phosphor existentes são mantidos. Na fusão das fontes, a faixa privada dos ícones é excluída da Inter, permitindo que a fonte Phosphor forneça esses glifos. A base visual usa texto de 14 px, espaçamento de 4 px, bordas finas e cantos de 3 px. A origem da fonte é a [release oficial Inter 4.1](https://github.com/rsms/inter/releases/tag/v4.1).
+A adaptação ao chocoBones segue estes princípios:
 
-`TOOL_DESCRIPTORS`, em `src/ui/editor_types.odin`, associa cada ícone, rótulo e atalho a um valor explícito de `Tool`. A ordem da barra não deve ser convertida em ordinal do enum. `tool_descriptor` fornece a apresentação da ferramenta selecionada. O palco usa `fit_canvas` e `screen_to_scene` para centralizar o conteúdo preservando proporção e coordenadas do documento.
-
-## Espaços de trabalho e docking
-
-| Espaço | Painéis iniciais |
+| Referência | Aplicação no chocoBones |
 |---|---|
-| Montagem (`assembly`) | Camadas e Inspetor; timeline oculta |
-| Rig (`rig`) | Guia de juntas e Inspetor; timeline oculta |
-| Animação (`animate`) | Camadas, Inspetor e timeline inferior |
-| Foco (`focus`) | Palco ampliado; painéis auxiliares ocultos |
+| Personas de edição | Montagem, Rig, Animação e Foco |
+| Barra contextual | Ferramenta, edição de repouso/pose, IK quando pertinente e vista 2D/3D |
+| Rail estreita | Nove ferramentas existentes, com SVGs Phosphor, sem emojis |
+| Documento dominante | Palco proporcional; buffer RGBA realmente entregue ao Slint |
+| Painéis encaixados | Elementos, Transformação e Navegador, separados por linhas de 1 px |
+| Abas de recursos de desenho | Camadas/juntas; opacidade para camada, posição/rotação para junta |
+| Configuração de aparência | Painel próprio com três luminosidades e seis acentos |
+| Barra inferior | Timeline dos clipes Idle/Walk e estado do editor |
 
-Cada espaço tem IDs estáveis de dockspace e de janela, permitindo preservar divisórias, abas e posições independentemente. Os nomes internos usam o sufixo do espaço, como `Palco###stage_assembly` e `Inspetor###inspector_rig`; os rótulos visíveis podem mudar sem invalidar o layout. A troca de espaço mantém documento, seleção, ferramenta e modo 2D/3D e cancela gestos transitórios de edição. O menu de painéis permite reabrir os painéis existentes e restaurar o layout inicial do espaço ativo. O layout de Animação reserva inicialmente 25% da altura para a timeline existente.
+Não foram incluídos controles decorativos de pincéis, cores do desenho ou efeitos sem vínculo com ações existentes. O painel de aparência modifica a interface; a cor de destaque não muda as cores do rig. O fundo/grid do preview e da exportação continua seguindo o comportamento existente de tema do renderizador; esta mudança não separa essas duas superfícies.
 
-DockBuilder fica encapsulado em `src/editor_layout.odin`: inicializa layouts ausentes ou restaura o espaço solicitado. Esta é uma API interna do Dear ImGui; ao atualizar os bindings, conferir a integração de docking. Dockspaces inativos usam `KeepAliveOnly` para preservar suas janelas. A [documentação oficial de docking](https://github.com/ocornut/imgui/wiki/Docking) descreve esse comportamento. `src/editor_shell.odin` reúne barras, Aparência, fontes e persistência; `src/editor_properties.odin` organiza os controles do Inspetor. As ações e o estado do documento continuam em `src/main.odin`.
+## Sistema visual
 
-Em janelas com menor espaço efetivo, Camadas e Inspetor compartilham abas, a troca de workspace usa o menu Espaços e ações secundárias permanecem acessíveis nos menus. A rail e o Inspetor têm rolagem vertical quando necessária. A timeline compacta oculta metadados secundários, usa ícone para Gravar e mantém uma régua fina; sua altura pode ser ampliada pela divisória. A régua mantém indicação de foco e navegação por teclado. `CHOCOBONES_UI_SCALE` aceita valores de `1` a `2`, incluindo `1.5`, para ajustar a escala sem mudar as coordenadas do documento.
+`StudioPalette` compartilha cores semânticas entre todos os componentes, inclusive hover, foco, campos e seleção. Os temas são Dark (base `#202020`), Dim (`#393939`) e Light (`#DEDEDE`). O palco conserva as cores do renderizador. Os acentos são Ciano, Azul, Violeta, Rosa, Verde e Âmbar; o fundo da seleção deriva do acento ativo com transparência.
 
-## Preferências e arquivos locais
+`StudioButton`, `StudioScrub` e `StudioSwatch` substituem os botões e sliders de aparência fixa do sistema. Fontes Inter Regular/Medium e ícones Phosphor usam os arquivos e licenças existentes em `assets/`. Controles ativos, foco e hover acompanham o tema. As descrições acessíveis identificam ferramentas e ações iconográficas.
 
-O diretório de configuração vem de `SDL_GetPrefPath("chocoBones", "chocoBones-std")`. Nele, `preferences.json` guarda aparência, espaço ativo e visibilidade dos painéis; `layouts.ini` guarda os dados de docking do ImGui. Estes arquivos são independentes dos arquivos de personagem.
+A composição usa barra principal de 40 px, contexto de 34 px, rail de 40 px e dock de 268 px. Em 1400 px, o palco dispõe de 1092 px de largura. A timeline fica sob o palco, mantendo o inspetor disponível durante animação. Os presets de estrutura ficam no inspetor do espaço Rig, em vez de ocupar a barra de todos os espaços.
 
-O contrato JSON v1 é plano. Os valores de tema são `dark`/`light`; os de workspace são `assembly`/`rig`/`animate`/`focus`. Exemplo completo:
+## Adaptação e interação
 
-```json
-{
-  "version": 1,
-  "theme": "dark",
-  "accent": "#00B8D9",
-  "workspace": "assembly",
-  "panels": [
-    {"layers": true, "inspector": true, "timeline": false, "joints": false},
-    {"layers": false, "inspector": true, "timeline": false, "joints": true},
-    {"layers": true, "inspector": true, "timeline": true, "joints": false},
-    {"layers": false, "inspector": false, "timeline": false, "joints": false}
-  ]
-}
-```
+| Espaço | Organização |
+|---|---|
+| Montagem | Camadas, opacidade, ordem e visibilidade |
+| Rig | Juntas, vínculo, posição, rotação, IK e presets |
+| Animação | Camadas e inspetor, timeline com reprodução e scrubbing |
+| Foco | Palco ampliado; dock e timeline ocultos |
 
-`panels` é opcional para compatibilidade com a versão 1 inicial. Quando presente, exige quatro objetos, na ordem Montagem/Rig/Animação/Foco, com os quatro campos booleanos. Quando ausente, usa `default_panel_visibility` para cada espaço.
+A troca de espaço adapta a aba de elementos sem reconstruir o documento, interromper playback ou apagar seleção. As duas abas continuam acessíveis em cada espaço.
 
-`default_preferences` retorna Dark, ciano e Montagem. `load_preferences` retorna essas configurações e `false` para arquivo ausente, JSON inválido, versão desconhecida ou valores inválidos; a leitura não modifica o arquivo. O editor preserva um arquivo inválido até ocorrer uma alteração explícita de preferência. `preferences_from_json` valida também duplicação de chaves e conteúdo após o objeto. O accent aceita seis dígitos hexadecimais com `#`, em qualquer caixa, e é gravado em maiúsculas. RGB livre é quantizado para 8 bits por canal, com erro máximo de meio passo de 8 bits.
+Abaixo de 1100 px, o dock usa 232 px e Elementos/Inspetor compartilham abas. Abaixo de 720 px de altura, a timeline fica compacta e o Navegador é oculto. Rail, listas e inspetor têm rolagem. O mínimo suportado é 760×560; não há docking livre ou persistência de layouts nesta versão Slint.
 
-`save_preferences` e `save_layouts_atomic` gravam em um temporário no mesmo diretório e fazem rename após concluir a escrita. Falha retorna `false`, limpa o temporário criado e preserva o destino anterior. O editor mantém a sessão utilizável e exibe o erro. Tema, accent e fontes pertencem à interface e mantêm os pixels do personagem exportado.
+A imagem do palco usa `image-fit: contain`. `src/ui/viewport/geometry.ts` transforma coordenadas lógicas da janela em pixels do buffer, descontando margens e escala. Cliques nas margens não iniciam edição; um arrasto iniciado na imagem pode continuar fora dela. Isso evita deslocar o picking ao redimensionar a janela e mantém a proporção do personagem.
 
-## Verificação
+O palco encaminha atalhos existentes, incluindo Espaço, C, F/Home, Delete/Backspace e Alt+R, traduzindo os códigos especiais do Slint. Teclas não tratadas permanecem disponíveis para navegação de foco. Botões e acentos aceitam Espaço/Enter; timeline e opacidade aceitam setas e Home/End. Clique com Shift seleciona faixas de camadas. O painel de aparência intercepta cliques nas suas áreas vazias, evitando ações no palco ou nas barras por baixo dele.
 
-Executar na raiz do repositório:
+## Verificação reproduzível
+
+Na raiz do checkout:
 
 ```sh
-odin check src
-odin build src -out:bin/chocobones
-odin test tests
+pnpm run typecheck
+pnpm run build
+pnpm test
+SLINT_BACKEND=winit-femtovg pnpm exec tsx scripts/test_themes_and_accents.ts
 ```
 
-Os testes de preferências cobrem roundtrip de todos os temas/espaços, presets e extremos RGB, compatibilidade sem `panels`, arquivos inválidos sem modificação, quantização e falhas de IO/rename. Os testes de UI cobrem contraste, associação das ferramentas e transformação de coordenadas do palco.
+O último comando requer um display gráfico. A suíte unitária cobre entrega de RGBA, cleanup do loop, mudança de dimensões do buffer e picking/arrasto com escalas e margens. O teste de temas verifica callbacks, pixels renderizados e exportação 2D/3D; ele não é uma certificação de contraste ou uma comparação visual com a referência.
 
-Em 2026-10-11, a verificação final às `16:18:20` (America/Sao_Paulo) passou em `odin check src`, build e nos 41 testes automatizados. A integração da interface foi executada no aplicativo nativo SDL/OpenGL em Xvfb `:99`.
-
-`scripts/qa_editor_ui.py` capturou e verificou 18 casos: Dark/Light × 1280×720, 1440×900 e 1920×1080 × escalas de 100%, 150% e 200%. Todos encerraram com código zero, persistiram preferências/layouts e não apresentaram mensagens inesperadas no log. A revisão das capturas confirmou legibilidade, ícones Phosphor corretos, palco proporcional e adaptação por abas/menus/rolagem.
-
-`scripts/qa_editor_interactions.py` passou no binário final com código zero e 14 verificações de interação: seleção e arrasto, undo/redo, exportação, os quatro espaços, fechamento/reabertura/restauração de painéis, divisórias de docking, troca de tema durante playback, modo 2D/3D, saída limpa e reinício. O arrasto de 30 pixels produziu a transformação esperada `30 * 512 / 756` no documento. O PNG exportado permaneceu idêntico entre Light/Dark e accents preto, branco e livre. A exportação de spritesheet gerou os oito quadros existentes em PNG 2048×1024. No reinício, o roteiro confirmou tema Light, accent `#123456` e os quatro layouts persistidos, usando ImageMagick. Em 1280×720 a 200%, a rolagem expôs e permitiu selecionar a ferramenta Pesos; a timeline compacta manteve controles inteiros, sem corte ou rolagem desnecessária. Gravar/excluir keyframes e o foco/teclado da régua também passaram.
-
-Os roteiros executam o editor em diretórios temporários e isolam preferências e documentos dos arquivos do usuário. Com Xvfb `:99` disponível, Python 3, `xdotool` e ImageMagick instalados, reproduzir:
+`scripts/qa_studio.ts` abre a janela Slint real, captura temas e resoluções, verifica pixels do chrome e compara o RGBA nativo com o framebuffer. Também exercita ações por eventos nativos e callbacks. Requer X11, Xvfb, ImageMagick (`import`) e `xwininfo`. Exemplo em um display isolado:
 
 ```sh
-python3 scripts/qa_editor_ui.py --display :99 --output /tmp/chocobones-ui-qa
-python3 scripts/qa_editor_interactions.py --display :99 --output /tmp/chocobones-ui-qa
+Xvfb :102 -screen 0 1600x1000x24 -nolisten tcp -extension MIT-SHM > /tmp/chocobones-xvfb.log 2>&1 &
+qa_display_pid=$!
+# Aguarde xdpyinfo -display :102 retornar sucesso.
+DISPLAY=:102 LIBGL_ALWAYS_SOFTWARE=1 LIBGL_DRI3_DISABLE=1 \
+  SLINT_BACKEND=winit-femtovg XDG_CACHE_HOME=/tmp/chocobones-qa-cache \
+  CHOCOBONES_QA_OUTPUT=/tmp/chocobones-studio-qa pnpm exec tsx scripts/qa_studio.ts
+kill "$qa_display_pid"
 ```
 
-As capturas e os relatórios locais desta execução estão em `/home/raillen/.codex/visualizations/2026/10/11/01a12c37-d2a6-7871-8894-44640df44ef9/chocobones/`, incluindo `matrix.json` e `interaction.json`. A execução usou Xvfb com OpenGL por software. Ela valida o aplicativo nativo em um display virtual; a percepção de DPI físico, composição e driver no hardware do usuário e em outros desktops deve ser avaliada nos ambientes de distribuição.
+Em containers com namespaces IPC separados, desativar a extensão MIT-SHM do display virtual evita imagens desatualizadas por falha de compartilhamento de memória. Isso não desativa verificação de pacotes ou TLS. O aviso de D-Bus para configurações do desktop é separado da abertura/renderização da janela.
+
+A matriz visual cobre Dark/Dim/Light em 900×640, 1280×720 e 1400×900, os quatro espaços, o painel de aparência e o mínimo 760×560. A execução produz PNGs e `report.json` com dimensões, hashes e verificações. Capturas devem ser revisadas junto do relatório; afirmar apenas que a propriedade de tema mudou não comprova que a janela foi redesenhada.
+
+A verificação da implementação passou em tipagem, build e 132 testes em 16 suítes. O roteiro nativo passou 28 verificações e gerou 15 capturas; a revisão visual confirmou Phosphor, temas e composição em tela ampla e compacta. As [15 capturas nativas e o relatório](screenshots/slint-studio/README.md) estão versionados em `screenshots/slint-studio/`. O script QA também passou tipagem estrita própria, pois `scripts/` não faz parte do `tsconfig.json` principal.

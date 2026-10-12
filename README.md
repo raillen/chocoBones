@@ -20,7 +20,7 @@ pnpm test
 pnpm start
 ```
 
-## Arquitetura e Status (коном 2026-10-12: 70 testes, 10 suítes)
+## Arquitetura e Status
 
 | Módulo | Responsabilidade | Status |
 |---|---|---|
@@ -33,8 +33,8 @@ pnpm start
 | [`src/project/`](src/project/) | Zod **v2** (`meshes/pins/clips/constraints`), `migrateV1ToV2`, anti-ciclo, limite 20 MB | Além do pareamento (v1 era só joints/layers) |
 | [`src/render/`](src/render/) | WGSL sprite + MLS compute, `WebGpuRenderer` (fallback CPU), PNG sync+async, `loop.ts` delta | WGSL real + fallback; GPU física não validada |
 | [`src/ui/`](src/ui/) | `store/actions/viewport/loop`, Setup/Animate, multisseleção, reorder, teclado, `editor_mode` | Bridge refatorada; editor Odin completo (showcase, spritesheet, seam_mask) **não** pareado |
-| [`ui/`](ui/) | Slint com workspaces + `editor_mode` + `move_layer` | Funcional |
-| [`tests/`](tests/) | 70 testes (35 legados + 35 novos `new_features.test.ts`) | Verde (`pnpm test`), `tsc --noEmit` limpo |
+| [`ui/`](ui/) | Slint adaptativo, temas neutros, ícones Phosphor e painéis contextuais | [Análise e validação visual](docs/development/editor-ui.md) |
+| [`tests/`](tests/) | 132 testes em 16 suítes, incluindo entrega RGBA e coordenadas do palco | Verde (`pnpm test`), `tsc --noEmit` limpo |
 
 ## Desenvolvimento e Prumo
 

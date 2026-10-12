@@ -22,6 +22,7 @@ import { applyProjectToState, loadProjectFile, saveProjectFile, stateToProject }
 import { resetToRest, seekTimeline, selectClip, togglePlay } from "./actions/animation_actions";
 import { applyJointDrag } from "./viewport/controller";
 import { pickEntity } from "./viewport/picking";
+import { mapViewportPoint } from "./viewport/geometry";
 import { movePinOffset, movePinRest } from "../mesh/mesh";
 import { loadProjectFromJson } from "../project/project";
 
@@ -83,7 +84,7 @@ function syncEditorMode(window: any, state: AppState): void {
 export function bindSlintWindow(window: any, state: AppState): () => void {
   window.active_workspace = state.activeWorkspace;
   window.viewport_mode = state.viewportMode;
-  window.status_text = "🦴 chocoBones Desktop — Pronto (Node + pnpm + Slint + WebGPU)";
+  window.status_text = "Pronto · selecione uma junta ou camada";
   window.theme_mode = state.themeMode;
   window.accent_name = state.accentName;
   window.active_tool = state.activeTool;
@@ -128,6 +129,10 @@ export function bindSlintWindow(window: any, state: AppState): () => void {
   window.change_workspace = (ws: string) => {
     state.activeWorkspace = ws;
     window.active_workspace = ws;
+    if (ws === "Rig" || ws === "Montagem" || ws === "Animacao") {
+      state.elementTab = ws === "Rig" ? "Juntas" : "Camadas";
+      window.element_tab = state.elementTab;
+    }
     window.status_text = `Espaço de trabalho: ${ws}`;
   };
   window.set_viewport_mode = (mode: string) => {
@@ -198,7 +203,7 @@ export function bindSlintWindow(window: any, state: AppState): () => void {
     encodeRgbaToPngAsync(state.viewportBuffer.width, state.viewportBuffer.height, state.viewportBuffer.pixels)
       .then(async (png) => {
         await fsp.writeFile(state.paths.exportPng, png);
-        window.status_text = `📸 Frame exportado: ${path.basename(state.paths.exportPng)}`;
+        window.status_text = `Frame exportado: ${path.basename(state.paths.exportPng)}`;
       })
       .catch((err: unknown) => {
         window.status_text = `Erro ao exportar PNG: ${err instanceof Error ? err.message : String(err)}`;
@@ -385,7 +390,18 @@ export function bindSlintWindow(window: any, state: AppState): () => void {
 
   // --- viewport mouse (usa controller + Setup/Animate + picking por ferramenta P1-8) ---
   const drag = state.viewportDrag;
-  window.viewport_mouse_down = (sx: number, sy: number) => {
+  const viewportPoint = (x: number, y: number) => mapViewportPoint(
+    state.viewportBuffer.width,
+    state.viewportBuffer.height,
+    window.viewport_width ?? state.viewportBuffer.width,
+    window.viewport_height ?? state.viewportBuffer.height,
+    x,
+    y,
+  );
+  window.viewport_mouse_down = (x: number, y: number) => {
+    const point = viewportPoint(x, y);
+    if (!point?.inside) return;
+    const { x: sx, y: sy } = point;
     drag.lastMouse = [sx, sy];
     drag.startMouse = [sx, sy];
     drag.startPan = { ...state.cameraPan };
@@ -410,7 +426,11 @@ export function bindSlintWindow(window: any, state: AppState): () => void {
     }
     drag.beginPan(sx, sy, state.cameraPan);
   };
-  window.viewport_mouse_move = (sx: number, sy: number) => {
+  window.viewport_mouse_move = (x: number, y: number) => {
+    if (drag.mode === "none") return;
+    const point = viewportPoint(x, y);
+    if (!point) return;
+    const { x: sx, y: sy } = point;
     const dx = sx - drag.lastMouse[0];
     const dy = sy - drag.lastMouse[1];
     if (drag.mode === "pan") {

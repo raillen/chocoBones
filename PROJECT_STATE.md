@@ -20,7 +20,7 @@ Núcleo de domínio pareado do Odin + itens 1–14 implementados nesta iteraçã
 8. **Render**: WGSL sprite + MLS compute real + `WebGpuRenderer` com fallback CPU; `ViewportBuffer` CPU; PNG sync + **async** com CRC pré-computado; loop com `delta_time`.
 9. **UI/Editor**: Slint + `store/actions/viewport/loop` (bridge fina); modos **Setup/Animate** + `Alt+R`; multisseleção Shift, delete, reorder ▲▼, teclado `Space/C/F/Home`, `editor_mode` no Slint.
 10. **IDs**: `generateId` estável (sem `Date.now` puro), validação de ciclo no load.
-11. **Estúdio Criativo Multi-Tema & Slint UI**: Sistema adaptativo com 3 temas (Dark `#121214`, Dim `#242428`, Light `#f4f4f6`), 6 acentos WCAG AA, dual-bar header, rail de ferramentas 46px com as 12 ferramentas do Odin, inspetor multi-card e rasterizador reativo com sincronização de cores de fundo/grade/3D.
+11. **Interface Slint adaptativa**: chrome contínuo e neutro, três temas, seis acentos, fontes Inter e ícones Phosphor sem emojis; painéis contextuais com abas abaixo de 1100 px, Foco ampliado, timeline com teclado. Entrega RGBA ao Slint e transformação do mouse corrigidas. Análise da referência em `docs/development/editor-ui.md`.
 12. **P2 Perf/Export/Skinning**: `rig/compiled.ts` (topo + O(n) iterativo), `mesh/cache.ts` (adjacência/bind + `GpuBufferManager` dirty-only + `VertexPool`), `export/runtime.ts` (contratos runtime v2/export v1, sequência determinística, spritesheet), `deform/lbs.ts` (LBS + DQ planar, ordem `bones-then-mls` v1).
 13. **Fase 1**: `geometry/contour.ts` (mask, bbox, Moore, Douglas-Peucker, área, point-in-poly, triangulação intra-contorno, validação) + `mesh_edit.ts` (add/move/delete + `topologyClean`).
 14. **Fase 2**: `rig/retarget.ts` (parent/aim/limit, SmartBones por janela, papéis anatômicos, `retargetByRole`) + `rig/constraints.ts` (IK metadata, FABRIK, sockets).
@@ -29,11 +29,11 @@ Núcleo de domínio pareado do Odin + itens 1–14 implementados nesta iteraçã
 
 ## Paridade honesta com Odin
 
-Núcleo matemático/rig/animação e interface de estúdio criativo pareados com o padrão visual do Odin e o mockup de referência (Affinity/Canva). Visual adaptativo validado com exportações reais 2D e 3D em Dark, Dim e Light.
+Núcleo matemático/rig/animação conserva o trabalho anterior. A interface TypeScript/Slint foi reestruturada a partir da referência: palco dominante, chrome contínuo, Phosphor e adaptação por abas. Não há docking livre ou persistência de layouts implementados nesta versão Slint; não se afirma paridade completa com Odin.
 
 ## Evidência de Verificação
 
-- **Testes**: 115 passando em 14 suítes, 0 falhas (`pnpm test` / Vitest).
+- **Testes**: 132 passando em 16 suítes, 0 falhas (`pnpm test` / Vitest).
 - **Tipos**: `tsc --noEmit` 0 erros (strict + `noUncheckedIndexedAccess` + `noUnusedLocals`).
-- **Verificação Visual Xvfb**: Script `scripts/test_themes_and_accents.ts` executado com sucesso em display virtual Xvfb `:99` com exportação e validação de pixels de fundo e wireframe 3D nos 3 temas.
+- **Verificação Visual Xvfb**: `scripts/qa_studio.ts` passou 28 verificações com 15 capturas nativas: três temas, três tamanhos, mínimo 760×560, quatro espaços e aparência. Cliques, teclado, entrega RGBA, playback, undo e exportação passaram. Capturas e relatório versionados em `docs/development/screenshots/slint-studio/`. O roteiro também passou checagem TypeScript estrita separada.
 - **Prumo**: `prumo.json` alinhado para Node/pnpm.
