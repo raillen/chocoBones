@@ -1,51 +1,134 @@
-// chocoBones Desktop UI em Slint
-import { Button, VerticalBox, HorizontalBox, Slider, ScrollView, StandardListView } from "std-widgets.slint";
+// chocoBones Desktop UI em Slint — Versão Completa e Totalmente Funcional
+import { Button, VerticalBox, HorizontalBox, Slider, ScrollView, LineEdit } from "std-widgets.slint";
+
+export struct JointRow {
+    id: string,
+    name: string,
+    parent: string,
+    color: string,
+}
+
+export struct LayerRow {
+    id: string,
+    name: string,
+    joint: string,
+    visible: bool,
+    locked: bool,
+    opacity: float,
+}
 
 export component MainWindow inherits Window {
-    title: "chocoBones — 2D/3D Puppet & Skeletal Studio (TypeScript Edition)";
-    preferred-width: 1280px;
-    preferred-height: 768px;
-    background: #18181b;
+    title: "chocoBones — 2D/3D Puppet & Skeletal Studio";
+    preferred-width: 1360px;
+    preferred-height: 800px;
+    background: #121214;
     default-font-family: "Inter";
 
+    // Estado da Workspace e Viewport
     in-out property <string> active_workspace: "Animacao";
+    in-out property <string> viewport_mode: "2D";
     in-out property <image> viewport_frame;
+    in-out property <string> status_text: "Pronto — chocoBones Studio Ativo";
+    in-out property <float> zoom_level: 1.0;
+
+    // Coleções Reativas
+    in-out property <[JointRow]> joints_list;
+    in-out property <[LayerRow]> layers_list;
+
+    // Junta Selecionada
+    in-out property <string> selected_joint_id: "root";
+    in-out property <string> selected_joint_name: "Centro / quadril";
+    in-out property <string> selected_joint_parent: "";
+    in-out property <float> selected_joint_x: 256.0;
+    in-out property <float> selected_joint_y: 300.0;
+    in-out property <float> selected_joint_angle: 0.0;
+    in-out property <string> selected_joint_color: "#eab308";
+    in-out property <bool> ik_enabled: false;
+
+    // Camada Selecionada
+    in-out property <string> selected_layer_id: "";
+    in-out property <string> selected_layer_name: "";
+    in-out property <float> selected_layer_opacity: 1.0;
+
+    // Linha do Tempo
     in-out property <float> timeline_time: 0.0;
     in-out property <float> timeline_duration: 1.6;
-    in-out property <bool> is_playing: false;
-    in-out property <string> selected_joint_name: "root";
-    in-out property <string> status_text: "Pronto — chocoBones TS + Slint";
+    in-out property <bool> is_playing: true;
+    in-out property <string> active_clip_name: "idle";
 
-    callback toggle_play();
+    // Callbacks do Navegador e Ações de Projeto
     callback change_workspace(string);
+    callback set_viewport_mode(string);
+    callback undo();
+    callback redo();
+    callback new_project();
+    callback save_project();
+    callback load_project();
+    callback export_png();
+
+    // Callbacks de Juntas & Rig
     callback select_joint(string);
+    callback add_joint();
+    callback remove_joint(string);
+    callback update_joint_pos(string, float, float);
+    callback update_joint_angle(string, float);
+    callback set_rig_preset(string);
+    callback toggle_ik();
+
+    // Callbacks de Camadas & Montagem
+    callback select_layer(string);
+    callback add_layer();
+    callback remove_layer(string);
+    callback toggle_layer_visibility(string);
+    callback update_layer_opacity(string, float);
+
+    // Callbacks de Animação
+    callback toggle_play();
     callback timeline_seek(float);
+    callback select_clip(string);
+    callback reset_to_rest();
+
+    // Callbacks de Interação com a Viewport
+    callback viewport_mouse_down(float, float);
+    callback viewport_mouse_up(float, float);
+    callback viewport_mouse_move(float, float);
+    callback viewport_scroll(float);
+    callback zoom_in();
+    callback zoom_out();
+    callback reset_view();
 
     VerticalBox {
         padding: 0px;
         spacing: 0px;
 
-        // Top Navigation Bar / Workspace Selector
+        // =====================================================================
+        // BARRA SUPERIOR (MENU, ESPAÇOS E AÇÕES)
+        // =====================================================================
         Rectangle {
-            height: 44px;
-            background: #27272a;
+            height: 48px;
+            background: #1c1c1f;
+            border-width: 1px;
+            border-color: #27272a;
 
             HorizontalBox {
-                padding-left: 12px;
-                padding-right: 12px;
+                padding-left: 14px;
+                padding-right: 14px;
                 alignment: space-between;
 
+                // Marca e Espaços
                 HorizontalBox {
                     spacing: 8px;
+                    alignment: start;
+
                     Text {
                         text: "🦴 chocoBones";
-                        font-weight: 700;
-                        font-size: 14px;
+                        font-weight: 800;
+                        font-size: 15px;
                         color: #facc15;
                         vertical-alignment: center;
                     }
 
-                    Rectangle { width: 16px; }
+                    Rectangle { width: 12px; }
 
                     Button {
                         text: "Montagem";
@@ -67,160 +150,480 @@ export component MainWindow inherits Window {
                         primary: root.active_workspace == "Foco";
                         clicked => { root.change_workspace("Foco"); }
                     }
+
+                    Rectangle { width: 10px; }
+
+                    // Alternador 2D / 3D
+                    Button {
+                        text: root.viewport_mode == "2D" ? "🌐 3D Studio" : "🎨 2D Puppet";
+                        clicked => {
+                            if (root.viewport_mode == "2D") {
+                                root.set_viewport_mode("3D");
+                            } else {
+                                root.set_viewport_mode("2D");
+                            }
+                        }
+                    }
                 }
 
+                // Botões de Ação Rápida (Undo, Redo, Salvar, Exportar)
                 HorizontalBox {
-                    spacing: 8px;
-                    Text {
-                        text: root.status_text;
-                        color: #a1a1aa;
-                        font-size: 12px;
-                        vertical-alignment: center;
+                    spacing: 6px;
+                    alignment: end;
+
+                    Button {
+                        text: "↶ Desfazer";
+                        clicked => { root.undo(); }
+                    }
+                    Button {
+                        text: "↷ Refazer";
+                        clicked => { root.redo(); }
+                    }
+                    Button {
+                        text: "💾 Salvar";
+                        clicked => { root.save_project(); }
+                    }
+                    Button {
+                        text: "📂 Abrir";
+                        clicked => { root.load_project(); }
+                    }
+                    Button {
+                        text: "📷 Exportar PNG";
+                        clicked => { root.export_png(); }
                     }
                 }
             }
         }
 
-        // Main Center Area (Panels + Viewport)
+        // =====================================================================
+        // ÁREA CENTRAL (PAINEL ESQUERDO + VIEWPORT + PAINEL DIREITO)
+        // =====================================================================
         HorizontalBox {
-            padding: 4px;
-            spacing: 4px;
+            padding: 6px;
+            spacing: 6px;
 
-            // Left Panel (Layers & Hierarchy)
+            // -----------------------------------------------------------------
+            // PAINEL ESQUERDO (CAMADAS OU JUNTAS CONFORME O ESPAÇO)
+            // -----------------------------------------------------------------
             if root.active_workspace != "Foco": Rectangle {
-                width: 260px;
-                background: #202023;
-                border-radius: 4px;
+                width: 280px;
+                background: #18181b;
+                border-radius: 6px;
+                border-width: 1px;
+                border-color: #27272a;
 
                 VerticalBox {
-                    padding: 8px;
+                    padding: 10px;
                     spacing: 8px;
 
-                    Text {
-                        text: "CAMADAS & ESQUELETO";
-                        font-size: 11px;
-                        font-weight: 700;
-                        color: #71717a;
-                    }
+                    // TÍTULO DO PAINEL
+                    HorizontalBox {
+                        alignment: space-between;
+                        Text {
+                            text: root.active_workspace == "Montagem" ? "CAMADAS DE SPRITES" : "ÁRVORE DE JUNTAS / OSSOS";
+                            font-size: 11px;
+                            font-weight: 700;
+                            color: #a1a1aa;
+                            vertical-alignment: center;
+                        }
 
-                    Rectangle {
-                        background: #18181b;
-                        border-radius: 4px;
-                        VerticalBox {
-                            padding: 6px;
-                            spacing: 4px;
-                            Text { text: "• root (Quadril)"; color: #facc15; }
-                            Text { text: "  ├─ head (Cabeça)"; color: #60a5fa; }
-                            Text { text: "  ├─ upper_arm_near"; color: #34d399; }
-                            Text { text: "  │  └─ forearm_near"; color: #34d399; }
-                            Text { text: "  ├─ thigh_near"; color: #fb923c; }
-                            Text { text: "  │  └─ shin_near"; color: #fb923c; }
+                        if root.active_workspace == "Rig": Button {
+                            text: "+ Junta";
+                            clicked => { root.add_joint(); }
+                        }
+                        if root.active_workspace == "Montagem": Button {
+                            text: "+ Camada";
+                            clicked => { root.add_layer(); }
                         }
                     }
-                }
-            }
 
-            // Central Viewport
-            Rectangle {
-                background: #09090b;
-                border-radius: 4px;
-                clip: true;
+                    // CONTEÚDO EM RIG: LISTA DINÂMICA DE JUNTAS
+                    if root.active_workspace == "Rig" || root.active_workspace == "Animacao": ScrollView {
+                        VerticalBox {
+                            spacing: 4px;
+                            padding: 2px;
 
-                Image {
-                    width: 100%;
-                    height: 100%;
-                    source: root.viewport_frame;
-                }
+                            for j[idx] in root.joints_list: Rectangle {
+                                height: 32px;
+                                background: j.id == root.selected_joint_id ? #3f3f46 : #202024;
+                                border-radius: 4px;
 
-                // Overlay Controls
-                HorizontalBox {
-                    alignment: start;
-                    padding: 12px;
-                    Rectangle {
-                        background: #18181be0;
-                        border-radius: 6px;
-                        height: 32px;
-                        padding-left: 8px;
-                        padding-right: 8px;
+                                TouchArea {
+                                    clicked => { root.select_joint(j.id); }
+                                }
 
-                        HorizontalBox {
-                            spacing: 6px;
+                                HorizontalBox {
+                                    padding-left: 8px;
+                                    padding-right: 8px;
+                                    alignment: space-between;
+
+                                    HorizontalBox {
+                                        spacing: 6px;
+                                        Rectangle {
+                                            width: 10px;
+                                            height: 10px;
+                                            border-radius: 5px;
+                                            background: j.id == "root" ? #eab308 : (j.parent == "root" ? #3b82f6 : #10b981);
+                                        }
+                                        Text {
+                                            text: j.name;
+                                            font-size: 12px;
+                                            font-weight: j.id == root.selected_joint_id ? 700 : 500;
+                                            color: j.id == root.selected_joint_id ? #ffffff : #e4e4e7;
+                                            vertical-alignment: center;
+                                        }
+                                    }
+
+                                    if j.id != "root": Button {
+                                        text: "✕";
+                                        clicked => { root.remove_joint(j.id); }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // PRESETS DE RIG (SE ESTIVER NO ESPAÇO RIG)
+                    if root.active_workspace == "Rig": Rectangle {
+                        height: 70px;
+                        background: #1f1f23;
+                        border-radius: 4px;
+                        padding: 6px;
+
+                        VerticalBox {
+                            spacing: 4px;
                             Text {
-                                text: "Espaço ativo: " + root.active_workspace;
-                                font-size: 12px;
-                                color: #e4e4e7;
-                                vertical-alignment: center;
+                                text: "Carregar Preset de Esqueleto:";
+                                font-size: 11px;
+                                color: #a1a1aa;
+                            }
+                            HorizontalBox {
+                                spacing: 4px;
+                                Button { text: "Humanoide"; clicked => { root.set_rig_preset("Humanoid"); } }
+                                Button { text: "Bípede"; clicked => { root.set_rig_preset("BipedSimple"); } }
+                                Button { text: "Quadrúpede"; clicked => { root.set_rig_preset("Quadruped"); } }
+                                Button { text: "Prop"; clicked => { root.set_rig_preset("Prop"); } }
+                            }
+                        }
+                    }
+
+                    // CONTEÚDO EM MONTAGEM: LISTA DINÂMICA DE CAMADAS
+                    if root.active_workspace == "Montagem": ScrollView {
+                        VerticalBox {
+                            spacing: 4px;
+                            padding: 2px;
+
+                            for lyr[idx] in root.layers_list: Rectangle {
+                                height: 36px;
+                                background: lyr.id == root.selected_layer_id ? #3f3f46 : #202024;
+                                border-radius: 4px;
+
+                                TouchArea {
+                                    clicked => { root.select_layer(lyr.id); }
+                                }
+
+                                HorizontalBox {
+                                    padding-left: 8px;
+                                    padding-right: 8px;
+                                    alignment: space-between;
+
+                                    Text {
+                                        text: lyr.name;
+                                        font-size: 12px;
+                                        color: lyr.visible ? #ffffff : #71717a;
+                                        vertical-alignment: center;
+                                    }
+
+                                    HorizontalBox {
+                                        spacing: 4px;
+                                        Button {
+                                            text: lyr.visible ? "👁" : "🕶";
+                                            clicked => { root.toggle_layer_visibility(lyr.id); }
+                                        }
+                                        Button {
+                                            text: "✕";
+                                            clicked => { root.remove_layer(lyr.id); }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
 
-            // Right Panel (Inspector)
+            // -----------------------------------------------------------------
+            // VIEWPORT CENTRAL (INTERATIVO COM TOUCHAREA, PAN, ZOOM E PICKING)
+            // -----------------------------------------------------------------
+            Rectangle {
+                background: #09090b;
+                border-radius: 6px;
+                border-width: 1px;
+                border-color: #27272a;
+                clip: true;
+
+                // Frame de renderização gerado pelo TypeScript
+                Image {
+                    width: 100%;
+                    height: 100%;
+                    source: root.viewport_frame;
+                }
+
+                // Área de Interação do Mouse / Gestos
+                TouchArea {
+                    pointer-event(event) => {
+                        if (event.kind == PointerEventKind.down) {
+                            root.viewport_mouse_down(self.mouse-x / 1px, self.mouse-y / 1px);
+                        }
+                        if (event.kind == PointerEventKind.up || event.kind == PointerEventKind.cancel) {
+                            root.viewport_mouse_up(self.mouse-x / 1px, self.mouse-y / 1px);
+                        }
+                    }
+                    moved => {
+                        root.viewport_mouse_move(self.mouse-x / 1px, self.mouse-y / 1px);
+                    }
+                    scroll-event(event) => {
+                        root.viewport_scroll(event.delta-y / 1px);
+                        accept
+                    }
+                }
+
+                // Overlay de Informações e Ferramentas da Viewport
+                HorizontalBox {
+                    alignment: space-between;
+                    padding: 10px;
+
+                    // Tag de Modo
+                    Rectangle {
+                        background: #18181bd8;
+                        border-radius: 6px;
+                        height: 32px;
+                        padding-left: 10px;
+                        padding-right: 10px;
+
+                        HorizontalBox {
+                            spacing: 8px;
+                            Text {
+                                text: root.viewport_mode == "2D" ? "🎨 Palco 2D — Esqueleto Articulado" : "🌐 Palco 3D — Câmera Orbital";
+                                font-size: 12px;
+                                font-weight: 700;
+                                color: #facc15;
+                                vertical-alignment: center;
+                            }
+                        }
+                    }
+
+                    // Controles de Câmera da Viewport
+                    Rectangle {
+                        background: #18181bd8;
+                        border-radius: 6px;
+                        height: 32px;
+                        padding-left: 8px;
+                        padding-right: 8px;
+
+                        HorizontalBox {
+                            spacing: 4px;
+                            Button { text: "🔍 +"; clicked => { root.zoom_in(); } }
+                            Button { text: "🔍 -"; clicked => { root.zoom_out(); } }
+                            Button { text: "⟲ Resetar"; clicked => { root.reset_view(); } }
+                        }
+                    }
+                }
+            }
+
+            // -----------------------------------------------------------------
+            // PAINEL DIREITO (INSPETOR DE PROPRIEDADES INTERATIVO)
+            // -----------------------------------------------------------------
             if root.active_workspace != "Foco": Rectangle {
-                width: 280px;
-                background: #202023;
-                border-radius: 4px;
+                width: 300px;
+                background: #18181b;
+                border-radius: 6px;
+                border-width: 1px;
+                border-color: #27272a;
 
                 VerticalBox {
-                    padding: 8px;
+                    padding: 10px;
                     spacing: 8px;
 
                     Text {
                         text: "INSPETOR DE PROPRIEDADES";
                         font-size: 11px;
                         font-weight: 700;
-                        color: #71717a;
+                        color: #a1a1aa;
                     }
 
+                    // PROPRIEDADES DA JUNTA SELECIONADA
                     Rectangle {
-                        background: #18181b;
-                        border-radius: 4px;
+                        background: #202024;
+                        border-radius: 6px;
+                        padding: 8px;
+
                         VerticalBox {
-                            padding: 8px;
-                            spacing: 6px;
-                            Text { text: "Junta Selecionada: " + root.selected_joint_name; color: #f4f4f5; font-weight: 600; }
-                            Text { text: "Deformação: MLS Rígido 2D"; color: #a1a1aa; font-size: 12px; }
-                            Text { text: "Cinemática: FK / 2-Bone IK Ativo"; color: #a1a1aa; font-size: 12px; }
-                            Text { text: "Shader: WebGPU WGSL"; color: #a1a1aa; font-size: 12px; }
+                            spacing: 8px;
+
+                            Text {
+                                text: "🦴 " + root.selected_joint_name;
+                                font-size: 13px;
+                                font-weight: 700;
+                                color: #facc15;
+                            }
+
+                            Text {
+                                text: "ID: " + root.selected_joint_id + " (Pai: " + (root.selected_joint_parent == "" ? "Nenhum/Raiz" : root.selected_joint_parent) + ")";
+                                font-size: 11px;
+                                color: #a1a1aa;
+                            }
+
+                            // Ajuste de Posição
+                            HorizontalBox {
+                                spacing: 8px;
+                                Text { text: "Posição:"; font-size: 12px; color: #e4e4e7; vertical-alignment: center; }
+                                Text { text: "X: " + round(root.selected_joint_x) + " Y: " + round(root.selected_joint_y); font-size: 12px; color: #60a5fa; vertical-alignment: center; }
+                            }
+
+                            HorizontalBox {
+                                spacing: 4px;
+                                Button { text: "X -5"; clicked => { root.update_joint_pos(root.selected_joint_id, -5.0, 0.0); } }
+                                Button { text: "X +5"; clicked => { root.update_joint_pos(root.selected_joint_id, 5.0, 0.0); } }
+                                Button { text: "Y -5"; clicked => { root.update_joint_pos(root.selected_joint_id, 0.0, -5.0); } }
+                                Button { text: "Y +5"; clicked => { root.update_joint_pos(root.selected_joint_id, 0.0, 5.0); } }
+                            }
+
+                            // Ajuste de Rotação / Ângulo
+                            HorizontalBox {
+                                spacing: 8px;
+                                Text { text: "Ângulo:"; font-size: 12px; color: #e4e4e7; vertical-alignment: center; }
+                                Text { text: round(root.selected_joint_angle * 57.2958) + "°"; font-size: 12px; color: #34d399; vertical-alignment: center; }
+                            }
+
+                            HorizontalBox {
+                                spacing: 4px;
+                                Button { text: "↺ -15°"; clicked => { root.update_joint_angle(root.selected_joint_id, -0.2618); } }
+                                Button { text: "↻ +15°"; clicked => { root.update_joint_angle(root.selected_joint_id, 0.2618); } }
+                                Button { text: "Zerar"; clicked => { root.update_joint_angle(root.selected_joint_id, -root.selected_joint_angle); } }
+                            }
+
+                            // Alternador de Cinemática Inversa (IK)
+                            HorizontalBox {
+                                spacing: 6px;
+                                Button {
+                                    text: root.ik_enabled ? "IK: ATIVADO (Arrastar Pesa Membro)" : "IK: DESATIVADO (FK Livre)";
+                                    primary: root.ik_enabled;
+                                    clicked => { root.toggle_ik(); }
+                                }
+                            }
+                        }
+                    }
+
+                    // METADADOS DO MOTOR
+                    Rectangle {
+                        background: #1b1b1e;
+                        border-radius: 4px;
+                        padding: 8px;
+
+                        VerticalBox {
+                            spacing: 4px;
+                            Text { text: "• Motor de Deformação: MLS Rígido 2D"; font-size: 11px; color: #a1a1aa; }
+                            Text { text: "• Pipeline Gráfico: WebGPU WGSL"; font-size: 11px; color: #a1a1aa; }
+                            Text { text: "• Validador de I/O: Zod Runtime Schema"; font-size: 11px; color: #a1a1aa; }
                         }
                     }
                 }
             }
         }
 
-        // Bottom Timeline Panel
+        // =====================================================================
+        // LINHA DO TEMPO INFERIOR (CONTROLES DE ANIMAÇÃO E SELEÇÃO DE CLIPES)
+        // =====================================================================
         if root.active_workspace == "Animacao": Rectangle {
-            height: 90px;
-            background: #202023;
+            height: 96px;
+            background: #18181b;
             border-width: 1px;
             border-color: #27272a;
 
             VerticalBox {
-                padding: 6px;
-                spacing: 4px;
+                padding: 8px;
+                spacing: 6px;
 
                 HorizontalBox {
-                    spacing: 8px;
-                    alignment: center;
+                    spacing: 12px;
+                    alignment: space-between;
 
-                    Button {
-                        text: root.is_playing ? "⏸ Pausar" : "▶ Reproduzir";
-                        clicked => { root.toggle_play(); }
+                    // Botões de Play e Clipes
+                    HorizontalBox {
+                        spacing: 6px;
+
+                        Button {
+                            text: root.is_playing ? "⏸ Pausar" : "▶ Reproduzir";
+                            clicked => { root.toggle_play(); }
+                        }
+
+                        Button {
+                            text: "⏮ Início";
+                            clicked => { root.timeline_seek(0.0); }
+                        }
+
+                        Button {
+                            text: "Pose de Repouso";
+                            clicked => { root.reset_to_rest(); }
+                        }
+
+                        Rectangle { width: 8px; }
+
+                        Button {
+                            text: "Ciclo: Respiração (Idle)";
+                            primary: root.active_clip_name == "idle";
+                            clicked => { root.select_clip("idle"); }
+                        }
+                        Button {
+                            text: "Ciclo: Caminhada (Walk)";
+                            primary: root.active_clip_name == "walk";
+                            clicked => { root.select_clip("walk"); }
+                        }
                     }
 
+                    // Contador de Tempo e Status
                     Text {
                         text: "Tempo: " + round(root.timeline_time * 100) / 100 + "s / " + root.timeline_duration + "s";
-                        color: #e4e4e7;
+                        color: #facc15;
+                        font-size: 12px;
+                        font-weight: 700;
                         vertical-alignment: center;
                     }
                 }
 
+                // Slider Interativo de Scrubbing
                 Slider {
                     minimum: 0.0;
                     maximum: root.timeline_duration;
                     value: root.timeline_time;
                     changed(val) => { root.timeline_seek(val); }
+                }
+            }
+        }
+
+        // Barra de Status Inferior
+        Rectangle {
+            height: 22px;
+            background: #141416;
+
+            HorizontalBox {
+                padding-left: 10px;
+                padding-right: 10px;
+                alignment: space-between;
+
+                Text {
+                    text: root.status_text;
+                    font-size: 11px;
+                    color: #71717a;
+                    vertical-alignment: center;
+                }
+
+                Text {
+                    text: "Zoom: " + round(root.zoom_level * 100) + "% | 60 FPS";
+                    font-size: 11px;
+                    color: #71717a;
+                    vertical-alignment: center;
                 }
             }
         }

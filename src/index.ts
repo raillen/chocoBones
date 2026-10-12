@@ -4,7 +4,7 @@
  */
 
 import path from "node:path";
-import slint from "slint-ui";
+import * as slint from "slint-ui";
 import { bindSlintWindow, createInitialAppState } from "./ui/bridge";
 
 async function main(): Promise<void> {
