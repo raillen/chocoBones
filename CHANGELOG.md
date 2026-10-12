@@ -7,6 +7,8 @@ O formato baseia-se no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0
 
 ### Adicionado
 
+- **Dossiê P2 (perf/export/skinning)**: `rig/compiled.ts` (rig pré-compilado O(n)), `mesh/cache.ts` (`MeshCache` + `VertexPool` + `GpuBufferManager` dirty-only), `export/runtime.ts` (contratos runtime v2/export v1, sequência determinística, spritesheet), `deform/lbs.ts` (LBS + DQ planar, ordem `bones-then-mls` v1).
+- **Dossiê Fases 1–4**: `geometry/` (Moore, Douglas-Peucker, triangulação intra-contorno, edição/validação), `rig/retarget.ts` + `rig/constraints.ts` (transform constraints, SmartBones, FABRIK, sockets, retarget por papéis), `procedural/operators.ts` (breath/gait/look/squash + bake fps-independente), `deform/advanced.ts` (ARAP, BBW aprox., cage) + `player/runtime.ts` (`PuppetPlayer`). Suíte: 115 testes em 14 arquivos, `tsc` limpo.
 - **Estúdio Criativo Adaptativo Multi-Tema em TypeScript & Slint UI**:
   - Implementação completa dos 3 temas de estúdio criativo em tempo real: Dark (Obsidian `#121214`), Dim/Grafite (`#242428`) e Light (`#f4f4f6`), alternáveis instantaneamente via barra superior sem reinicialização.
   - 6 presets de cor de destaque (Accent) com contraste WCAG AA (`Ciano`, `Azul`, `Violeta`, `Rosa`, `Verde`, `Âmbar`) integrados a propriedades computadas reativas da interface Slint.
