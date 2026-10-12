@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import { loadProjectFromJson, Project, saveProjectToJson } from "../src/project/project";
 
 describe("Project Serialization & Zod Validation", () => {

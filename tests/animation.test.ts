@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import { createIdleClip, createWalkClip } from "../src/animation/presets";
 import { createKeyframe, Easing, easingFactor, sampleClip } from "../src/animation/timeline";
 import { createPose } from "../src/rig/joint";

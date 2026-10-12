@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import { HistoryStack } from "../src/history/history";
 import { Joint, Layer } from "../src/rig/joint";
 

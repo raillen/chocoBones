@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import { encodeRgbaToPng } from "../src/render/png_export";
 
 describe("PNG Encoder", () => {

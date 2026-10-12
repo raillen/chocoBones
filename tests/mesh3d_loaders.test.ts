@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import { loadGltfFromJson } from "../src/mesh3d/gltf_loader";
 import { loadObjFromString } from "../src/mesh3d/obj_loader";
 import { createCubeMesh, createPlaneMesh } from "../src/mesh3d/primitives";

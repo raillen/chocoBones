@@ -4,7 +4,7 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "lib": ["ESNext", "DOM"],
-    "types": ["@types/bun", "@webgpu/types"],
+    "types": ["@types/node", "@webgpu/types"],
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,

@@ -1,23 +1,23 @@
 # chocoBones-ts
 
-Editor nativo de personagens 2D/3D, montagem de peças, rig e animação em **TypeScript** (executando sobre **Bun**, interface nativa em **Slint** e shaders **WebGPU / WGSL**).
+Editor nativo de personagens 2D/3D, montagem de peças, rig e animação em **TypeScript** (executando sobre **Node.js + pnpm**, interface nativa em **Slint** e shaders **WebGPU / WGSL**).
 
 ## Compilar e Executar
 
-Requer [Bun](https://bun.sh/) (v1.1+).
+Requer [Node.js](https://nodejs.org/) (v20+) e [pnpm](https://pnpm.io/) (v10+ / v12+).
 
 ```sh
 # Instalar dependências
-bun install
+pnpm install
 
 # Verificar tipagem estrita
-bun run typecheck
+pnpm run typecheck
 
 # Executar suíte completa de testes automatizados
-bun test
+pnpm test
 
 # Executar a aplicação desktop
-bun start
+pnpm start
 ```
 
 ## Arquitetura e Pareamento de Funcionalidades com a Edição Odin
@@ -33,7 +33,7 @@ bun start
 | [`src/project/`](src/project/) | Validação de esquema estrito com **Zod** para arquivos `.puppet.json` | 100% Pareado |
 | [`src/render/`](src/render/) | Shaders em **WGSL** (sprite batching e MLS compute) e buffer RGBA de 60 FPS | 100% Pareado |
 | [`ui/`](ui/) | Interface declarativa em **Slint** com espaços *Montagem*, *Rig*, *Animação* e *Foco* | 100% Pareado |
-| [`tests/`](tests/) | Suíte automatizada com 29 testes cobrindo todos os domínios | 100% Pareado |
+| [`tests/`](tests/) | Suíte automatizada com 34 testes cobrindo todos os domínios | 100% Pareado |
 
 ## Desenvolvimento e Prumo
 

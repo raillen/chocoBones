@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import { boneMatrices } from "../src/rig/fk";
 import { solveIK } from "../src/rig/ik";
 import { createPose, Joint } from "../src/rig/joint";

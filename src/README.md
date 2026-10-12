@@ -1,6 +1,6 @@
 # Código-Fonte chocoBones (`src/`)
 
-Arquitetura limpa modular em **TypeScript estrito** executando sobre o runtime **Bun** e interface declarativa **Slint**.
+Arquitetura limpa modular em **TypeScript estrito** executando sobre o runtime **Node.js + pnpm** e interface declarativa **Slint**.
 
 ## Mapa de Módulos
 
@@ -13,10 +13,11 @@ Arquitetura limpa modular em **TypeScript estrito** executando sobre o runtime *
 | [`animation/`](animation/) | Linha do tempo, interpolação por curvas de Bézier cúbicas e clipes de animação |
 | [`history/`](history/) | Pilha transacional de estados com suporte a *Undo* e *Redo* |
 | [`project/`](project/) | Validação de schema com **Zod** e persistência de projetos `.puppet.json` |
-| [`render/`](render/) | Pipeline de shaders **WGSL** e Framebuffer de alta performance |
+| [`render/`](render/) | Pipeline de shaders **WGSL**, exportador PNG e Framebuffer de alta performance |
 | [`ui/`](ui/) | Ponte de comunicação com a interface nativa do **Slint** |
 
 ## Compilação e Testes
 
-* `bun test`: Executa toda a suíte de testes unitários.
-* `bun run src/index.ts`: Inicia a aplicação desktop nativa.
+* `pnpm test`: Executa toda a suíte de testes unitários com **Vitest**.
+* `pnpm start`: Inicia a aplicação desktop nativa.
+* `pnpm run typecheck`: Valida a tipagem estrita via `tsc --noEmit`.

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import { ViewportBuffer } from "../src/render/viewport_buffer";
 import { rigCreatePreset, RigPreset } from "../src/rig/presets";
 import { boneMatrices } from "../src/rig/fk";

@@ -209,7 +209,7 @@ export function bindSlintWindow(window: any, state: AppState): () => void {
   // Inicialização de Propriedades Reativas
   window.active_workspace = state.activeWorkspace;
   window.viewport_mode = state.viewportMode;
-  window.status_text = "🦴 chocoBones Desktop — Pronto (Bun + Slint + WebGPU)";
+  window.status_text = "🦴 chocoBones Desktop — Pronto (Node + pnpm + Slint + WebGPU)";
   window.zoom_level = state.cameraZoom;
   window.timeline_duration = state.timelineDuration;
   window.timeline_time = state.timelineTime;

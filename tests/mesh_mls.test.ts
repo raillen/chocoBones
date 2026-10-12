@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import { buildGridMesh, Pin, warpPoint } from "../src/mesh/mesh";
 
 describe("2D Grid Mesh Triangulation", () => {
