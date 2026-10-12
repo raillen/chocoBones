@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { loadGltfFromJson } from "../src/mesh3d/gltf_loader";
 import { loadObjFromString } from "../src/mesh3d/obj_loader";
 import { createCubeMesh, createPlaneMesh } from "../src/mesh3d/primitives";
+import { mesh3dNormalizeAndCenter } from "../src/mesh3d/mesh3d";
 
 describe("3D Mesh Primitives", () => {
   it("creates cube mesh with 24 vertices and 12 triangles", () => {
@@ -35,6 +36,22 @@ f 1//1 2//1 3//1 4//1
     expect(mesh.indices.length).toBe(6);
     expect(mesh.aabbMin[0]).toBeCloseTo(-1.0);
     expect(mesh.aabbMax[0]).toBeCloseTo(1.0);
+  });
+
+  it("loads Suzanne 3D model and normalizes/centers AABB", () => {
+    const fs = require("node:fs");
+    const path = require("node:path");
+    const filePath = path.resolve(process.cwd(), "assets/models/suzanne.obj");
+    if (fs.existsSync(filePath)) {
+      const content = fs.readFileSync(filePath, "utf-8");
+      const suzanne = loadObjFromString(content, "Suzanne");
+      expect(suzanne.vertices.length).toBe(507);
+      expect(suzanne.indices.length).toBe(2904);
+
+      mesh3dNormalizeAndCenter(suzanne, 2.0);
+      expect(suzanne.aabbMin[0]).toBeCloseTo(-1.0);
+      expect(suzanne.aabbMax[0]).toBeCloseTo(1.0);
+    }
   });
 });
 

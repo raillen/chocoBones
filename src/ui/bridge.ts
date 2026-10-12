@@ -9,7 +9,8 @@ import * as path from "path";
 import { matApply, vec2Dist } from "../core/math";
 import { OrbitCamera } from "../core/math3d";
 import { createCubeMesh } from "../mesh3d/primitives";
-import { Mesh3D } from "../mesh3d/mesh3d";
+import { Mesh3D, mesh3dNormalizeAndCenter } from "../mesh3d/mesh3d";
+import { loadObjFromString } from "../mesh3d/obj_loader";
 import { createPose, findJoint, Joint, Layer, Pose } from "../rig/joint";
 import {
   jointAdd,
@@ -46,7 +47,7 @@ export interface AppState {
   cameraPan: { x: number; y: number };
   cameraZoom: number;
   orbitCamera: OrbitCamera;
-  cubeMesh: Mesh3D;
+  mesh3D: Mesh3D;
   viewportBuffer: ViewportBuffer;
   history: HistoryStack;
   currentPose: Pose;
@@ -143,8 +144,21 @@ export function createInitialAppState(): AppState {
     ikEnabled: false,
     cameraPan: { x: 104, y: -40 },
     cameraZoom: 1.0,
-    orbitCamera: new OrbitCamera([0, 0, 0], 3.8, 0.4, 0.25),
-    cubeMesh: createCubeMesh(1.8),
+    orbitCamera: new OrbitCamera([0, 0, 0], 3.5, 0.45, 0.25),
+    mesh3D: (() => {
+      const suzannePath = path.resolve(process.cwd(), "assets/models/suzanne.obj");
+      if (fs.existsSync(suzannePath)) {
+        try {
+          const content = fs.readFileSync(suzannePath, "utf-8");
+          const m = loadObjFromString(content, "Suzanne (Blender Monkey)");
+          mesh3dNormalizeAndCenter(m, 2.2);
+          return m;
+        } catch {
+          // Fallback
+        }
+      }
+      return createCubeMesh(1.8);
+    })(),
     viewportBuffer: new ViewportBuffer(720, 500),
     history: new HistoryStack(50),
     currentPose: createPose(),
@@ -772,7 +786,7 @@ export function bindSlintWindow(window: any, state: AppState): () => void {
     } else {
       // Palco 3D
       buf.drawGrid(40, 0, 0, 1.0, 24, 24, 30);
-      buf.render3D(state.cubeMesh, state.orbitCamera);
+      buf.render3D(state.mesh3D, state.orbitCamera);
     }
 
     // Envia imagem atualizada para o elemento Image do Slint

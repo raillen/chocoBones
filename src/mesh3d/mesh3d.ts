@@ -87,3 +87,24 @@ export function mesh3dRecalculateNormals(m: Mesh3D): void {
     v.normal = vec3Normalize(v.normal);
   }
 }
+
+export function mesh3dNormalizeAndCenter(m: Mesh3D, targetSize = 2.0): void {
+  mesh3dUpdateAABB(m);
+  const cx = (m.aabbMin[0] + m.aabbMax[0]) * 0.5;
+  const cy = (m.aabbMin[1] + m.aabbMax[1]) * 0.5;
+  const cz = (m.aabbMin[2] + m.aabbMax[2]) * 0.5;
+
+  const dx = m.aabbMax[0] - m.aabbMin[0];
+  const dy = m.aabbMax[1] - m.aabbMin[1];
+  const dz = m.aabbMax[2] - m.aabbMin[2];
+  const maxDim = Math.max(dx, dy, dz);
+  const scale = maxDim > 1e-6 ? targetSize / maxDim : 1.0;
+
+  for (const v of m.vertices) {
+    v.pos[0] = (v.pos[0] - cx) * scale;
+    v.pos[1] = (v.pos[1] - cy) * scale;
+    v.pos[2] = (v.pos[2] - cz) * scale;
+  }
+  mesh3dUpdateAABB(m);
+}
+
