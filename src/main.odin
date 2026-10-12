@@ -496,9 +496,6 @@ editor_delete_selected_layers :: proc(state: ^AppState) {
 
 		for i := len(state.character_layers) - 1; i >= 0; i -= 1 {
 			if state.character_layers[i].id == id {
-				delete(state.character_layers[i].name)
-				delete(state.character_layers[i].asset)
-				delete(state.character_layers[i].id)
 				ordered_remove(&state.character_layers, i)
 				deleted_count += 1
 				break
@@ -2309,8 +2306,10 @@ main :: proc() {
 			if im.IsKeyPressed(.Space) && !io.KeyAlt {
 				state.is_playing = !state.is_playing
 			}
-			if im.IsKeyPressed(.Delete) || im.IsKeyPressed(.Backspace) {
-				editor_delete_selected_layers(&state)
+			if im.IsKeyPressed(.Delete, false) || im.IsKeyPressed(.Backspace, false) {
+				if len(state.selection.selected_layers) > 0 {
+					editor_delete_selected_layers(&state)
+				}
 			}
 			if io.KeyAlt && im.IsKeyPressed(.R) {
 				editor_reset_pose_to_rest(&state)

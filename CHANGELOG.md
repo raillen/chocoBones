@@ -36,6 +36,10 @@ O formato baseia-se no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0
 - Roteiros de QA nativo `scripts/qa_editor_ui.py` e `scripts/qa_editor_interactions.py`, com configurações e documentos isolados.
 - Guia canônico de desenvolvimento da interface em `docs/development/editor-ui.md` e inventário do pacote `src/ui/`.
 
+### Corrigido
+
+- **Falha de Inicialização / SIGABRT (`free(): invalid pointer`)**: remoção de chamadas indevidas a `delete()` sobre campos de string estáticos de camadas em `editor_delete_selected_layers`, e restrição do atalho `Delete`/`Backspace` para disparar apenas quando há camadas ativamente selecionadas (`len(selection.selected_layers) > 0`) com `repeat = false`.
+
 ### Verificação
 
 - Em 2026-10-11, check/build e os 41 testes passaram, incluindo preferências, contraste, ferramentas e coordenadas.
