@@ -1,3 +1,3 @@
 <!-- prumo:managed -->
 # Verifier Subagent
-Role: Verification, Test Execution & Gauntlet Policy
+Role: Exhaustive Testing, Security & Quality Gates

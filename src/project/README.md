@@ -1,7 +1,14 @@
-# Serialização de Projetos (Project)
+# Subsistema de Serialização e Projetos (`src/project`)
 
-Módulo responsável pela serialização e desserialização de arquivos de projeto do ChocoBones (`.puppet.json`).
+Gerencia a persistência, salvamento e carregamento de projetos de marionetes (`.puppet.json`).
 
-| Arquivo | Responsabilidade |
-|---|---|
-| `project.odin` | Estruturas de esquema JSON (`ProjectData`, `JointData`, `LayerData`), gravação (`save_project_to_file`) e carregamento (`load_project_from_file`) |
+## Componentes
+
+* [`project.ts`](project.ts):
+  * Esquemas Zod para validação em runtime (`ProjectSchema`, `ProjectLayerSchema`, `ProjectJointSchema`, `ProjectAssetSchema`).
+  * `loadProjectFromJson`: Carrega e valida rigorosamente a estrutura, rejeitando schemas inválidos.
+  * `saveProjectToJson`: Serializa a árvore com indentação padronizada.
+
+## Contrato de Robustez (Zod)
+
+Conforme a especificação `lang-typescript`, nenhum dado não tipado vindo de I/O externo penetra a arquitetura da aplicação sem validação de esquema estrita.

@@ -1,16 +1,16 @@
-# Rigging e Cinemática
+# Subsistema de Rigging e Cinemática (`src/rig`)
 
-Este pacote implementa a estrutura esquelética, cinemática direta (FK), cinemática inversa (IK) de 2 ossos e gerenciamento dinâmico de juntas e predefinições.
+Gerencia o esqueleto de juntas articuladas, resolução de cinemática direta (**FK**) e cinemática inversa (**IK**), manipulação de hierarquia em árvore e pré-configurações esqueléticas.
 
-| Arquivo | Responsabilidade |
-|---|---|
-| `joint.odin` | Estrutura `Joint`, `JointDelta`, `Layer`, `Pose` e busca básica de nós |
-| `fk.odin` | Resolução hierárquica de matrizes afins 2D de ossos e camadas (`bone_matrices`, `layer_matrix`) |
-| `ik.odin` | Solver analítico de cinemática inversa para membros de 2 juntas (`solve_ik`) |
-| `presets.odin` | Operações dinâmicas de nós (`joint_add`, `joint_remove`, `joint_rename`, `joint_set_parent`, detecção de ciclos), predefinições prontas (`Humanoid`, `BipedSimple`, `Quadruped`, `Prop`, `Empty`) e heurística de mapeamento anatômico de camadas (`auto_guess_joint_for_layer`) |
+## Componentes
 
-## Convenções
+* [`joint.ts`](joint.ts): Estruturas centrais `Joint`, `JointDelta`, `Layer`, `LayerDelta` e `Pose`.
+* [`fk.ts`](fk.ts): Resolução da cadeia hierárquica esquelética e transformações espaciais locais e mundiais.
+* [`ik.ts`](ik.ts): Solver analítico *Two-Bone IK* com controle do ângulo do cotovelo/joelho via fator `bend`.
+* [`presets.ts`](presets.ts): Presets esqueléticos (*Humanoid*, *BipedSimple*, *Quadruped*, *Prop*), algoritmos de detecção de ciclo, adição/remoção/reparentamento de juntas e heurística anatômica `autoGuessJointForLayer`.
 
-- Hierarquias são representadas por referências de `parent` (ID da junta pai ou string vazia para raízes).
-- Operações de remoção e reparentamento garantem integridade referencial, prevenindo ciclos circulares (`joint_has_cycle`).
-- Verificação: `odin test tests` cobre criação de presets, manipulação dinâmica e prevenção de ciclos.
+## Garantias de Integridade
+
+- Árvores esqueléticas são validadas contra ciclos direcionados (`jointHasCycle`).
+- Remoção de nós propaga reparentamento seguro para filhos sem deixar nós órfãos.
+- Renomeação atualiza atomicamente camadas vinculadas e canais de pose.

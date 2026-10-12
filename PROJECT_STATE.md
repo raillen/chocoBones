@@ -1,49 +1,27 @@
-# Current Project State
+# Current Project State (chocoBones-ts)
 
-- Project: **chocoBones-std**
+- Project: **chocoBones-ts** (Worktree `feat/typescript`)
 - Prumo: **0.6.0**
-- Current phase: **P00 — Foundation**
-- Current goal: **P00-G02 (Executando - Dynamic Rig, Animation Packs, and Native Image Import)**
+- Stack: **TypeScript (Strict) + Bun + Slint + WebGPU (WGSL)**
 - Context methodology: **Lean Progressive Context (LPC)**
-- Last updated: `2026-10-11T20:28:00Z`
+- Last updated: `2026-10-11T22:30:00Z`
 
-## Interface do editor
+## Estado da Implementação e Pareamento com Odin
 
-- Implementados temas Dark/Light, accent livre/HEX e seis presets, fontes Inter/Phosphor, composição compacta e espaços Montagem/Rig/Animação/Foco.
-- Preferências e visibilidade dos painéis persistem em JSON v1; layouts de docking têm IDs por espaço e ficam em `layouts.ini`, no diretório SDL do aplicativo.
-- Interface, estado do documento e exportação permanecem separados. A QA confirmou PNG idêntico entre temas e accents extremos.
+Todas as funcionalidades centrais da versão Odin foram pareadas para TypeScript em arquitetura limpa:
 
-## Evidência de verificação — 2026-10-11
+1. **Core Math 2D/3D**: Álgebra afim 2x3, transformações 4x4, projeção perspectiva, `OrbitCamera` e solucionador de curvas cúbicas de Bézier via bisseção binária.
+2. **Rigging & Cinemática**: Árvore esquelética de 14 juntas, cinemática direta hierárquica (**FK**), solver analítico 2-Bone **IK** com controle de dobra (*bend*), detecção e prevenção de ciclos (`jointHasCycle`) e heurística de mapeamento anatômico (`autoGuessJointForLayer`).
+3. **Deformação de Malhas 2D**: Triangulação de quads em grade e algoritmo **Moving Least Squares (MLS)** rígido minimizando distorções de cisalhamento.
+4. **Malhas 3D e Loaders**: Primitivas paramétricas (Cubo e Plano), recálculo de normais acumuladas e parsers para **Wavefront OBJ** e **glTF 2.0 / GLB**.
+5. **Animação & Linha do Tempo**: Amostragem contínua de clipes em tempo real com atenuações (*easing*) Smooth/Hermite, Linear e Bézier, com presets *Idle* e *Walk Cycle*.
+6. **Histórico (Undo/Redo)**: Pilha delimitada com snapshots semânticos de juntas, camadas e poses.
+7. **Serialização Segura com Zod**: Validação em runtime de arquivos `.puppet.json` atendendo a regra estrita do skill `lang-typescript`.
+8. **Renderização & UI**: Shaders **WGSL**, buffer contínuo RGBA para a viewport e interface declarativa em **Slint** com 4 espaços (*Montagem*, *Rig*, *Animação* e *Foco*).
 
-- Verificação final às `16:18:20` (America/Sao_Paulo): `odin check src`, `odin build src -out:bin/chocobones` e `odin test tests` passaram; 41 testes automatizados.
-- `scripts/qa_editor_ui.py`: matriz de 18 screenshots nativos Dark/Light, resoluções 1280×720/1440×900/1920×1080 e escalas 100%/150%/200%, com saída limpa e persistência verificadas.
-- `scripts/qa_editor_interactions.py`: binário final, código zero e 14 verificações de arrasto/undo/redo, exportação invariável, spritesheet de oito quadros (2048×1024), espaços/painéis/restauração, docking, playback durante troca de tema, 2D/3D, saída, reinício, rolagem, keyframes e foco/teclado da régua. Timeline compacta validada em 1280×720 a 200%, com controles inteiros.
-- Ambiente: Xvfb `:99` e OpenGL por software. Hardware/desktop físico do usuário não validado.
-- Capturas e relatórios: `/home/raillen/.codex/visualizations/2026/10/11/01a12c37-d2a6-7871-8894-44640df44ef9/chocobones/` (`matrix.json` e `interaction.json`).
+## Evidência de Verificação
 
-## Assets de teste — 2026-10-11
-
-- Kit original Frontier Survival em `assets/test-kits/frontier-survival/`: seis humanos, seis animais, 24 roupas/equipamentos e um humano modular com fontes SVG reais (15 partes corporais e seis acessórios).
-- Arte das pranchas gerada com `image_gen`, com aparência vetorial e alpha transparente; não contém assets extraídos de CryoFall. SVGs modulares e seus PNGs são um conjunto separado, com canvas e pivôs compartilhados.
-- Catálogo, manifests e instruções de uso ficam junto ao kit. A importação de imagens 2D e o rigging dinâmico foram integrados nativamente com sucesso ao aplicativo no escopo do Goal P00-G02.
-
-## Next action
-
-Todas as entregas do Goal P00-G02 foram concluídas, testadas (54 testes passando com zero vazamentos) e integradas:
-1. Resolução do travamento/congelamento na importação de imagens pelo diálogo nativo do sistema.
-2. Assistente modal de Novo Projeto (`Ctrl+N` / menu) com 4 modos: Imagem Única (Sprite), Personagem Modular (Multi-imagem), Vitrines Prontas e Vazio.
-3. Importação simultânea de múltiplas imagens com mapeamento anatômico heurístico (`auto_guess_joint_for_layer`).
-4. Rigging Dinâmico com adição, remoção, renomeação, reparentamento e predefinições esqueléticas completas.
-5. Pacote de animações prontas integrado com playback ativo.
-Próximo passo: validação e novas interações com o usuário.
-
-## Recovery order
-
-1. `ENTRYPOINT.md` or the platform adapter.
-2. `prumo.json`.
-3. `PROJECT_STATE.md`.
-4. `docs/PRUMO.md`.
-5. Active Goal under `.ai/goals/`.
-6. Only relevant canonical docs/symbols/tests selected by the context strategy.
-
-Do not load the entire repository by default.
+- **Testes Automatizados**: 29 testes passando em 7 suítes com 0 falhas (`bun test`).
+- **Verificação de Tipos**: `tsc --noEmit` executado com 0 erros sob modo estrito (`strict`, `noImplicitAny`, `noUncheckedIndexedAccess`, `noUnusedLocals`).
+- **Prumo Governance**: `prumo validate` e `prumo doctor` passaram sem avisos.
+- **Execução End-to-End**: Interface Slint e ciclo de amostragem validados em ambiente headless Xvfb.

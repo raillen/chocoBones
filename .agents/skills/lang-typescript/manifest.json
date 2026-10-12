@@ -1,0 +1,77 @@
+{
+  "id": "lang-typescript",
+  "name": "TypeScript Strict Soundness & Boundary Schemas",
+  "version": 1,
+  "schema_version": 2,
+  "purpose": "Enforce strict TypeScript compiler mode (noImplicitAny, strictNullChecks), branded types, runtime boundary schema validation (Zod/Valibot), and prohibition of 'any'.",
+  "risk_level": "high",
+  "modes": [
+    "implementation",
+    "review",
+    "testing"
+  ],
+  "inputs": [
+    "Source code",
+    "Project configuration",
+    "Task acceptance criteria"
+  ],
+  "outputs": [
+    "Hardened source code",
+    "Verification evidence",
+    "Test evidence"
+  ],
+  "requires": [
+    "clean-code",
+    "testing-quality"
+  ],
+  "conflicts": [],
+  "capabilities": [
+    "filesystem.read",
+    "filesystem.write",
+    "process.spawn"
+  ],
+  "references": [
+    "references/typescript-soundness.md"
+  ],
+  "templates": [
+    "templates/typescript-verification-report.md"
+  ],
+  "checks": [
+    "checks/typescript-rules.md"
+  ],
+  "scripts": [
+    "scripts/verify.sh"
+  ],
+  "examples": [
+    "examples/safe_schema.ts"
+  ],
+  "required_evidence": [
+    "test",
+    "build",
+    "lint"
+  ],
+  "stop_conditions": [
+    "Task acceptance criteria satisfied with evidence",
+    "tsc --noEmit with 0 errors",
+    "Token budget exhausted"
+  ],
+  "provenance": {
+    "origin": "framework",
+    "license": "MIT",
+    "source": "prumo",
+    "version": "0.4.0",
+    "checksum": "",
+    "modified": "2026-09-09"
+  },
+  "select": {
+    "stack_any": [
+      "typescript",
+      "ts",
+      "tsc"
+    ]
+  },
+  "requires_any": [],
+  "tools": [
+    "check-escape-hatches"
+  ]
+}

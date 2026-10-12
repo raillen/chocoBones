@@ -1,0 +1,228 @@
+// chocoBones Desktop UI em Slint
+import { Button, VerticalBox, HorizontalBox, Slider, ScrollView, StandardListView } from "std-widgets.slint";
+
+export component MainWindow inherits Window {
+    title: "chocoBones — 2D/3D Puppet & Skeletal Studio (TypeScript Edition)";
+    preferred-width: 1280px;
+    preferred-height: 768px;
+    background: #18181b;
+    default-font-family: "Inter";
+
+    in-out property <string> active_workspace: "Animacao";
+    in-out property <image> viewport_frame;
+    in-out property <float> timeline_time: 0.0;
+    in-out property <float> timeline_duration: 1.6;
+    in-out property <bool> is_playing: false;
+    in-out property <string> selected_joint_name: "root";
+    in-out property <string> status_text: "Pronto — chocoBones TS + Slint";
+
+    callback toggle_play();
+    callback change_workspace(string);
+    callback select_joint(string);
+    callback timeline_seek(float);
+
+    VerticalBox {
+        padding: 0px;
+        spacing: 0px;
+
+        // Top Navigation Bar / Workspace Selector
+        Rectangle {
+            height: 44px;
+            background: #27272a;
+
+            HorizontalBox {
+                padding-left: 12px;
+                padding-right: 12px;
+                alignment: space-between;
+
+                HorizontalBox {
+                    spacing: 8px;
+                    Text {
+                        text: "🦴 chocoBones";
+                        font-weight: 700;
+                        font-size: 14px;
+                        color: #facc15;
+                        vertical-alignment: center;
+                    }
+
+                    Rectangle { width: 16px; }
+
+                    Button {
+                        text: "Montagem";
+                        primary: root.active_workspace == "Montagem";
+                        clicked => { root.change_workspace("Montagem"); }
+                    }
+                    Button {
+                        text: "Rig";
+                        primary: root.active_workspace == "Rig";
+                        clicked => { root.change_workspace("Rig"); }
+                    }
+                    Button {
+                        text: "Animação";
+                        primary: root.active_workspace == "Animacao";
+                        clicked => { root.change_workspace("Animacao"); }
+                    }
+                    Button {
+                        text: "Foco";
+                        primary: root.active_workspace == "Foco";
+                        clicked => { root.change_workspace("Foco"); }
+                    }
+                }
+
+                HorizontalBox {
+                    spacing: 8px;
+                    Text {
+                        text: root.status_text;
+                        color: #a1a1aa;
+                        font-size: 12px;
+                        vertical-alignment: center;
+                    }
+                }
+            }
+        }
+
+        // Main Center Area (Panels + Viewport)
+        HorizontalBox {
+            padding: 4px;
+            spacing: 4px;
+
+            // Left Panel (Layers & Hierarchy)
+            if root.active_workspace != "Foco": Rectangle {
+                width: 260px;
+                background: #202023;
+                border-radius: 4px;
+
+                VerticalBox {
+                    padding: 8px;
+                    spacing: 8px;
+
+                    Text {
+                        text: "CAMADAS & ESQUELETO";
+                        font-size: 11px;
+                        font-weight: 700;
+                        color: #71717a;
+                    }
+
+                    Rectangle {
+                        background: #18181b;
+                        border-radius: 4px;
+                        VerticalBox {
+                            padding: 6px;
+                            spacing: 4px;
+                            Text { text: "• root (Quadril)"; color: #facc15; }
+                            Text { text: "  ├─ head (Cabeça)"; color: #60a5fa; }
+                            Text { text: "  ├─ upper_arm_near"; color: #34d399; }
+                            Text { text: "  │  └─ forearm_near"; color: #34d399; }
+                            Text { text: "  ├─ thigh_near"; color: #fb923c; }
+                            Text { text: "  │  └─ shin_near"; color: #fb923c; }
+                        }
+                    }
+                }
+            }
+
+            // Central Viewport
+            Rectangle {
+                background: #09090b;
+                border-radius: 4px;
+                clip: true;
+
+                Image {
+                    width: 100%;
+                    height: 100%;
+                    source: root.viewport_frame;
+                }
+
+                // Overlay Controls
+                HorizontalBox {
+                    alignment: start;
+                    padding: 12px;
+                    Rectangle {
+                        background: #18181be0;
+                        border-radius: 6px;
+                        height: 32px;
+                        padding-left: 8px;
+                        padding-right: 8px;
+
+                        HorizontalBox {
+                            spacing: 6px;
+                            Text {
+                                text: "Espaço ativo: " + root.active_workspace;
+                                font-size: 12px;
+                                color: #e4e4e7;
+                                vertical-alignment: center;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Right Panel (Inspector)
+            if root.active_workspace != "Foco": Rectangle {
+                width: 280px;
+                background: #202023;
+                border-radius: 4px;
+
+                VerticalBox {
+                    padding: 8px;
+                    spacing: 8px;
+
+                    Text {
+                        text: "INSPETOR DE PROPRIEDADES";
+                        font-size: 11px;
+                        font-weight: 700;
+                        color: #71717a;
+                    }
+
+                    Rectangle {
+                        background: #18181b;
+                        border-radius: 4px;
+                        VerticalBox {
+                            padding: 8px;
+                            spacing: 6px;
+                            Text { text: "Junta Selecionada: " + root.selected_joint_name; color: #f4f4f5; font-weight: 600; }
+                            Text { text: "Deformação: MLS Rígido 2D"; color: #a1a1aa; font-size: 12px; }
+                            Text { text: "Cinemática: FK / 2-Bone IK Ativo"; color: #a1a1aa; font-size: 12px; }
+                            Text { text: "Shader: WebGPU WGSL"; color: #a1a1aa; font-size: 12px; }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Bottom Timeline Panel
+        if root.active_workspace == "Animacao": Rectangle {
+            height: 90px;
+            background: #202023;
+            border-width: 1px;
+            border-color: #27272a;
+
+            VerticalBox {
+                padding: 6px;
+                spacing: 4px;
+
+                HorizontalBox {
+                    spacing: 8px;
+                    alignment: center;
+
+                    Button {
+                        text: root.is_playing ? "⏸ Pausar" : "▶ Reproduzir";
+                        clicked => { root.toggle_play(); }
+                    }
+
+                    Text {
+                        text: "Tempo: " + round(root.timeline_time * 100) / 100 + "s / " + root.timeline_duration + "s";
+                        color: #e4e4e7;
+                        vertical-alignment: center;
+                    }
+                }
+
+                Slider {
+                    minimum: 0.0;
+                    maximum: root.timeline_duration;
+                    value: root.timeline_time;
+                    changed(val) => { root.timeline_seek(val); }
+                }
+            }
+        }
+    }
+}

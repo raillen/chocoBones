@@ -1,14 +1,12 @@
-# Renderização 2D e Texturas
+# Subsistema de Renderização e Shaders (`src/render`)
 
-Este pacote implementa o pipeline de desenho 2D com OpenGL 3.3, batching dinâmico de sprites/malhas deformadas, texturas e renderização de máscaras de emenda.
+Fornece o pipeline de renderização acelerada por GPU (**WebGPU / WGSL**) e o gerador de Framebuffer em memória contínua para integração com o Slint.
 
-| Arquivo | Responsabilidade |
-|---|---|
-| `batch.odin` | Dynamic Sprite Batcher com projeção ortográfica e minimização de draw calls |
-| `texture.odin` | Carregamento de imagens via stb_image (`ImageRaw`, `image_load_raw`, `image_free_raw`), gerenciamento de texturas GPU e sub-imagens |
-| `fbo.odin` | Framebuffer Objects (FBO) para viewport isolada e renderização offscreen |
-| `seam_mask.odin` | Passagem multi-pass para suavização de emendas e corte de junções entre membros |
+## Componentes
 
-## Convenções
+* [`shaders.ts`](shaders.ts): Shaders em WGSL contendo o pipeline de batching de sprites 2D e o Compute Shader de deformação MLS paralela.
+* [`viewport_buffer.ts`](viewport_buffer.ts): Buffer de pixels RGBA de alta velocidade (`Uint8ClampedArray`), gerando rasterização de grade ortográfica, linhas de Bresenham e representação anatômica do esqueleto articulado em tempo real.
 
-- O carregamento de texturas da CPU para a GPU é desacoplado através de `ImageRaw` para permitir testes unitários headless sem contexto OpenGL.
+## Comunicação com a UI
+
+O buffer bruto de bytes do `ViewportBuffer` é alimentado diretamente para a propriedade `<Image>` da janela do Slint via `slint.Image.fromRgba8(width, height, buffer)`.

@@ -1,7 +1,9 @@
-# Histórico e Desfazer/Refazer (History)
+# Subsistema de Histórico e Desfazer/Refazer (`src/history`)
 
-Módulo responsável pela pilha de comandos e snapshots para desfazer e refazer edições (Undo/Redo) no documento.
+Fornece gerenciamento transacional do estado do editor com suporte completo a *Undo* e *Redo*.
 
-| Arquivo | Responsabilidade |
-|---|---|
-| `history.odin` | Estruturas `History`, `HistoryCommand`, gravação de snapshots (`history_push`), execução de `history_undo` e `history_redo` |
+## Componentes
+
+* [`history.ts`](history.ts):
+  * `Snapshot`: Registro imutável contendo clones profundos do esqueleto de juntas, lista de camadas e deltas de pose.
+  * `HistoryStack`: Pilha delimitada com limite máximo de passos configurável (padrão 50), gerenciamento automático de descarte de estados expirados e esvaziamento da pilha de redo ao iniciar uma nova ação.

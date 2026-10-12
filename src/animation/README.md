@@ -1,14 +1,12 @@
-# Animação e Linha do Tempo
+# Subsistema de Animação e Linha do Tempo (`src/animation`)
 
-Este pacote gerencia curvas de animação, keyframes com interpolação Bézier, amostragem temporal de poses e pacotes de clipes pré-configurados.
+Gerencia clipes de animação, keyframes, amostragem e interpolação por curvas de Bézier cúbicas e funções de atenuação (*easing*).
 
-| Arquivo | Responsabilidade |
-|---|---|
-| `timeline.odin` | Estruturas `Clip` e `Keyframe`, interpolação temporal de deltas de pose, fator de easing Bézier, clonagem e manipulação de chaves |
-| `presets.odin` | Clipes prontos e pacotes de movimento funcional (`animation_create_default_pack`: *Idle*, *Walk Cycle*, *Run Cycle*, *Melee Attack*, *Shield Block*) |
+## Componentes
 
-## Convenções
+* [`timeline.ts`](timeline.ts): Estruturas `Keyframe`, `Clip`, funções de atenuação (`Easing`: *Linear*, *Smooth*, *Hold*, *Bezier*) e amostragem temporal em tempo real com reprodução em loop contínuo (`sampleClip`).
+* [`presets.ts`](presets.ts): Clipes de animação prontos para uso (*Idle* / Repouso e *Walk* / Caminhada sincronizada).
 
-- Os ângulos de rotação nos deltas são expressos em radianos.
-- Clipes com `loop = true` realizam amostragem contínua com envoltória temporal suave entre o último e o primeiro quadro.
-- A amostragem de poses (`sample_clip`) atualiza os mapas de juntas e camadas sem alocações adicionais por quadro.
+## Desempenho
+
+A interpolação opera com vetores contínuos e deltas em tempo de execução sem alocações desnecessárias no laço de amostragem.

@@ -1,7 +1,16 @@
-# Malhas 2D e Deformação MLS (Mesh)
+# Subsistema de Malhas 2D e Deformação MLS (`src/mesh`)
 
-Módulo responsável pela geração de vértices triangulados e algoritmos de deformação por imagem via Moving Least Squares (MLS) e pinos interativos.
+Responsável pela triangulação de quads em grade 2D e pela deformação rígida de superfícies baseada no algoritmo **Moving Least Squares (MLS)**.
 
-| Arquivo | Responsabilidade |
-|---|---|
-| `mesh.odin` | Estruturas `Vertex`, `Mesh`, `Pin`, geração de malha quadriculada (`build_grid_mesh`), interpolação MLS afim/rígida, aplicação de pinos e vinculação automática de ossos à malha (`mesh_auto_skin_to_joints`) |
+## Componentes
+
+* [`mesh.ts`](mesh.ts):
+  * Estruturas de dados `Mesh`, `Pin`, `Influence`.
+  * `buildGridMesh`: Gerador de malhas regulares indexadas por densidade configurável.
+  * `warpPoint`: Implementação do algoritmo MLS rígido com ponderação de distância inversamente quadrática, calculando centróides ponderados e a rotação ideal sem distorção afim excessiva.
+  * `meshWorld`: Deformação espacial completa integrando pinos e a matriz hierárquica do esqueleto e camada.
+
+## Características Técnicas
+
+- Resolução contínua de vértices em TypeScript com suporte a desacoplamento para Compute Shaders na WebGPU.
+- Pinos travados (`locked: true`) agem como âncoras invariantes na superfície da imagem.
