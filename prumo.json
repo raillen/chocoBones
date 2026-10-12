@@ -156,12 +156,12 @@
       "wgsl"
     ],
     "runtime": [
-      "bun",
+      "node",
       "webgpu",
       "slint"
     ],
     "tooling": [
-      "bun",
+      "pnpm",
       "typescript"
     ]
   },

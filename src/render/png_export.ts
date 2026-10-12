@@ -5,7 +5,8 @@
 
 import * as zlib from "zlib";
 
-function crc32(buf: Buffer): number {
+// Tabela CRC32 pré-computada uma vez (evita rebuild 256×8 por chunk)
+const CRC_TABLE: Uint32Array = (() => {
   const table = new Uint32Array(256);
   for (let i = 0; i < 256; i++) {
     let c = i;
@@ -14,10 +15,13 @@ function crc32(buf: Buffer): number {
     }
     table[i] = c;
   }
+  return table;
+})();
 
+export function crc32(buf: Buffer): number {
   let crc = 0xffffffff;
   for (let i = 0; i < buf.length; i++) {
-    crc = (crc >>> 8) ^ table[(crc ^ buf[i]!) & 0xff]!;
+    crc = (crc >>> 8) ^ CRC_TABLE[(crc ^ buf[i]!) & 0xff]!;
   }
   return (crc ^ 0xffffffff) >>> 0;
 }
@@ -76,4 +80,42 @@ export function encodeRgbaToPng(
     makeChunk("IDAT", compressedData),
     makeChunk("IEND", Buffer.alloc(0)),
   ]);
+}
+
+/** Versão assíncrona não-bloqueante (usa threadpool zlib, ideal p/ 2048×1024). */
+export function encodeRgbaToPngAsync(
+  width: number,
+  height: number,
+  rgbaPixels: Uint8ClampedArray | Buffer
+): Promise<Buffer> {
+  const sig = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(width, 0);
+  ihdr.writeUInt32BE(height, 4);
+  ihdr[8] = 8;
+  ihdr[9] = 6;
+  ihdr[10] = 0;
+  ihdr[11] = 0;
+  ihdr[12] = 0;
+
+  const rawRowSize = width * 4 + 1;
+  const rawData = Buffer.alloc(rawRowSize * height);
+  const rgbaBuffer = Buffer.isBuffer(rgbaPixels)
+    ? rgbaPixels
+    : Buffer.from(rgbaPixels.buffer, rgbaPixels.byteOffset, rgbaPixels.byteLength);
+
+  for (let y = 0; y < height; y++) {
+    rawData[y * rawRowSize] = 0;
+    rgbaBuffer.copy(rawData, y * rawRowSize + 1, y * width * 4, (y + 1) * width * 4);
+  }
+
+  return new Promise((resolve, reject) => {
+    zlib.deflate(rawData, (err, compressed) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(Buffer.concat([sig, makeChunk("IHDR", ihdr), makeChunk("IDAT", compressed), makeChunk("IEND", Buffer.alloc(0))]));
+    });
+  });
 }

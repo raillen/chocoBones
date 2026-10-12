@@ -7,11 +7,17 @@ import { Vec3 } from "../core/math3d";
 import { Vec2 } from "../core/types";
 import { createMesh3D, Mesh3D, mesh3dRecalculateNormals, mesh3dUpdateAABB } from "./mesh3d";
 
+export interface ObjMaterial {
+  name: string;
+  color: [number, number, number];
+}
+
 export function loadObjFromString(content: string, name = "obj_model"): Mesh3D {
   const mesh = createMesh3D(name);
   const positions: Vec3[] = [];
   const normals: Vec3[] = [];
   const uvs: Vec2[] = [];
+  let currentMaterial = "default";
 
   const vertexMap = new Map<string, number>();
 
@@ -24,6 +30,17 @@ export function loadObjFromString(content: string, name = "obj_model"): Mesh3D {
     const type = parts[0];
 
     switch (type) {
+      case "usemtl": {
+        if (parts[1]) currentMaterial = parts[1];
+        void currentMaterial;
+        break;
+      }
+      case "mtllib":
+      case "o":
+      case "g":
+      case "s": {
+        break; // agrupamento/material externo ignorado, mantém compatibilidade
+      }
       case "v": {
         if (parts.length >= 4) {
           const x = parseFloat(parts[1]!);
@@ -63,9 +80,16 @@ export function loadObjFromString(content: string, name = "obj_model"): Mesh3D {
 
           if (vertexIdx === undefined) {
             const sub = token.split("/");
-            const posIdx = parseInt(sub[0]!, 10) - 1;
-            const uvIdx = sub[1] && sub[1] !== "" ? parseInt(sub[1], 10) - 1 : -1;
-            const normIdx = sub[2] && sub[2] !== "" ? parseInt(sub[2], 10) - 1 : -1;
+            // Índices OBJ são 1-based; negativos são relativos ao fim (ex: -1 = último)
+            const resolveIdx = (raw: string | undefined, len: number): number => {
+              if (!raw || raw === "") return -1;
+              const n = parseInt(raw, 10);
+              if (Number.isNaN(n)) return -1;
+              return n > 0 ? n - 1 : len + n;
+            };
+            const posIdx = resolveIdx(sub[0], positions.length);
+            const uvIdx = resolveIdx(sub[1], uvs.length);
+            const normIdx = resolveIdx(sub[2], normals.length);
 
             const pos: Vec3 = (posIdx >= 0 && posIdx < positions.length) ? positions[posIdx]! : [0, 0, 0];
             const uv: Vec2 = (uvIdx >= 0 && uvIdx < uvs.length) ? uvs[uvIdx]! : [0, 0];

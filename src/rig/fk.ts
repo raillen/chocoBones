@@ -19,10 +19,14 @@ export function boneMatrices(
   pose?: Pose | null
 ): Map<string, Mat2x3> {
   const result = new Map<string, Mat2x3>();
+  const visiting = new Set<string>();
 
   const solve = (j: Joint): Mat2x3 => {
     const cached = result.get(j.id);
     if (cached) return cached;
+    // Proteção anti-ciclo: JSON externo pode conter ciclo mesmo com jointAdd seguro
+    if (visiting.has(j.id)) return { ...MAT_IDENTITY };
+    visiting.add(j.id);
 
     let parentMat = { ...MAT_IDENTITY };
     let px = 0;
@@ -57,6 +61,7 @@ export function boneMatrices(
 
     const m = matMul(parentMat, local);
     result.set(j.id, m);
+    visiting.delete(j.id);
     return m;
   };
 

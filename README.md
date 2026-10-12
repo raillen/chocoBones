@@ -20,20 +20,21 @@ pnpm test
 pnpm start
 ```
 
-## Arquitetura e Pareamento de Funcionalidades com a Edição Odin
+## Arquitetura e Status (коном 2026-10-12: 70 testes, 10 suítes)
 
-| Módulo | Responsabilidade | Status de Pareamento |
+| Módulo | Responsabilidade | Status |
 |---|---|---|
-| [`src/core/`](src/core/) | Álgebra afim 2D, matrizes 4x4, projeção perspectiva e câmera orbital | 100% Pareado |
-| [`src/rig/`](src/rig/) | Esqueleto de juntas, cinemática direta (**FK**), solver analítico 2-Bone **IK** e detecção de ciclos | 100% Pareado |
-| [`src/mesh/`](src/mesh/) | Triangulação de malhas 2D e deformação elástica/rígida **Moving Least Squares (MLS)** | 100% Pareado |
-| [`src/mesh3d/`](src/mesh3d/) | Primitivas 3D paramétricas, cálculo de normais e parsers para **Wavefront OBJ** e **glTF 2.0** | 100% Pareado |
-| [`src/animation/`](src/animation/) | Linha do tempo, interpolação por curvas de Bézier cúbicas e presets de animação (*Idle*, *Walk*) | 100% Pareado |
-| [`src/history/`](src/history/) | Histórico transacional com suporte a *Undo* e *Redo* | 100% Pareado |
-| [`src/project/`](src/project/) | Validação de esquema estrito com **Zod** para arquivos `.puppet.json` | 100% Pareado |
-| [`src/render/`](src/render/) | Shaders em **WGSL** (sprite batching e MLS compute) e buffer RGBA de 60 FPS | 100% Pareado |
-| [`ui/`](ui/) | Interface declarativa em **Slint** com espaços *Montagem*, *Rig*, *Animação* e *Foco* | 100% Pareado |
-| [`tests/`](tests/) | Suíte automatizada com 34 testes cobrindo todos os domínios | 100% Pareado |
+| [`src/core/`](src/core/) | Afim 2D, 4x4, perspectiva, `OrbitCamera`, Bézier + `ids.ts` determinísticos | Núcleo pareado + IDs estáveis |
+| [`src/rig/`](src/rig/) | FK com guarda anti-ciclo, **IK genérica** (`bend/limits/pole`), presets, `autoGuess` | Núcleo pareado + IK estendida |
+| [`src/mesh/`](src/mesh/) | Grade + **alpha-hull**, UV, **auto-skin**, pincel `add/smooth/set` + heatmap, MLS | Além do pareamento mínimo |
+| [`src/mesh3d/`](src/mesh3d/) | Cubo/Plano, normais, OBJ (`usemtl`, índices negativos), glTF (`JOINTS/WEIGHTS`, `byteStride`, `parseGlb`) | Núcleo pareado + skinning parcial |
+| [`src/animation/`](src/animation/) | Timeline (pins, channels, sort sob demanda), `evaluator.ts` único, `clock.ts` delta/fixed-step, presets | Núcleo pareado + determinismo |
+| [`src/history/`](src/history/) | Undo/redo de juntas+camadas+pose | Pareado |
+| [`src/project/`](src/project/) | Zod **v2** (`meshes/pins/clips/constraints`), `migrateV1ToV2`, anti-ciclo, limite 20 MB | Além do pareamento (v1 era só joints/layers) |
+| [`src/render/`](src/render/) | WGSL sprite + MLS compute, `WebGpuRenderer` (fallback CPU), PNG sync+async, `loop.ts` delta | WGSL real + fallback; GPU física não validada |
+| [`src/ui/`](src/ui/) | `store/actions/viewport/loop`, Setup/Animate, multisseleção, reorder, teclado, `editor_mode` | Bridge refatorada; editor Odin completo (showcase, spritesheet, seam_mask) **não** pareado |
+| [`ui/`](ui/) | Slint com workspaces + `editor_mode` + `move_layer` | Funcional |
+| [`tests/`](tests/) | 70 testes (35 legados + 35 novos `new_features.test.ts`) | Verde (`pnpm test`), `tsc --noEmit` limpo |
 
 ## Desenvolvimento e Prumo
 

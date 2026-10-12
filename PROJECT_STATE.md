@@ -2,26 +2,33 @@
 
 - Project: **chocoBones-ts** (Worktree `feat/typescript`)
 - Prumo: **0.6.0**
-- Stack: **TypeScript (Strict) + Bun + Slint + WebGPU (WGSL)**
+- Stack: **TypeScript (Strict) + Node.js + pnpm + Slint + WebGPU (WGSL)**
 - Context methodology: **Lean Progressive Context (LPC)**
-- Last updated: `2026-10-11T22:30:00Z`
+- Last updated: `2026-10-12T23:30:00Z`
 
-## Estado da Implementação e Pareamento com Odin
+## Estado da Implementação
 
-Todas as funcionalidades centrais da versão Odin foram pareadas para TypeScript em arquitetura limpa:
+Núcleo de domínio pareado do Odin + itens 1–14 implementados nesta iteração:
 
-1. **Core Math 2D/3D**: Álgebra afim 2x3, transformações 4x4, projeção perspectiva, `OrbitCamera` e solucionador de curvas cúbicas de Bézier via bisseção binária.
-2. **Rigging & Cinemática**: Árvore esquelética de 14 juntas, cinemática direta hierárquica (**FK**), solver analítico 2-Bone **IK** com controle de dobra (*bend*), detecção e prevenção de ciclos (`jointHasCycle`) e heurística de mapeamento anatômico (`autoGuessJointForLayer`).
-3. **Deformação de Malhas 2D**: Triangulação de quads em grade e algoritmo **Moving Least Squares (MLS)** rígido minimizando distorções de cisalhamento.
-4. **Malhas 3D e Loaders**: Primitivas paramétricas (Cubo e Plano), recálculo de normais acumuladas e parsers para **Wavefront OBJ** e **glTF 2.0 / GLB**.
-5. **Animação & Linha do Tempo**: Amostragem contínua de clipes em tempo real com atenuações (*easing*) Smooth/Hermite, Linear e Bézier, com presets *Idle* e *Walk Cycle*.
-6. **Histórico (Undo/Redo)**: Pilha delimitada com snapshots semânticos de juntas, camadas e poses.
-7. **Serialização Segura com Zod**: Validação em runtime de arquivos `.puppet.json` atendendo a regra estrita do skill `lang-typescript`.
-8. **Renderização & UI**: Shaders **WGSL**, buffer contínuo RGBA para a viewport e interface declarativa em **Slint** com 4 espaços (*Montagem*, *Rig*, *Animação* e *Foco*).
+1. **Core Math 2D/3D**: Afim 2x3, 4x4, perspectiva, `OrbitCamera`, Bézier por bisseção. `gl-matrix` declarada mas não usada — remover ou adotar.
+2. **Rigging & Cinemática**: FK hierárquica com guarda anti-ciclo, **IK genérica** 2-bone sem dependência de IDs + `bend`/`limits`/`pole-vector`, presets Humanoid/Biped/Quadruped/Prop, `autoGuessJointForLayer`.
+3. **Deformação 2D**: Grade + **alpha-hull por alfa** (`buildHullMeshFromRgba`), UVs, **auto-skin por distância a segmentos**, pincel `add/smooth/set` + heatmap, MLS rígido.
+4. **Malhas 3D e Loaders**: Cubo/Plano, normais, AABB; OBJ com `usemtl` + índices negativos; glTF com `JOINTS_0/WEIGHTS_0`, `byteStride`, materiais e `parseGlb`.
+5. **Animação**: `sampleClip` com limpeza de pose, **pins interpolados**, **channels**, sort sob demanda; `evaluateClip(t)` único p/ preview/export; `advanceTime` com `delta_time` + `FixedStepAccumulator`; IDs determinísticos (`nextKeyframeId`).
+6. **Histórico**: Pilha 50, undo/redo de juntas+camadas+pose.
+7. **Projeto v2 (Zod)**: `meshes/pins/clips/constraints` opcionais, `migrateV1ToV2`, `isProjectV2`, rejeição de ciclos e limite 20 MB.
+8. **Render**: WGSL sprite + MLS compute real + `WebGpuRenderer` com fallback CPU; `ViewportBuffer` CPU; PNG sync + **async** com CRC pré-computado; loop com `delta_time`.
+9. **UI/Editor**: Slint + `store/actions/viewport/loop` (bridge fina); modos **Setup/Animate** + `Alt+R`; multisseleção Shift, delete, reorder ▲▼, teclado `Space/C/F/Home`, `editor_mode` no Slint.
+10. **IDs**: `generateId` estável (sem `Date.now` puro), validação de ciclo no load.
+11. **Estúdio Criativo Multi-Tema & Slint UI**: Sistema adaptativo com 3 temas (Dark `#121214`, Dim `#242428`, Light `#f4f4f6`), 6 acentos WCAG AA, dual-bar header, rail de ferramentas 46px com as 12 ferramentas do Odin, inspetor multi-card e rasterizador reativo com sincronização de cores de fundo/grade/3D.
+
+## Paridade honesta com Odin
+
+Núcleo matemático/rig/animação e interface de estúdio criativo pareados com o padrão visual do Odin e o mockup de referência (Affinity/Canva). Visual adaptativo validado com exportações reais 2D e 3D em Dark, Dim e Light.
 
 ## Evidência de Verificação
 
-- **Testes Automatizados**: 29 testes passando em 7 suítes com 0 falhas (`bun test`).
-- **Verificação de Tipos**: `tsc --noEmit` executado com 0 erros sob modo estrito (`strict`, `noImplicitAny`, `noUncheckedIndexedAccess`, `noUnusedLocals`).
-- **Prumo Governance**: `prumo validate` e `prumo doctor` passaram sem avisos.
-- **Execução End-to-End**: Interface Slint e ciclo de amostragem validados em ambiente headless Xvfb.
+- **Testes**: 94 passando em 12 suítes, 0 falhas (`pnpm test` / Vitest).
+- **Tipos**: `tsc --noEmit` 0 erros (strict + `noUncheckedIndexedAccess` + `noUnusedLocals`).
+- **Verificação Visual Xvfb**: Script `scripts/test_themes_and_accents.ts` executado com sucesso em display virtual Xvfb `:99` com exportação e validação de pixels de fundo e wireframe 3D nos 3 temas.
+- **Prumo**: `prumo.json` alinhado para Node/pnpm.

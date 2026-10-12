@@ -3,6 +3,7 @@
  */
 
 import { bezierSolve, lerp } from "../core/math";
+import { nextKeyframeId } from "../core/ids";
 import { Vec2 } from "../core/types";
 import { JointDelta, LayerDelta, Pose } from "../rig/joint";
 
@@ -19,6 +20,7 @@ export interface Keyframe {
   joints: Map<string, JointDelta>;
   layers: Map<string, LayerDelta>;
   pins: Map<string, Vec2>;
+  params: Map<string, number>;
   easing: Easing;
   bezier: [number, number, number, number];
   channels: string[];
@@ -35,11 +37,12 @@ export interface Clip {
 
 export function createKeyframe(time = 0.0): Keyframe {
   return {
-    id: `kf_${Math.random().toString(36).substring(2, 9)}`,
+    id: nextKeyframeId(),
     time,
     joints: new Map(),
     layers: new Map(),
     pins: new Map(),
+    params: new Map(),
     easing: Easing.Smooth,
     bezier: [0.25, 0.1, 0.25, 1.0],
     channels: [],
@@ -71,7 +74,35 @@ export function easingFactor(k: Keyframe, t: number): number {
   }
 }
 
+/** Ordena frames in-place por tempo. Chamar uma vez após edição, não por amostra. */
+export function sortClipFrames(clip: Clip): void {
+  clip.frames.sort((a, b) => a.time - b.time);
+}
+
+/** Verifica se frames já estão ordenados (O(n), sem alocação). */
+export function isClipSorted(clip: Clip): boolean {
+  for (let i = 1; i < clip.frames.length; i++) {
+    if (clip.frames[i]!.time < clip.frames[i - 1]!.time) return false;
+  }
+  return true;
+}
+
+/** Limpa pose de saída para evitar resíduos do clipe anterior (P0-4). */
+export function clearPose(outPose: Pose): void {
+  outPose.joints.clear();
+  outPose.layers.clear();
+  outPose.pins.clear();
+  outPose.params.clear();
+}
+
+function channelAllows(channels: string[], kind: string, id: string): boolean {
+  if (channels.length === 0) return true;
+  return channels.includes(`${kind}:${id}`) || channels.includes(id);
+}
+
 export function sampleClip(clip: Clip, targetTime: number, outPose: Pose): void {
+  // Limpeza explícita a cada amostragem: distingue canal ausente de valor zero
+  clearPose(outPose);
   if (clip.frames.length === 0) return;
 
   let t = targetTime;
@@ -80,8 +111,13 @@ export function sampleClip(clip: Clip, targetTime: number, outPose: Pose): void 
     if (t < 0) t += clip.duration;
   }
 
-  // Ordena os quadros por tempo se necessário
-  const sorted = [...clip.frames].sort((a, b) => a.time - b.time);
+  // Evita sort por amostra: só copia+ordena se detectado fora de ordem
+  let sorted: Keyframe[];
+  if (isClipSorted(clip)) {
+    sorted = clip.frames;
+  } else {
+    sorted = [...clip.frames].sort((a, b) => a.time - b.time);
+  }
 
   if (t <= sorted[0]!.time) {
     applyKeyframeToPose(sorted[0]!, outPose);
@@ -110,9 +146,17 @@ export function sampleClip(clip: Clip, targetTime: number, outPose: Pose): void 
   const rawRatio = span > 0 ? (t - prev.time) / span : 0;
   const factor = easingFactor(prev, rawRatio);
 
+  // Canais ativos: união dos channels declarados, ou todos se vazio (legado)
+  const useChannels = prev.channels.length > 0 || next.channels.length > 0;
+  const allowed = (kind: string, id: string): boolean => {
+    if (!useChannels) return true;
+    return channelAllows(prev.channels, kind, id) || channelAllows(next.channels, kind, id);
+  };
+
   // Interpola juntas
   const jointKeys = new Set([...prev.joints.keys(), ...next.joints.keys()]);
   for (const jId of jointKeys) {
+    if (!allowed("joint", jId)) continue;
     const jd0 = prev.joints.get(jId) ?? { angle: 0, x: 0, y: 0 };
     const jd1 = next.joints.get(jId) ?? { angle: 0, x: 0, y: 0 };
 
@@ -126,6 +170,7 @@ export function sampleClip(clip: Clip, targetTime: number, outPose: Pose): void 
   // Interpola camadas
   const layerKeys = new Set([...prev.layers.keys(), ...next.layers.keys()]);
   for (const lId of layerKeys) {
+    if (!allowed("layer", lId)) continue;
     const ld0 = prev.layers.get(lId) ?? { x: 0, y: 0, rotation: 0, sx: 1, sy: 1, opacity: 1, visible: true, asset: "" };
     const ld1 = next.layers.get(lId) ?? { x: 0, y: 0, rotation: 0, sx: 1, sy: 1, opacity: 1, visible: true, asset: "" };
 
@@ -140,13 +185,68 @@ export function sampleClip(clip: Clip, targetTime: number, outPose: Pose): void 
       asset: ld1.asset || ld0.asset,
     });
   }
+
+  // Interpola pinos MLS (offsets animados relativos ao rest)
+  const pinKeys = new Set([...prev.pins.keys(), ...next.pins.keys()]);
+  for (const pId of pinKeys) {
+    if (!allowed("pin", pId)) continue;
+    const p0 = prev.pins.get(pId) ?? [0, 0] as Vec2;
+    const p1 = next.pins.get(pId) ?? [0, 0] as Vec2;
+    outPose.pins.set(pId, [lerp(p0[0], p1[0], factor), lerp(p0[1], p1[1], factor)]);
+  }
+
+  // Interpola parâmetros procedurais (P0-3)
+  const paramKeys = new Set([...prev.params.keys(), ...next.params.keys()]);
+  for (const par of paramKeys) {
+    if (!allowed("param", par)) continue;
+    const v0 = prev.params.get(par) ?? 0;
+    const v1 = next.params.get(par) ?? 0;
+    outPose.params.set(par, lerp(v0, v1, factor));
+  }
 }
 
 function applyKeyframeToPose(kf: Keyframe, pose: Pose): void {
   for (const [k, v] of kf.joints) {
+    if (kf.channels.length > 0 && !channelAllows(kf.channels, "joint", k)) continue;
     pose.joints.set(k, { ...v });
   }
   for (const [k, v] of kf.layers) {
+    if (kf.channels.length > 0 && !channelAllows(kf.channels, "layer", k)) continue;
     pose.layers.set(k, { ...v });
   }
+  for (const [k, v] of kf.pins) {
+    if (kf.channels.length > 0 && !channelAllows(kf.channels, "pin", k)) continue;
+    pose.pins.set(k, [...v] as Vec2);
+  }
+  for (const [k, v] of kf.params) {
+    if (kf.channels.length > 0 && !channelAllows(kf.channels, "param", k)) continue;
+    pose.params.set(k, v);
+  }
+}
+
+/** Deep-copy de keyframe preservando channels (P0-3). */
+export function copyKeyframe(kf: Keyframe, newTime?: number): Keyframe {
+  return {
+    id: nextKeyframeId(),
+    time: newTime ?? kf.time,
+    joints: new Map([...kf.joints].map(([k, v]) => [k, { ...v }] as [string, JointDelta])),
+    layers: new Map([...kf.layers].map(([k, v]) => [k, { ...v }] as [string, LayerDelta])),
+    pins: new Map([...kf.pins].map(([k, v]) => [k, [...v] as Vec2] as [string, Vec2])),
+    params: new Map(kf.params),
+    easing: kf.easing,
+    bezier: [...kf.bezier] as [number, number, number, number],
+    channels: [...kf.channels],
+  };
+}
+
+/** Deep-copy de clipe preservando channels e ordem. */
+export function copyClip(clip: Clip, newId: string, newName?: string): Clip {
+  return {
+    id: newId,
+    name: newName ?? clip.name,
+    duration: clip.duration,
+    fps: clip.fps,
+    loop: clip.loop,
+    frames: clip.frames.map((f) => copyKeyframe(f)),
+  };
 }

@@ -3,20 +3,25 @@
  */
 
 import { Joint, JointDelta, Layer, LayerDelta, Pose } from "../rig/joint";
+import type { Pin } from "../mesh/mesh";
 
 export interface Snapshot {
   description: string;
   joints: Joint[];
   layers: Layer[];
+  pins: Pin[];
   poseJoints: Map<string, JointDelta>;
   poseLayers: Map<string, LayerDelta>;
+  posePins: Map<string, [number, number]>;
+  poseParams: Map<string, number>;
 }
 
 export function createSnapshot(
   description: string,
   joints: readonly Joint[],
   layers: readonly Layer[],
-  pose?: Pose | null
+  pose?: Pose | null,
+  pins?: readonly Pin[] | null
 ): Snapshot {
   const jointsCopy = joints.map((j) => ({ ...j }));
   const layersCopy = layers.map((l) => ({
@@ -47,12 +52,24 @@ export function createSnapshot(
     }
   }
 
+  const posePins = new Map<string, [number, number]>();
+  const poseParams = new Map<string, number>();
+  if (pose) {
+    for (const [k, v] of pose.pins) posePins.set(k, [...v] as [number, number]);
+    for (const [k, v] of pose.params) poseParams.set(k, v);
+  }
+
+  const pinsCopy: Pin[] = pins ? pins.map((p) => ({ ...p })) : [];
+
   return {
     description,
     joints: jointsCopy,
     layers: layersCopy,
+    pins: pinsCopy,
     poseJoints,
     poseLayers,
+    posePins,
+    poseParams,
   };
 }
 
@@ -69,7 +86,8 @@ export class HistoryStack {
     description: string,
     joints: readonly Joint[],
     layers: readonly Layer[],
-    pose?: Pose | null
+    pose?: Pose | null,
+    pins?: readonly Pin[] | null
   ): void {
     this.redoStack = [];
 
@@ -77,7 +95,7 @@ export class HistoryStack {
       this.undoStack.shift();
     }
 
-    const snap = createSnapshot(description, joints, layers, pose);
+    const snap = createSnapshot(description, joints, layers, pose, pins);
     this.undoStack.push(snap);
   }
 
@@ -92,7 +110,8 @@ export class HistoryStack {
   public undo(
     currentJoints: Joint[],
     currentLayers: Layer[],
-    currentPose?: Pose | null
+    currentPose?: Pose | null,
+    currentPins?: Pin[] | null
   ): string | null {
     if (this.undoStack.length === 0) return null;
 
@@ -100,7 +119,8 @@ export class HistoryStack {
       this.undoStack[this.undoStack.length - 1]?.description ?? "Redo State",
       currentJoints,
       currentLayers,
-      currentPose
+      currentPose,
+      currentPins
     );
     this.redoStack.push(currentSnap);
 
@@ -114,7 +134,12 @@ export class HistoryStack {
     currentLayers.length = 0;
     currentLayers.push(...snap.layers.map((l) => ({ ...l })));
 
-    // Restaura pose
+    if (currentPins && snap.pins.length > 0) {
+      currentPins.length = 0;
+      currentPins.push(...snap.pins.map((p) => ({ ...p })));
+    }
+
+    // Restaura pose (joints/layers/pins/params)
     if (currentPose) {
       currentPose.joints.clear();
       for (const [k, v] of snap.poseJoints) {
@@ -124,6 +149,10 @@ export class HistoryStack {
       for (const [k, v] of snap.poseLayers) {
         currentPose.layers.set(k, { ...v });
       }
+      currentPose.pins.clear();
+      for (const [k, v] of snap.posePins) currentPose.pins.set(k, [...v] as [number, number]);
+      currentPose.params.clear();
+      for (const [k, v] of snap.poseParams) currentPose.params.set(k, v);
     }
 
     return snap.description;
@@ -132,7 +161,8 @@ export class HistoryStack {
   public redo(
     currentJoints: Joint[],
     currentLayers: Layer[],
-    currentPose?: Pose | null
+    currentPose?: Pose | null,
+    currentPins?: Pin[] | null
   ): string | null {
     if (this.redoStack.length === 0) return null;
 
@@ -140,7 +170,8 @@ export class HistoryStack {
       "Undo State",
       currentJoints,
       currentLayers,
-      currentPose
+      currentPose,
+      currentPins
     );
     this.undoStack.push(currentSnap);
 
@@ -152,6 +183,11 @@ export class HistoryStack {
     currentLayers.length = 0;
     currentLayers.push(...snap.layers.map((l) => ({ ...l })));
 
+    if (currentPins && snap.pins.length > 0) {
+      currentPins.length = 0;
+      currentPins.push(...snap.pins.map((p) => ({ ...p })));
+    }
+
     if (currentPose) {
       currentPose.joints.clear();
       for (const [k, v] of snap.poseJoints) {
@@ -161,6 +197,10 @@ export class HistoryStack {
       for (const [k, v] of snap.poseLayers) {
         currentPose.layers.set(k, { ...v });
       }
+      currentPose.pins.clear();
+      for (const [k, v] of snap.posePins) currentPose.pins.set(k, [...v] as [number, number]);
+      currentPose.params.clear();
+      for (const [k, v] of snap.poseParams) currentPose.params.set(k, v);
     }
 
     return snap.description;

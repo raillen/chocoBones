@@ -7,6 +7,16 @@ O formato baseia-se no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0
 
 ### Adicionado
 
+- **Estúdio Criativo Adaptativo Multi-Tema em TypeScript & Slint UI**:
+  - Implementação completa dos 3 temas de estúdio criativo em tempo real: Dark (Obsidian `#121214`), Dim/Grafite (`#242428`) e Light (`#f4f4f6`), alternáveis instantaneamente via barra superior sem reinicialização.
+  - 6 presets de cor de destaque (Accent) com contraste WCAG AA (`Ciano`, `Azul`, `Violeta`, `Rosa`, `Verde`, `Âmbar`) integrados a propriedades computadas reativas da interface Slint.
+  - Rasterização de viewport adaptativa ao tema (`ViewportBuffer`): fundo dinâmico (Light `244, 244, 246`, Dim `32, 32, 36`, Dark `14, 14, 16`), grade com contraste ajustado e wireframe 3D com paleta de alta legibilidade (`#0284c7` no papel claro e `#38bdf8` no escuro).
+  - Dual-Bar Header com switcher de personas/workspaces em cápsulas (`Montagem`, `Rig`, `Animação`, `🌐 3D`, `Foco`), barra contextual de ferramenta ativa, alternador de IK 2-Bone e botões de ação rápida (Undo, Redo, Salvar, Carregar, Exportar PNG).
+  - Rail vertical esquerdo compacto (46px) com atalhos para as 12 ferramentas do padrão Odin (`Mover`, `Girar`, `Escala`, `Pivô`, `Juntas`, `Criar Osso`, `Pose`, `Pinos`, `Pesos`, etc.) com anel e ponto de destaque ativo.
+  - Inspetor lateral multi-card com abas de elementos (`Juntas` / `Camadas`), edição de propriedades, ajuste de opacidade e visualizador de hierarquia esquelética.
+  - Linha do tempo animada com transport controls, scrubbing temporal contínuo e alternância de clipes.
+  - Suíte de testes expandida para 94 testes automatizados cobrindo álgebra linear, rigs FK/IK, deformação MLS, carregadores 3D OBJ/glTF, serialização v2 de projeto, física elástica e adaptabilidade de temas.
+
 - **Modos Setup e Animar com Proteção de Bind Pose**: separação estrita de modos de trabalho no topo da barra de contexto (`Modo: Setup` vs `Modo: Animar`), atalho global `Alt+R` e botão dedicado para restauração instantânea da pose de repouso canônica (Bind Pose).
 - **Ferramenta Interativa de Criação de Ossos na Viewport (`CreateBone` / Atalho `C`)**: desenho interativo de cadeias de ossos diretamente sobre o personagem na viewport com linha guia em tempo real, medição de distância, snap a juntas existentes e encadeamento automático de hierarquia pai-filho.
 - **Pintura de Pesos Multimodo com Mapa de Calor (Heatmap)**: pincel de influência com três modos operacionais (`+ Adicionar`, `~ Suavizar` via relaxamento topológico de vizinhos e `= Definir` valor fixo); visualização de wireframe da malha e gradiente térmico colorido (Azul -> Verde -> Amarelo -> Vermelho) com inspeção percentual ao passar o cursor.

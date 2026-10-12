@@ -334,7 +334,13 @@ export class ViewportBuffer {
   /**
    * Renderiza malha 3D com câmera orbital em projeção perspectiva
    */
-  public render3D(mesh: Mesh3D, camera: OrbitCamera): void {
+  public render3D(
+    mesh: Mesh3D,
+    camera: OrbitCamera,
+    r = 56,
+    g = 189,
+    b = 248
+  ): void {
     const aspect = this.width / this.height;
     const proj = mat4Perspective((45 * Math.PI) / 180, aspect, 0.1, 100.0);
     const view = camera.getViewMatrix();
@@ -354,7 +360,7 @@ export class ViewportBuffer {
       }
     }
 
-    // Desenha arestas em wireframe ciano/azul néon (#38bdf8)
+    // Desenha arestas em wireframe
     for (let i = 0; i < mesh.indices.length; i += 3) {
       const i0 = mesh.indices[i]!;
       const i1 = mesh.indices[i + 1]!;
@@ -364,9 +370,9 @@ export class ViewportBuffer {
       const p1 = projected[i1];
       const p2 = projected[i2];
 
-      if (p0 && p1) this.drawLine(p0[0], p0[1], p1[0], p1[1], 56, 189, 248);
-      if (p1 && p2) this.drawLine(p1[0], p1[1], p2[0], p2[1], 56, 189, 248);
-      if (p2 && p0) this.drawLine(p2[0], p2[1], p0[0], p0[1], 56, 189, 248);
+      if (p0 && p1) this.drawLine(p0[0], p0[1], p1[0], p1[1], r, g, b);
+      if (p1 && p2) this.drawLine(p1[0], p1[1], p2[0], p2[1], r, g, b);
+      if (p2 && p0) this.drawLine(p2[0], p2[1], p0[0], p0[1], r, g, b);
     }
   }
 }

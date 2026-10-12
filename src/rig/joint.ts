@@ -64,6 +64,7 @@ export interface Pose {
   joints: Map<string, JointDelta>;
   layers: Map<string, LayerDelta>;
   pins: Map<string, Vec2>;
+  params: Map<string, number>;
 }
 
 export function createPose(): Pose {
@@ -71,6 +72,7 @@ export function createPose(): Pose {
     joints: new Map<string, JointDelta>(),
     layers: new Map<string, LayerDelta>(),
     pins: new Map<string, Vec2>(),
+    params: new Map<string, number>(),
   };
 }
 

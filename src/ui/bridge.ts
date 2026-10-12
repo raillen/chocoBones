@@ -1,189 +1,44 @@
 /**
- * chocoBones TypeScript Slint Desktop Bridge
- * Liga o motor reativo da aplicação à interface de usuário compilada no Slint.
+ * chocoBones Slint Bridge — fachada fina (Item 5)
+ * Compõe store + actions + viewport/controller + render/loop.
+ * Mantém API legada (AppState, createInitialAppState, bindSlintWindow).
  */
-
 import * as slint from "slint-ui";
-import * as fs from "fs";
+import { promises as fsp } from "fs";
 import * as path from "path";
-import { matApply, vec2Dist } from "../core/math";
+import { findJoint } from "../rig/joint";
 import { OrbitCamera } from "../core/math3d";
-import { createCubeMesh } from "../mesh3d/primitives";
-import { Mesh3D, mesh3dNormalizeAndCenter } from "../mesh3d/mesh3d";
-import { loadObjFromString } from "../mesh3d/obj_loader";
-import { createPose, findJoint, Joint, Layer, Pose } from "../rig/joint";
-import {
-  jointAdd,
-  jointRemove,
-  rigCreatePreset,
-  RigPreset,
-} from "../rig/presets";
 import { boneMatrices } from "../rig/fk";
 import { solveIK } from "../rig/ik";
-import { createIdleClip, createWalkClip } from "../animation/presets";
-import { Clip, sampleClip } from "../animation/timeline";
-import { HistoryStack } from "../history/history";
-import {
-  loadProjectFromJson,
-  Project,
-  saveProjectToJson,
-} from "../project/project";
-import { ViewportBuffer } from "../render/viewport_buffer";
-import { encodeRgbaToPng } from "../render/png_export";
+import { encodeRgbaToPng, encodeRgbaToPngAsync } from "../render/png_export";
+import { startRenderLoop } from "../render/loop";
+import { EditorMode, restoreBindPose } from "./modes";
+import { mapKeyToAction, moveLayerOrder, selectionSelectLayerRange } from "./selection";
+import { AppState, createInitialAppState } from "./store";
+import { addJoint, removeJoint, applyRigPreset } from "./actions/rig_actions";
+import { addLayer, moveLayer, removeLayer, removeSelectedLayers, setLayerOpacity, toggleLayerVisibility } from "./actions/layer_actions";
+import { addPin, deletePin, resetPin, setPinAnchor, setPinInfluence, togglePinLock } from "./actions/pin_actions";
+import { applyProjectToState, loadProjectFile, saveProjectFile, stateToProject } from "./actions/project_io";
+import { resetToRest, seekTimeline, selectClip, togglePlay } from "./actions/animation_actions";
+import { applyJointDrag } from "./viewport/controller";
+import { pickEntity } from "./viewport/picking";
+import { movePinOffset, movePinRest } from "../mesh/mesh";
+import { loadProjectFromJson } from "../project/project";
 
-export interface AppState {
-  activeWorkspace: string;
-  viewportMode: string;
-  isPlaying: boolean;
-  timelineTime: number;
-  timelineDuration: number;
-  activeClipName: string;
-  activeClip: Clip;
-  joints: Joint[];
-  layers: Layer[];
-  selectedJointId: string;
-  selectedLayerId: string;
-  ikEnabled: boolean;
-  cameraPan: { x: number; y: number };
-  cameraZoom: number;
-  orbitCamera: OrbitCamera;
-  mesh3D: Mesh3D;
-  viewportBuffer: ViewportBuffer;
-  history: HistoryStack;
-  currentPose: Pose;
-}
+export type { AppState };
+export { createInitialAppState };
 
-export function createInitialAppState(): AppState {
-  const defaultLayers: Layer[] = [
-    {
-      id: "head_lyr",
-      name: "Cabeça / Rosto",
-      asset: "head.png",
-      transform: { pos: [0, 0], scale: [1, 1], rotation: 0, pivot: [0, 0] },
-      joint: "head",
-      visible: true,
-      locked: false,
-      opacity: 1.0,
-      hasSeamMask: false,
-      seamMask: { layer: "", enabled: false, center: [0, 0], radius: 0, feather: 0 },
-    },
-    {
-      id: "torso_lyr",
-      name: "Tronco / Peito",
-      asset: "torso.png",
-      transform: { pos: [0, 0], scale: [1, 1], rotation: 0, pivot: [0, 0] },
-      joint: "root",
-      visible: true,
-      locked: false,
-      opacity: 1.0,
-      hasSeamMask: false,
-      seamMask: { layer: "", enabled: false, center: [0, 0], radius: 0, feather: 0 },
-    },
-    {
-      id: "arm_l_lyr",
-      name: "Braço Próximo",
-      asset: "arm_near.png",
-      transform: { pos: [0, 0], scale: [1, 1], rotation: 0, pivot: [0, 0] },
-      joint: "forearm_near",
-      visible: true,
-      locked: false,
-      opacity: 1.0,
-      hasSeamMask: false,
-      seamMask: { layer: "", enabled: false, center: [0, 0], radius: 0, feather: 0 },
-    },
-    {
-      id: "arm_r_lyr",
-      name: "Braço Distante",
-      asset: "arm_far.png",
-      transform: { pos: [0, 0], scale: [1, 1], rotation: 0, pivot: [0, 0] },
-      joint: "forearm_far",
-      visible: true,
-      locked: false,
-      opacity: 1.0,
-      hasSeamMask: false,
-      seamMask: { layer: "", enabled: false, center: [0, 0], radius: 0, feather: 0 },
-    },
-    {
-      id: "leg_l_lyr",
-      name: "Perna Próxima",
-      asset: "leg_near.png",
-      transform: { pos: [0, 0], scale: [1, 1], rotation: 0, pivot: [0, 0] },
-      joint: "shin_near",
-      visible: true,
-      locked: false,
-      opacity: 1.0,
-      hasSeamMask: false,
-      seamMask: { layer: "", enabled: false, center: [0, 0], radius: 0, feather: 0 },
-    },
-    {
-      id: "leg_r_lyr",
-      name: "Perna Distante",
-      asset: "leg_far.png",
-      transform: { pos: [0, 0], scale: [1, 1], rotation: 0, pivot: [0, 0] },
-      joint: "shin_far",
-      visible: true,
-      locked: false,
-      opacity: 1.0,
-      hasSeamMask: false,
-      seamMask: { layer: "", enabled: false, center: [0, 0], radius: 0, feather: 0 },
-    },
-  ];
-
-  return {
-    activeWorkspace: "Animacao",
-    viewportMode: "2D",
-    isPlaying: true,
-    timelineTime: 0.0,
-    timelineDuration: 1.6,
-    activeClipName: "idle",
-    activeClip: createIdleClip(),
-    joints: rigCreatePreset(RigPreset.Humanoid),
-    layers: defaultLayers,
-    selectedJointId: "root",
-    selectedLayerId: "head_lyr",
-    ikEnabled: false,
-    cameraPan: { x: 104, y: -40 },
-    cameraZoom: 1.0,
-    orbitCamera: new OrbitCamera([0, 0, 0], 3.5, 0.45, 0.25),
-    mesh3D: (() => {
-      const suzannePath = path.resolve(process.cwd(), "assets/models/suzanne.obj");
-      if (fs.existsSync(suzannePath)) {
-        try {
-          const content = fs.readFileSync(suzannePath, "utf-8");
-          const m = loadObjFromString(content, "Suzanne (Blender Monkey)");
-          mesh3dNormalizeAndCenter(m, 2.2);
-          return m;
-        } catch {
-          // Fallback
-        }
-      }
-      return createCubeMesh(1.8);
-    })(),
-    viewportBuffer: new ViewportBuffer(720, 500),
-    history: new HistoryStack(50),
-    currentPose: createPose(),
-  };
+export function exportPngSync(state: AppState): Buffer {
+  return encodeRgbaToPng(state.viewportBuffer.width, state.viewportBuffer.height, state.viewportBuffer.pixels);
 }
 
 function syncJointsList(window: any, state: AppState): void {
-  const rows = state.joints.map((j) => ({
-    id: j.id,
-    name: j.name,
-    parent: j.parent,
-    color: j.color,
-  }));
+  const rows = state.joints.map((j) => ({ id: j.id, name: j.name, parent: j.parent, color: j.color }));
   window.joints_list = new slint.ArrayModel(rows);
 }
 
 function syncLayersList(window: any, state: AppState): void {
-  const rows = state.layers.map((l) => ({
-    id: l.id,
-    name: l.name,
-    joint: l.joint,
-    visible: l.visible,
-    locked: l.locked,
-    opacity: l.opacity,
-  }));
+  const rows = state.layers.map((l) => ({ id: l.id, name: l.name, joint: l.joint, visible: l.visible, locked: l.locked, opacity: l.opacity }));
   window.layers_list = new slint.ArrayModel(rows);
 }
 
@@ -194,14 +49,12 @@ function syncSelectedJoint(window: any, state: AppState): void {
     state.selectedJointId = j.id;
   }
   if (!j) return;
-
   window.selected_joint_id = j.id;
   window.selected_joint_name = j.name;
   window.selected_joint_parent = j.parent;
   window.selected_joint_x = j.x;
   window.selected_joint_y = j.y;
   window.selected_joint_color = j.color;
-
   const delta = state.currentPose.joints.get(j.id);
   window.selected_joint_angle = delta ? delta.angle : 0.0;
 }
@@ -219,48 +72,77 @@ function syncSelectedLayer(window: any, state: AppState): void {
   }
 }
 
+function syncEditorMode(window: any, state: AppState): void {
+  try {
+    window.editor_mode = state.editorMode;
+  } catch {
+    // Slint antigo sem propriedade: ignora
+  }
+}
+
 export function bindSlintWindow(window: any, state: AppState): () => void {
-  // Inicialização de Propriedades Reativas
   window.active_workspace = state.activeWorkspace;
   window.viewport_mode = state.viewportMode;
   window.status_text = "🦴 chocoBones Desktop — Pronto (Node + pnpm + Slint + WebGPU)";
+  window.theme_mode = state.themeMode;
+  window.accent_name = state.accentName;
+  window.active_tool = state.activeTool;
+  window.element_tab = state.elementTab;
+  window.search_filter = state.searchFilter;
   window.zoom_level = state.cameraZoom;
   window.timeline_duration = state.timelineDuration;
   window.timeline_time = state.timelineTime;
   window.is_playing = state.isPlaying;
   window.active_clip_name = state.activeClipName;
   window.ik_enabled = state.ikEnabled;
+  syncEditorMode(window, state);
 
   syncJointsList(window, state);
   syncLayersList(window, state);
   syncSelectedJoint(window, state);
   syncSelectedLayer(window, state);
-
-  // Histórico inicial
   state.history.push("Estado Inicial", state.joints, state.layers, state.currentPose);
 
-  // Variáveis de Estado de Arraste da Viewport
-  let dragMode: "none" | "pan" | "joint" = "none";
-  let dragJointId = "";
-  let dragStartMouse: [number, number] = [0, 0];
-  let dragStartPan = { x: 0, y: 0 };
-  let lastMouse: [number, number] = [0, 0];
+  // --- tema e adaptabilidade ---
+  window.change_theme = (theme: string) => {
+    state.themeMode = theme;
+    window.theme_mode = theme;
+    window.status_text = `Tema alterado para: ${theme}`;
+  };
+  window.change_accent = (accent: string) => {
+    state.accentName = accent;
+    window.accent_name = accent;
+    window.status_text = `Cor de destaque: ${accent}`;
+  };
+  window.select_tool = (tool: string) => {
+    state.activeTool = tool;
+    window.active_tool = tool;
+    window.status_text = `Ferramenta selecionada: ${tool}`;
+  };
+  window.set_element_tab = (tab: string) => {
+    state.elementTab = tab;
+    window.element_tab = tab;
+  };
 
-  // ---------------------------------------------------------------------------
-  // CALLBACKS DE ESPAÇOS, PROJETO E FERRAMENTAS
-  // ---------------------------------------------------------------------------
+  // --- workspaces / projeto ---
   window.change_workspace = (ws: string) => {
     state.activeWorkspace = ws;
     window.active_workspace = ws;
     window.status_text = `Espaço de trabalho: ${ws}`;
   };
-
   window.set_viewport_mode = (mode: string) => {
     state.viewportMode = mode;
     window.viewport_mode = mode;
-    window.status_text = `Modo da Viewport: ${mode}`;
   };
-
+  window.set_editor_mode = (mode: string) => {
+    state.editorMode = mode === "Setup" ? EditorMode.Setup : EditorMode.Animate;
+    syncEditorMode(window, state);
+    window.status_text = state.editorMode === EditorMode.Setup ? "Modo Setup — edita repouso" : "Modo Animar — edita pose (Alt+R restaura bind)";
+  };
+  window.toggle_editor_mode = () => {
+    state.editorMode = state.editorMode === EditorMode.Setup ? EditorMode.Animate : EditorMode.Setup;
+    syncEditorMode(window, state);
+  };
   window.undo = () => {
     const desc = state.history.undo(state.joints, state.layers, state.currentPose);
     if (desc) {
@@ -268,11 +150,8 @@ export function bindSlintWindow(window: any, state: AppState): () => void {
       syncLayersList(window, state);
       syncSelectedJoint(window, state);
       window.status_text = `Desfazer: ${desc}`;
-    } else {
-      window.status_text = "Nenhuma ação anterior para desfazer.";
-    }
+    } else window.status_text = "Nenhuma ação anterior para desfazer.";
   };
-
   window.redo = () => {
     const desc = state.history.redo(state.joints, state.layers, state.currentPose);
     if (desc) {
@@ -280,15 +159,10 @@ export function bindSlintWindow(window: any, state: AppState): () => void {
       syncLayersList(window, state);
       syncSelectedJoint(window, state);
       window.status_text = `Refazer: ${desc}`;
-    } else {
-      window.status_text = "Nenhuma ação para refazer.";
-    }
+    } else window.status_text = "Nenhuma ação para refazer.";
   };
-
   window.new_project = () => {
-    state.history.push("Novo Projeto", state.joints, state.layers, state.currentPose);
-    state.joints = rigCreatePreset(RigPreset.Humanoid);
-    state.selectedJointId = "root";
+    applyRigPreset(state, "Humanoid");
     state.currentPose.joints.clear();
     state.cameraPan = { x: 104, y: -40 };
     state.cameraZoom = 1.0;
@@ -297,512 +171,307 @@ export function bindSlintWindow(window: any, state: AppState): () => void {
     syncSelectedJoint(window, state);
     window.status_text = "Novo projeto iniciado com rig Humanoide.";
   };
-
   window.save_project = () => {
-    try {
-      const proj: Project = {
-        schema: "survivor-puppet",
-        version: 1,
-        name: "chocoBones Puppet",
-        width: 512,
-        height: 512,
-        assets: [],
-        joints: state.joints.map((j) => ({
-          id: j.id,
-          name: j.name,
-          parent: j.parent,
-          x: j.x,
-          y: j.y,
-          color: j.color,
-        })),
-        layers: state.layers.map((l) => ({
-          id: l.id,
-          name: l.name,
-          asset: l.asset,
-          transform: {
-            x: l.transform.pos[0],
-            y: l.transform.pos[1],
-            rotation: l.transform.rotation,
-            sx: l.transform.scale[0],
-            sy: l.transform.scale[1],
-            px: l.transform.pivot[0],
-            py: l.transform.pivot[1],
-          },
-          joint: l.joint,
-          visible: l.visible,
-          locked: l.locked,
-          opacity: l.opacity,
-          blend: "normal",
-          seamMask: {
-            layer: l.seamMask.layer ?? "",
-            enabled: l.seamMask.enabled,
-            center: { x: l.seamMask.center[0], y: l.seamMask.center[1] },
-            radius: l.seamMask.radius,
-            feather: l.seamMask.feather,
-          },
-        })),
-      };
-
-      const jsonStr = saveProjectToJson(proj);
-      const filePath = path.resolve(process.cwd(), "choco_puppet.project.json");
-      fs.writeFileSync(filePath, jsonStr, "utf-8");
-      window.status_text = `Projeto salvo com sucesso em: ${path.basename(filePath)}`;
-    } catch (err: any) {
-      window.status_text = `Erro ao salvar projeto: ${err?.message ?? String(err)}`;
-    }
+    saveProjectFile(state)
+      .then((p) => {
+        window.status_text = `Projeto salvo: ${path.basename(p)}`;
+      })
+      .catch((err: unknown) => {
+        window.status_text = `Erro ao salvar: ${err instanceof Error ? err.message : String(err)}`;
+      });
   };
-
   window.load_project = () => {
-    try {
-      const filePath = path.resolve(process.cwd(), "choco_puppet.project.json");
-      if (!fs.existsSync(filePath)) {
-        window.status_text = "Arquivo choco_puppet.project.json não encontrado para carregar.";
-        return;
-      }
-      state.history.push("Carregar Projeto", state.joints, state.layers, state.currentPose);
-      const jsonStr = fs.readFileSync(filePath, "utf-8");
-      const proj = loadProjectFromJson(jsonStr);
-
-      state.joints = proj.joints.map((j) => ({
-        id: j.id,
-        name: j.name,
-        parent: j.parent,
-        x: j.x,
-        y: j.y,
-        color: j.color,
-      }));
-
-      state.layers = proj.layers.map((l) => ({
-        id: l.id,
-        name: l.name,
-        asset: l.asset,
-        transform: {
-          pos: [l.transform.x, l.transform.y],
-          scale: [l.transform.sx, l.transform.sy],
-          rotation: l.transform.rotation,
-          pivot: [l.transform.px, l.transform.py],
-        },
-        joint: l.joint,
-        visible: l.visible,
-        locked: l.locked,
-        opacity: l.opacity,
-        hasSeamMask: l.seamMask.enabled,
-        seamMask: {
-          layer: l.seamMask.layer,
-          enabled: l.seamMask.enabled,
-          center: [l.seamMask.center.x, l.seamMask.center.y],
-          radius: l.seamMask.radius,
-          feather: l.seamMask.feather,
-        },
-      }));
-
-      state.selectedJointId = state.joints[0]?.id ?? "root";
-      syncJointsList(window, state);
-      syncLayersList(window, state);
-      syncSelectedJoint(window, state);
-      window.status_text = "Projeto carregado com sucesso!";
-    } catch (err: any) {
-      window.status_text = `Erro ao carregar projeto: ${err?.message ?? String(err)}`;
-    }
+    loadProjectFile(state)
+      .then(() => {
+        syncJointsList(window, state);
+        syncLayersList(window, state);
+        syncSelectedJoint(window, state);
+        window.status_text = "Projeto carregado com sucesso!";
+      })
+      .catch((err: unknown) => {
+        const msg = err instanceof Error ? err.message : String(err);
+        if (msg.includes("ENOENT")) window.status_text = "Arquivo choco_puppet.project.json não encontrado.";
+        else window.status_text = `Erro ao carregar: ${msg}`;
+      });
   };
-
   window.export_png = () => {
-    try {
-      const pngBuffer = encodeRgbaToPng(
-        state.viewportBuffer.width,
-        state.viewportBuffer.height,
-        state.viewportBuffer.pixels
-      );
-      const filePath = path.resolve(process.cwd(), "screenshot_export.png");
-      fs.writeFileSync(filePath, pngBuffer);
-      window.status_text = `📸 Frame exportado com sucesso: ${path.basename(filePath)}`;
-    } catch (err: any) {
-      window.status_text = `Erro ao exportar PNG: ${err?.message ?? String(err)}`;
-    }
+    encodeRgbaToPngAsync(state.viewportBuffer.width, state.viewportBuffer.height, state.viewportBuffer.pixels)
+      .then(async (png) => {
+        await fsp.writeFile(state.paths.exportPng, png);
+        window.status_text = `📸 Frame exportado: ${path.basename(state.paths.exportPng)}`;
+      })
+      .catch((err: unknown) => {
+        window.status_text = `Erro ao exportar PNG: ${err instanceof Error ? err.message : String(err)}`;
+      });
   };
 
-  // ---------------------------------------------------------------------------
-  // CALLBACKS DE JUNTAS E RIG
-  // ---------------------------------------------------------------------------
+  // --- rig ---
   window.select_joint = (id: string) => {
     state.selectedJointId = id;
+    state.selection.selectedJointIds = [id];
     syncSelectedJoint(window, state);
     const j = findJoint(state.joints, id);
     if (j) window.status_text = `Junta selecionada: ${j.name} (${j.id})`;
   };
-
   window.add_joint = () => {
-    state.history.push("Adicionar Junta", state.joints, state.layers, state.currentPose);
-    const parentId = state.selectedJointId || "root";
-    const parentJoint = findJoint(state.joints, parentId);
-    const px = parentJoint ? parentJoint.x + 30 : 256;
-    const py = parentJoint ? parentJoint.y + 40 : 300;
-
-    const newId = `j_${Date.now().toString().slice(-4)}`;
-    const newJoint: Joint = {
-      id: newId,
-      name: `Junta ${state.joints.length + 1}`,
-      parent: parentId,
-      x: px,
-      y: py,
-      color: "#10b981",
-    };
-
-    if (jointAdd(state.joints, newJoint)) {
-      state.selectedJointId = newId;
+    const created = addJoint(state);
+    if (created) {
       syncJointsList(window, state);
       syncSelectedJoint(window, state);
-      window.status_text = `Nova junta criada: ${newJoint.name}`;
+      window.status_text = `Nova junta criada: ${created.name}`;
     }
   };
-
   window.remove_joint = (id: string) => {
-    if (id === "root") {
-      window.status_text = "A junta raiz (root) não pode ser removida.";
+    if (!removeJoint(state, id)) {
+      window.status_text = id === "root" ? "A junta raiz (root) não pode ser removida." : `Junta ${id} não encontrada.`;
       return;
     }
-    state.history.push(`Remover Junta ${id}`, state.joints, state.layers, state.currentPose);
-    jointRemove(state.joints, id);
-    state.selectedJointId = "root";
     syncJointsList(window, state);
     syncSelectedJoint(window, state);
-    window.status_text = `Junta ${id} removida com sucesso.`;
+    window.status_text = `Junta ${id} removida.`;
   };
-
   window.update_joint_pos = (id: string, dx: number, dy: number) => {
     const j = findJoint(state.joints, id);
     if (!j) return;
     state.history.push(`Mover Junta ${j.name}`, state.joints, state.layers, state.currentPose);
-    j.x += dx;
-    j.y += dy;
+    if (state.editorMode === EditorMode.Setup) {
+      j.x += dx;
+      j.y += dy;
+    } else {
+      const delta = state.currentPose.joints.get(id) ?? { angle: 0, x: 0, y: 0 };
+      delta.x += dx;
+      delta.y += dy;
+      state.currentPose.joints.set(id, delta);
+    }
     syncSelectedJoint(window, state);
-    window.status_text = `${j.name}: posição (${Math.round(j.x)}, ${Math.round(j.y)})`;
   };
-
   window.update_joint_angle = (id: string, dAngle: number) => {
     const j = findJoint(state.joints, id);
     if (!j) return;
     state.history.push(`Girar Junta ${j.name}`, state.joints, state.layers, state.currentPose);
-
     const delta = state.currentPose.joints.get(id) ?? { angle: 0, x: 0, y: 0 };
     delta.angle += dAngle;
     state.currentPose.joints.set(id, delta);
     syncSelectedJoint(window, state);
-    window.status_text = `${j.name}: ângulo ${Math.round(delta.angle * 57.2958)}°`;
   };
-
   window.set_rig_preset = (presetName: string) => {
-    let preset: RigPreset;
-    switch (presetName) {
-      case "BipedSimple":
-        preset = RigPreset.BipedSimple;
-        break;
-      case "Quadruped":
-        preset = RigPreset.Quadruped;
-        break;
-      case "Prop":
-        preset = RigPreset.Prop;
-        break;
-      default:
-        preset = RigPreset.Humanoid;
-    }
-
-    state.history.push(`Preset: ${presetName}`, state.joints, state.layers, state.currentPose);
-    state.joints = rigCreatePreset(preset);
-    state.selectedJointId = state.joints[0]?.id ?? "root";
-    state.currentPose.joints.clear();
+    applyRigPreset(state, presetName);
     syncJointsList(window, state);
     syncSelectedJoint(window, state);
-    window.status_text = `Preset de esqueleto aplicado: ${presetName}`;
+    window.status_text = `Preset aplicado: ${presetName}`;
   };
-
   window.toggle_ik = () => {
     state.ikEnabled = !state.ikEnabled;
     window.ik_enabled = state.ikEnabled;
-    window.status_text = state.ikEnabled
-      ? "Cinemática Inversa (IK) ATIVADA — Arraste as extremidades para deformar o membro"
-      : "Cinemática Direta (FK) ATIVADA";
+    window.status_text = state.ikEnabled ? "IK ATIVADA — arraste extremidades" : "FK ATIVADA";
   };
 
-  // ---------------------------------------------------------------------------
-  // CALLBACKS DE CAMADAS E SPRITES
-  // ---------------------------------------------------------------------------
+  // --- layers (Item 11: multisseleção + reorder + delete) ---
   window.select_layer = (id: string) => {
     state.selectedLayerId = id;
+    state.selection.selectedLayerIds = [id];
+    const idx = state.layers.findIndex((l) => l.id === id);
+    if (idx >= 0) state.selection.anchorLayerIdx = idx;
     syncSelectedLayer(window, state);
-    const lyr = state.layers.find((l) => l.id === id);
-    if (lyr) window.status_text = `Camada selecionada: ${lyr.name}`;
   };
-
+  window.select_layer_range = (id: string, extend: boolean) => {
+    selectionSelectLayerRange(state.layers, state.selection, id, extend);
+    const last = state.selection.selectedLayerIds[state.selection.selectedLayerIds.length - 1];
+    if (last) state.selectedLayerId = last;
+    syncSelectedLayer(window, state);
+  };
   window.add_layer = () => {
-    state.history.push("Adicionar Camada", state.joints, state.layers, state.currentPose);
-    const lyrId = `layer_${Date.now().toString().slice(-4)}`;
-    const newLyr: Layer = {
-      id: lyrId,
-      name: `Nova Camada ${state.layers.length + 1}`,
-      asset: "sprite.png",
-      transform: { pos: [0, 0], scale: [1, 1], rotation: 0, pivot: [0, 0] },
-      joint: state.selectedJointId || "root",
-      visible: true,
-      locked: false,
-      opacity: 1.0,
-      hasSeamMask: false,
-      seamMask: { layer: "", enabled: false, center: [0, 0], radius: 0, feather: 0 },
-    };
-    state.layers.push(newLyr);
-    state.selectedLayerId = lyrId;
+    const lyr = addLayer(state);
     syncLayersList(window, state);
     syncSelectedLayer(window, state);
-    window.status_text = `Camada criada: ${newLyr.name}`;
+    window.status_text = `Camada criada: ${lyr.name}`;
   };
-
   window.remove_layer = (id: string) => {
-    state.history.push(`Remover Camada ${id}`, state.joints, state.layers, state.currentPose);
-    state.layers = state.layers.filter((l) => l.id !== id);
-    state.selectedLayerId = state.layers[0]?.id ?? "";
+    removeLayer(state, id);
     syncLayersList(window, state);
     syncSelectedLayer(window, state);
     window.status_text = "Camada removida.";
   };
-
+  window.remove_selected_layers = () => {
+    const gone = removeSelectedLayers(state);
+    syncLayersList(window, state);
+    syncSelectedLayer(window, state);
+    window.status_text = gone.length > 0 ? `${gone.length} camada(s) removida(s).` : "Nada selecionado.";
+  };
+  window.move_layer = (id: string, dir: number) => {
+    const ok = moveLayer(state, id, dir >= 0 ? 1 : -1);
+    if (ok) syncLayersList(window, state);
+    void moveLayerOrder;
+  };
+  window.move_selected_layer_up = () => {
+    if (state.selectedLayerId) window.move_layer(state.selectedLayerId, -1);
+  };
+  window.move_selected_layer_down = () => {
+    if (state.selectedLayerId) window.move_layer(state.selectedLayerId, 1);
+  };
   window.toggle_layer_visibility = (id: string) => {
-    const lyr = state.layers.find((l) => l.id === id);
-    if (lyr) {
-      lyr.visible = !lyr.visible;
-      syncLayersList(window, state);
-      window.status_text = `${lyr.name}: ${lyr.visible ? "Visível" : "Oculto"}`;
-    }
+    toggleLayerVisibility(state, id);
+    syncLayersList(window, state);
   };
-
   window.update_layer_opacity = (id: string, opacity: number) => {
-    const lyr = state.layers.find((l) => l.id === id);
-    if (lyr) {
-      lyr.opacity = Math.max(0, Math.min(1, opacity));
-      syncLayersList(window, state);
-      syncSelectedLayer(window, state);
-    }
+    setLayerOpacity(state, id, opacity);
+    syncLayersList(window, state);
+    syncSelectedLayer(window, state);
   };
 
-  // ---------------------------------------------------------------------------
-  // CALLBACKS DE ANIMAÇÃO E TIMELINE
-  // ---------------------------------------------------------------------------
+  // --- pinos (P1-7) ---
+  window.add_pin = (meshId: string, x: number, y: number) => {
+    const pin = addPin(state, meshId || "0", x, y);
+    state.selectedPinId = pin.id;
+    window.status_text = `Pino criado: ${pin.id}`;
+    return pin.id;
+  };
+  window.delete_pin = (id: string) => {
+    const ok = deletePin(state, id || state.selectedPinId);
+    window.status_text = ok ? `Pino ${id} removido.` : "Pino não encontrado.";
+    return ok;
+  };
+  window.select_pin = (id: string) => {
+    state.selectedPinId = id;
+    window.status_text = `Pino selecionado: ${id}`;
+  };
+  window.toggle_pin_lock = (id: string) => {
+    return togglePinLock(state, id || state.selectedPinId);
+  };
+  window.reset_pin = (id: string) => {
+    resetPin(state, id || state.selectedPinId);
+    window.status_text = "Offset do pino resetado (rest intacto).";
+  };
+  window.set_pin_anchor = (id: string, mode: string, joint: string) => {
+    return setPinAnchor(state, id, (mode as "free" | "joint" | "world") || "free", joint || "");
+  };
+  window.set_pin_influence = (id: string, radius: number, falloff: number, strength: number) => {
+    return setPinInfluence(state, id, radius, falloff, strength);
+  };
+
+  // --- animação ---
   window.toggle_play = () => {
-    state.isPlaying = !state.isPlaying;
+    togglePlay(state);
     window.is_playing = state.isPlaying;
-    window.status_text = state.isPlaying ? "Reprodução iniciada." : "Reprodução pausada.";
   };
-
   window.timeline_seek = (time: number) => {
-    state.timelineTime = Math.max(0, Math.min(state.timelineDuration, time));
+    seekTimeline(state, time);
     window.timeline_time = state.timelineTime;
   };
-
   window.select_clip = (clipName: string) => {
-    state.activeClipName = clipName;
-    window.active_clip_name = clipName;
-    if (clipName === "walk") {
-      state.activeClip = createWalkClip();
-    } else {
-      state.activeClip = createIdleClip();
-    }
-    state.timelineDuration = state.activeClip.duration;
+    selectClip(state, clipName);
+    window.active_clip_name = state.activeClipName;
     window.timeline_duration = state.timelineDuration;
-    state.timelineTime = 0.0;
-    window.timeline_time = 0.0;
+    window.timeline_time = 0;
     window.status_text = `Clipe ativo: ${state.activeClip.name}`;
   };
-
   window.reset_to_rest = () => {
-    state.isPlaying = false;
+    resetToRest(state);
     window.is_playing = false;
-    state.timelineTime = 0.0;
-    window.timeline_time = 0.0;
-    state.currentPose.joints.clear();
+    window.timeline_time = 0;
     syncSelectedJoint(window, state);
-    window.status_text = "Pose de repouso restaurada.";
+    window.status_text = "Pose de repouso restaurada (bind).";
   };
 
-  // ---------------------------------------------------------------------------
-  // CALLBACKS DE INTERAÇÃO DO MOUSE COM A VIEWPORT
-  // ---------------------------------------------------------------------------
+  // --- teclado global (Item 11) ---
+  window.handle_key = (key: string, alt = false) => {
+    const action = mapKeyToAction(key, { alt, hasLayerSelection: state.selection.selectedLayerIds.length > 0 || state.selectedLayerId !== "" });
+    if (action === "toggle-play") window.toggle_play();
+    else if (action === "reset-bind") window.reset_to_rest();
+    else if (action === "delete-selection") window.remove_selected_layers();
+    else if (action === "reset-view") window.reset_view();
+    return action;
+  };
+
+  // --- viewport mouse (usa controller + Setup/Animate + picking por ferramenta P1-8) ---
+  const drag = state.viewportDrag;
   window.viewport_mouse_down = (sx: number, sy: number) => {
-    lastMouse = [sx, sy];
-    dragStartMouse = [sx, sy];
-    dragStartPan = { ...state.cameraPan };
-
-    // Hit test em 2D para juntas
+    drag.lastMouse = [sx, sy];
+    drag.startMouse = [sx, sy];
+    drag.startPan = { ...state.cameraPan };
     if (state.viewportMode === "2D") {
-      const [wx, wy] = state.viewportBuffer.screenToWorld(
-        sx,
-        sy,
-        state.cameraPan.x,
-        state.cameraPan.y,
-        state.cameraZoom
-      );
-
-      const bones = boneMatrices(state.joints, state.currentPose);
-      let closestId = "";
-      let closestDist = Infinity;
-
-      for (const j of state.joints) {
-        const bMat = bones.get(j.id);
-        if (!bMat) continue;
-        const [jwX, jwY] = matApply(bMat, [0, 0]);
-        const d = vec2Dist([jwX, jwY], [wx, wy]);
-        if (d < closestDist) {
-          closestDist = d;
-          closestId = j.id;
-        }
+      const [wx, wy] = state.viewportBuffer.screenToWorld(sx, sy, state.cameraPan.x, state.cameraPan.y, state.cameraZoom);
+      const hit = pickEntity(state.joints, state.pins, state.currentPose, wx, wy, state.activeTool, state.cameraZoom);
+      if (hit.kind === "pin") {
+        drag.beginPin(sx, sy, hit.id, state.cameraPan);
+        state.selectedPinId = hit.id;
+        state.history.push(`Arrastar Pino ${hit.id}`, state.joints, state.layers, state.currentPose, state.pins);
+        window.status_text = `Pino selecionado: ${hit.id}`;
+        return;
       }
-
-      const hitRadius = Math.max(16, 20 / state.cameraZoom);
-      if (closestDist <= hitRadius && closestId !== "") {
-        dragMode = "joint";
-        dragJointId = closestId;
-        state.selectedJointId = closestId;
+      if (hit.kind === "joint") {
+        drag.beginJoint(sx, sy, hit.id, state.cameraPan);
+        state.selectedJointId = hit.id;
+        state.selection.selectedJointIds = [hit.id];
         syncSelectedJoint(window, state);
-        state.history.push(`Arrastar Junta ${closestId}`, state.joints, state.layers, state.currentPose);
-        const hitJoint = findJoint(state.joints, closestId);
-        window.status_text = `Junta selecionada: ${hitJoint?.name ?? closestId}`;
+        state.history.push(`Arrastar Junta ${hit.id}`, state.joints, state.layers, state.currentPose, state.pins);
         return;
       }
     }
-
-    // Clique no fundo vazio: inicia pan ou rotação da câmera
-    dragMode = "pan";
+    drag.beginPan(sx, sy, state.cameraPan);
   };
-
   window.viewport_mouse_move = (sx: number, sy: number) => {
-    const dx = sx - lastMouse[0];
-    const dy = sy - lastMouse[1];
-
-    if (dragMode === "pan") {
+    const dx = sx - drag.lastMouse[0];
+    const dy = sy - drag.lastMouse[1];
+    if (drag.mode === "pan") {
       if (state.viewportMode === "3D") {
         state.orbitCamera.yaw += dx * 0.01;
         state.orbitCamera.pitch = Math.max(-1.4, Math.min(1.4, state.orbitCamera.pitch - dy * 0.01));
       } else {
-        state.cameraPan.x = dragStartPan.x + (sx - dragStartMouse[0]) / state.cameraZoom;
-        state.cameraPan.y = dragStartPan.y + (sy - dragStartMouse[1]) / state.cameraZoom;
+        state.cameraPan.x = drag.startPan.x + (sx - drag.startMouse[0]) / state.cameraZoom;
+        state.cameraPan.y = drag.startPan.y + (sy - drag.startMouse[1]) / state.cameraZoom;
       }
-    } else if (dragMode === "joint") {
-      const [wx, wy] = state.viewportBuffer.screenToWorld(
-        sx,
-        sy,
-        state.cameraPan.x,
-        state.cameraPan.y,
-        state.cameraZoom
-      );
-
-      if (state.ikEnabled) {
-        // Cinemática Inversa (IK)
-        solveIK(state.joints, state.currentPose, dragJointId, [wx, wy]);
+    } else if (drag.mode === "joint") {
+      const [wx, wy] = state.viewportBuffer.screenToWorld(sx, sy, state.cameraPan.x, state.cameraPan.y, state.cameraZoom);
+      if (state.ikEnabled && state.editorMode !== EditorMode.Setup) {
+        solveIK(state.joints, state.currentPose, drag.jointId, [wx, wy]);
       } else {
-        // Cinemática Direta (FK) — Move posição rest ou ajusta junta
-        const j = findJoint(state.joints, dragJointId);
-        if (j) {
-          j.x += dx / state.cameraZoom;
-          j.y += dy / state.cameraZoom;
-          syncSelectedJoint(window, state);
+        applyJointDrag(state.joints, state.currentPose, drag.jointId, dx, dy, state.cameraZoom, state.editorMode, false, [wx, wy]);
+        syncSelectedJoint(window, state);
+      }
+    } else if (drag.mode === "pin") {
+      const [wx, wy] = state.viewportBuffer.screenToWorld(sx, sy, state.cameraPan.x, state.cameraPan.y, state.cameraZoom);
+      const pin = state.pins.find((p) => p.id === drag.pinId);
+      if (pin) {
+        if (state.editorMode === EditorMode.Setup) {
+          movePinRest(state.pins, pin.id, wx, wy);
+        } else {
+          movePinOffset(state.currentPose, pin.id, dx / state.cameraZoom, dy / state.cameraZoom);
         }
       }
     }
-
-    lastMouse = [sx, sy];
+    drag.lastMouse = [sx, sy];
   };
-
-  window.viewport_mouse_up = (_sx: number, _sy: number) => {
-    dragMode = "none";
-    dragJointId = "";
+  window.viewport_mouse_up = () => {
+    drag.end();
   };
-
   window.viewport_scroll = (deltaY: number) => {
     const factor = deltaY > 0 ? 0.9 : 1.1;
     state.cameraZoom = Math.min(5.0, Math.max(0.2, state.cameraZoom * factor));
     window.zoom_level = state.cameraZoom;
   };
-
   window.zoom_in = () => {
     state.cameraZoom = Math.min(5.0, state.cameraZoom * 1.25);
     window.zoom_level = state.cameraZoom;
   };
-
   window.zoom_out = () => {
     state.cameraZoom = Math.max(0.2, state.cameraZoom * 0.8);
     window.zoom_level = state.cameraZoom;
   };
-
   window.reset_view = () => {
     state.cameraZoom = 1.0;
     state.cameraPan = { x: 104, y: -40 };
     window.zoom_level = 1.0;
     state.orbitCamera = new OrbitCamera([0, 0, 0], 3.8, 0.4, 0.25);
-    window.status_text = "Visualização da câmera resetada.";
+    window.status_text = "Câmera resetada.";
   };
 
-  // ---------------------------------------------------------------------------
-  // LOOP DE RENDERIZAÇÃO E AMOSTRAGEM A 60 FPS
-  // ---------------------------------------------------------------------------
-  const intervalId = setInterval(() => {
-    if (state.isPlaying) {
-      state.timelineTime += 1 / 60;
-      if (state.timelineTime >= state.timelineDuration) {
-        state.timelineTime = 0;
-      }
-      window.timeline_time = state.timelineTime;
-
-      // Amostra clipe ativo se estiver reproduzindo
-      sampleClip(state.activeClip, state.timelineTime, state.currentPose);
-
-      if (state.viewportMode === "3D") {
-        state.orbitCamera.yaw += 0.005; // Rotação sutil da câmera 3D
-      }
-    }
-
-    // Calcula FK
-    const bones = boneMatrices(state.joints, state.currentPose);
-
-    // Rasterização no Buffer
-    const buf = state.viewportBuffer;
-    buf.clear(18, 18, 20);
-
-    if (state.viewportMode === "2D") {
-      buf.drawGrid(32, state.cameraPan.x, state.cameraPan.y, state.cameraZoom);
-      buf.renderLayers(
-        state.layers,
-        bones,
-        state.selectedLayerId,
-        state.cameraPan.x,
-        state.cameraPan.y,
-        state.cameraZoom
-      );
-      buf.renderSkeleton(
-        state.joints,
-        bones,
-        state.selectedJointId,
-        state.cameraPan.x,
-        state.cameraPan.y,
-        state.cameraZoom
-      );
-    } else {
-      // Palco 3D
-      buf.drawGrid(40, 0, 0, 1.0, 24, 24, 30);
-      buf.render3D(state.mesh3D, state.orbitCamera);
-    }
-
-    // Envia imagem atualizada para o elemento Image do Slint
-    try {
-      const SlintImageData = (slint as any).private_api?.SlintImageData;
-      if (SlintImageData) {
-        window.viewport_frame = new SlintImageData(
-          buf.width,
-          buf.height,
-          Buffer.from(buf.pixels.buffer, buf.pixels.byteOffset, buf.pixels.byteLength)
-        );
-      }
-    } catch {
-      // Ignora erro se a janela foi fechada pelo usuário
-    }
-  }, 1000 / 60);
-
-  return () => clearInterval(intervalId);
+  // Loop com delta_time real (Item 3)
+  const cleanup = startRenderLoop(state, window, { fps: 60 });
+  void restoreBindPose;
+  void stateToProject;
+  void applyProjectToState;
+  void loadProjectFromJson;
+  void boneMatrices;
+  return cleanup;
 }
