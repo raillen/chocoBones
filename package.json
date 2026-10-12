@@ -4,8 +4,8 @@
   "description": "2D/3D character puppet creator and skeletal animation studio in TypeScript (Bun + Slint + WebGPU)",
   "type": "module",
   "scripts": {
-    "start": "bun run src/index.ts",
-    "build": "bun build src/index.ts --outdir ./dist",
+    "start": "tsx src/index.ts",
+    "build": "bun build src/index.ts --outfile dist/index.js --target node --packages external",
     "typecheck": "tsc --noEmit",
     "test": "bun test"
   },
@@ -17,6 +17,7 @@
   "devDependencies": {
     "@types/bun": "latest",
     "@webgpu/types": "^0.1.51",
+    "tsx": "^4.23.15",
     "typescript": "^5.6.3"
   }
 }

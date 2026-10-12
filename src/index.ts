@@ -8,7 +8,8 @@ import slint from "slint-ui";
 import { bindSlintWindow, createInitialAppState } from "./ui/bridge";
 
 async function main(): Promise<void> {
-  const uiFilePath = path.resolve(import.meta.dir, "../ui/main.slint");
+  const baseDir = (import.meta as any).dirname ?? (import.meta as any).dir ?? path.resolve(process.cwd(), "src");
+  const uiFilePath = path.resolve(baseDir, "../ui/main.slint");
   const ui = slint.loadFile(uiFilePath);
 
   const window = new (ui as any).MainWindow();
