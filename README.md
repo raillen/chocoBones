@@ -1,53 +1,44 @@
-# chocoBones-std
+# chocoBones-ts
 
-Editor nativo de personagens 2D/3D, montagem de peças, rig e animação em Odin. A interface usa Dear ImGui com docking sobre SDL2/OpenGL, com espaços Montagem, Rig, Animação e Foco, temas Dark/Light e accent configurável.
+Editor nativo de personagens 2D/3D, montagem de peças, rig e animação em **TypeScript** (executando sobre **Node.js + pnpm**, interface nativa em **Slint** e shaders **WebGPU / WGSL**).
 
-## Compilar e executar
+## Compilar e Executar
 
-Executar na raiz do projeto para resolver os recursos de `assets/`. É necessário ter Odin e as dependências nativas SDL2/OpenGL disponíveis; os bindings e as bibliotecas empacotadas ficam em `libs/`.
-
-```sh
-odin check src
-mkdir -p bin
-odin build src -out:bin/chocobones
-./bin/chocobones
-```
-
-Para compilar e executar diretamente:
+Requer [Node.js](https://nodejs.org/) (v20+) e [pnpm](https://pnpm.io/) (v10+ / v12+).
 
 ```sh
-odin run src
+# Instalar dependências
+pnpm install
+
+# Verificar tipagem estrita
+pnpm run typecheck
+
+# Executar suíte completa de testes automatizados
+pnpm test
+
+# Executar a aplicação desktop
+pnpm start
 ```
 
-Para executar os testes:
+## Arquitetura e Status (коном 2026-10-12: 70 testes, 10 suítes)
 
-```sh
-odin test tests
-```
-
-A escala pode ser ajustada entre 1 e 2, por exemplo:
-
-```sh
-CHOCOBONES_UI_SCALE=1.5 ./bin/chocobones
-```
-
-## Aparência e espaços de trabalho
-
-Aparência oferece Light/Dark, presets ciano, azul, violeta, rosa, verde e âmbar, seletor livre e campo `#RRGGBB`. As fontes Inter Regular/Medium 4.1 e os ícones Phosphor acompanham o projeto. A licença da Inter está em `assets/fonts/LICENSE.txt`.
-
-Montagem mostra Camadas e Inspetor; Rig destaca Juntas; Animação inclui a timeline; Foco amplia o palco. O menu de painéis permite reabrir painéis e restaurar o espaço ativo. Layouts e preferências ficam em `preferences.json` e `layouts.ini` no diretório retornado por `SDL_GetPrefPath("chocoBones", "chocoBones-std")`, separados dos arquivos de personagem. Tema e accent mantêm os pixels exportados.
-
-O [guia da interface](docs/development/editor-ui.md) documenta os contratos, a persistência e a QA. Em 2026-10-11, check/build e os 41 testes passaram. A QA nativa em Xvfb `:99` com OpenGL por software passou em 18 casos de resolução/tema/escala e 14 verificações de interação, incluindo spritesheet, rolagem em 200% e keyframes/foco/teclado da timeline. As capturas e os roteiros confirmam a execução nesse ambiente; a validação no hardware do usuário não foi realizada.
-
-## Kit de sprites para testes
-
-O [Frontier Survival](assets/test-kits/frontier-survival/README.md) reúne seis humanos, seis animais e 24 roupas/equipamentos em PNG transparente com aparência vetorial, além de um humano modular com 15 peças corporais e seis acessórios em SVG editável e PNG. O catálogo está em `assets/test-kits/frontier-survival/index.html`; fontes, pivôs e instruções ficam junto aos assets.
-
-O kit é material independente para testes. O editor nativo ainda não importa imagens próprias pelo diálogo nem restaura seus assets pelo JSON; o demonstrador do kit roda no navegador. Os PNGs das pranchas são poses estáticas, e somente o conjunto SVG modular compartilha alinhamento e pivôs definidos.
+| Módulo | Responsabilidade | Status |
+|---|---|---|
+| [`src/core/`](src/core/) | Afim 2D, 4x4, perspectiva, `OrbitCamera`, Bézier + `ids.ts` determinísticos | Núcleo pareado + IDs estáveis |
+| [`src/rig/`](src/rig/) | FK com guarda anti-ciclo, **IK genérica** (`bend/limits/pole`), presets, `autoGuess` | Núcleo pareado + IK estendida |
+| [`src/mesh/`](src/mesh/) | Grade + **alpha-hull**, UV, **auto-skin**, pincel `add/smooth/set` + heatmap, MLS | Além do pareamento mínimo |
+| [`src/mesh3d/`](src/mesh3d/) | Cubo/Plano, normais, OBJ (`usemtl`, índices negativos), glTF (`JOINTS/WEIGHTS`, `byteStride`, `parseGlb`) | Núcleo pareado + skinning parcial |
+| [`src/animation/`](src/animation/) | Timeline (pins, channels, sort sob demanda), `evaluator.ts` único, `clock.ts` delta/fixed-step, presets | Núcleo pareado + determinismo |
+| [`src/history/`](src/history/) | Undo/redo de juntas+camadas+pose | Pareado |
+| [`src/project/`](src/project/) | Zod **v2** (`meshes/pins/clips/constraints`), `migrateV1ToV2`, anti-ciclo, limite 20 MB | Além do pareamento (v1 era só joints/layers) |
+| [`src/render/`](src/render/) | WGSL sprite + MLS compute, `WebGpuRenderer` (fallback CPU), PNG sync+async, `loop.ts` delta | WGSL real + fallback; GPU física não validada |
+| [`src/ui/`](src/ui/) | `store/actions/viewport/loop`, Setup/Animate, multisseleção, reorder, teclado, `editor_mode` | Bridge refatorada; editor Odin completo (showcase, spritesheet, seam_mask) **não** pareado |
+| [`ui/`](ui/) | Slint com workspaces + `editor_mode` + `move_layer` | Funcional |
+| [`tests/`](tests/) | 70 testes (35 legados + 35 novos `new_features.test.ts`) | Verde (`pnpm test`), `tsc --noEmit` limpo |
 
 ## Desenvolvimento e Prumo
 
-O projeto usa **Prumo 0.6.0**, protocolo v3 e Lean Progressive Context. A fase registrada é **P00 — Foundation**; não há Goal formal selecionado. `prumo.json` é o manifesto, [ENTRYPOINT.md](ENTRYPOINT.md) define a recuperação e [PROJECT_STATE.md](PROJECT_STATE.md) registra o estado operacional.
+O projeto segue estritamente a metodologia **Prumo v0.6.0**, o protocolo v3 e **Lean Progressive Context (LPC)**.
 
 Com Prumo instalado:
 
@@ -55,16 +46,3 @@ Com Prumo instalado:
 prumo validate .
 prumo doctor .
 ```
-
-| Diretório/arquivo | Conteúdo |
-|---|---|
-| `src/` | Aplicativo Odin e subsistemas de personagem/renderização |
-| `src/ui/` | Temas, preferências, seleção, gizmos e widgets |
-| `assets/` | Recursos e fontes empacotadas |
-| `tests/` | Suíte automatizada Odin |
-| `scripts/` | QA nativa da interface e das interações |
-| `docs/` | Documentação canônica, organizada por público |
-| `.prumo/` | Runtime e registro de inteligência/evidência |
-| `CHANGELOG.md` | Histórico das alterações |
-
-Consulte [docs/PRUMO.md](docs/PRUMO.md) para navegação e [docs/development/testing-strategy.md](docs/development/testing-strategy.md) para a estratégia de testes.

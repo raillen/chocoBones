@@ -11,3 +11,8 @@ layouts.ini
 # Prumo derived/runtime state
 .prumo/runtime/
 .prumo/cache/
+
+# Node / Bun
+node_modules/
+dist/
+

@@ -1,10 +1,15 @@
-# Núcleo Fundamental (Core)
+# Subsistema Core (`src/core`)
 
-Módulo responsável pelas primitivas matemáticas, estruturas de tipos básicas e alocadores de arena de memória.
+Fornece os tipos fundamentais, primitivas matemáticas 2D/3D e utilitários geométricos do **chocoBones**.
 
-| Arquivo | Responsabilidade |
-|---|---|
-| `arena.odin` | Alocador de arena linear para operações de quadro e scratch de alta performance |
-| `math.odin` | Vetores 2D (`Vec2`), matrizes afins 2D (`Mat3x2`) e operações trigonométricas |
-| `math3d.odin` | Vetores 3D/4D, matrizes 4x4, quatérnions e câmera orbital |
-| `types.odin` | Tipos fundamentais como `Transform`, `Color` e `SeamMask` |
+## Componentes
+
+* [`types.ts`](types.ts): Definições de `Vec2`, `Mat2x3`, `Rect`, `Transform` e `SeamMask`.
+* [`math.ts`](math.ts): Álgebra afim 2D, multiplicação matricial, inversão de matrizes, interpolações e solucionador de curvas de Bézier cúbicas via busca binária.
+* [`math3d.ts`](math3d.ts): Álgebra linear 3D, matrizes 4x4, projeções em perspectiva, visão `LookAt` e `OrbitCamera` para manipulação de palco tridimensional.
+
+## Padrões de Projeto
+
+- Tipagem estrita com TypeScript, sem `any`.
+- Imutabilidade em constantes fundamentais (`MAT_IDENTITY`, `MAT4_IDENTITY`).
+- Precisão numérica e proteção contra singularidades e divisões por zero.

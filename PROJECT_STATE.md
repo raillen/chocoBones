@@ -1,49 +1,34 @@
-# Current Project State
+# Current Project State (chocoBones-ts)
 
-- Project: **chocoBones-std**
+- Project: **chocoBones-ts** (Worktree `feat/typescript`)
 - Prumo: **0.6.0**
-- Current phase: **P00 — Foundation**
-- Current goal: **P00-G02 (Executando - Dynamic Rig, Animation Packs, and Native Image Import)**
+- Stack: **TypeScript (Strict) + Node.js + pnpm + Slint + WebGPU (WGSL)**
 - Context methodology: **Lean Progressive Context (LPC)**
-- Last updated: `2026-10-11T20:28:00Z`
+- Last updated: `2026-10-12T23:30:00Z`
 
-## Interface do editor
+## Estado da Implementação
 
-- Implementados temas Dark/Light, accent livre/HEX e seis presets, fontes Inter/Phosphor, composição compacta e espaços Montagem/Rig/Animação/Foco.
-- Preferências e visibilidade dos painéis persistem em JSON v1; layouts de docking têm IDs por espaço e ficam em `layouts.ini`, no diretório SDL do aplicativo.
-- Interface, estado do documento e exportação permanecem separados. A QA confirmou PNG idêntico entre temas e accents extremos.
+Núcleo de domínio pareado do Odin + itens 1–14 implementados nesta iteração:
 
-## Evidência de verificação — 2026-10-11
+1. **Core Math 2D/3D**: Afim 2x3, 4x4, perspectiva, `OrbitCamera`, Bézier por bisseção. `gl-matrix` declarada mas não usada — remover ou adotar.
+2. **Rigging & Cinemática**: FK hierárquica com guarda anti-ciclo, **IK genérica** 2-bone sem dependência de IDs + `bend`/`limits`/`pole-vector`, presets Humanoid/Biped/Quadruped/Prop, `autoGuessJointForLayer`.
+3. **Deformação 2D**: Grade + **alpha-hull por alfa** (`buildHullMeshFromRgba`), UVs, **auto-skin por distância a segmentos**, pincel `add/smooth/set` + heatmap, MLS rígido.
+4. **Malhas 3D e Loaders**: Cubo/Plano, normais, AABB; OBJ com `usemtl` + índices negativos; glTF com `JOINTS_0/WEIGHTS_0`, `byteStride`, materiais e `parseGlb`.
+5. **Animação**: `sampleClip` com limpeza de pose, **pins interpolados**, **channels**, sort sob demanda; `evaluateClip(t)` único p/ preview/export; `advanceTime` com `delta_time` + `FixedStepAccumulator`; IDs determinísticos (`nextKeyframeId`).
+6. **Histórico**: Pilha 50, undo/redo de juntas+camadas+pose.
+7. **Projeto v2 (Zod)**: `meshes/pins/clips/constraints` opcionais, `migrateV1ToV2`, `isProjectV2`, rejeição de ciclos e limite 20 MB.
+8. **Render**: WGSL sprite + MLS compute real + `WebGpuRenderer` com fallback CPU; `ViewportBuffer` CPU; PNG sync + **async** com CRC pré-computado; loop com `delta_time`.
+9. **UI/Editor**: Slint + `store/actions/viewport/loop` (bridge fina); modos **Setup/Animate** + `Alt+R`; multisseleção Shift, delete, reorder ▲▼, teclado `Space/C/F/Home`, `editor_mode` no Slint.
+10. **IDs**: `generateId` estável (sem `Date.now` puro), validação de ciclo no load.
+11. **Estúdio Criativo Multi-Tema & Slint UI**: Sistema adaptativo com 3 temas (Dark `#121214`, Dim `#242428`, Light `#f4f4f6`), 6 acentos WCAG AA, dual-bar header, rail de ferramentas 46px com as 12 ferramentas do Odin, inspetor multi-card e rasterizador reativo com sincronização de cores de fundo/grade/3D.
 
-- Verificação final às `16:18:20` (America/Sao_Paulo): `odin check src`, `odin build src -out:bin/chocobones` e `odin test tests` passaram; 41 testes automatizados.
-- `scripts/qa_editor_ui.py`: matriz de 18 screenshots nativos Dark/Light, resoluções 1280×720/1440×900/1920×1080 e escalas 100%/150%/200%, com saída limpa e persistência verificadas.
-- `scripts/qa_editor_interactions.py`: binário final, código zero e 14 verificações de arrasto/undo/redo, exportação invariável, spritesheet de oito quadros (2048×1024), espaços/painéis/restauração, docking, playback durante troca de tema, 2D/3D, saída, reinício, rolagem, keyframes e foco/teclado da régua. Timeline compacta validada em 1280×720 a 200%, com controles inteiros.
-- Ambiente: Xvfb `:99` e OpenGL por software. Hardware/desktop físico do usuário não validado.
-- Capturas e relatórios: `/home/raillen/.codex/visualizations/2026/10/11/01a12c37-d2a6-7871-8894-44640df44ef9/chocobones/` (`matrix.json` e `interaction.json`).
+## Paridade honesta com Odin
 
-## Assets de teste — 2026-10-11
+Núcleo matemático/rig/animação e interface de estúdio criativo pareados com o padrão visual do Odin e o mockup de referência (Affinity/Canva). Visual adaptativo validado com exportações reais 2D e 3D em Dark, Dim e Light.
 
-- Kit original Frontier Survival em `assets/test-kits/frontier-survival/`: seis humanos, seis animais, 24 roupas/equipamentos e um humano modular com fontes SVG reais (15 partes corporais e seis acessórios).
-- Arte das pranchas gerada com `image_gen`, com aparência vetorial e alpha transparente; não contém assets extraídos de CryoFall. SVGs modulares e seus PNGs são um conjunto separado, com canvas e pivôs compartilhados.
-- Catálogo, manifests e instruções de uso ficam junto ao kit. A importação de imagens 2D e o rigging dinâmico foram integrados nativamente com sucesso ao aplicativo no escopo do Goal P00-G02.
+## Evidência de Verificação
 
-## Next action
-
-Todas as entregas do Goal P00-G02 foram concluídas, testadas (54 testes passando com zero vazamentos) e integradas:
-1. Resolução do travamento/congelamento na importação de imagens pelo diálogo nativo do sistema.
-2. Assistente modal de Novo Projeto (`Ctrl+N` / menu) com 4 modos: Imagem Única (Sprite), Personagem Modular (Multi-imagem), Vitrines Prontas e Vazio.
-3. Importação simultânea de múltiplas imagens com mapeamento anatômico heurístico (`auto_guess_joint_for_layer`).
-4. Rigging Dinâmico com adição, remoção, renomeação, reparentamento e predefinições esqueléticas completas.
-5. Pacote de animações prontas integrado com playback ativo.
-Próximo passo: validação e novas interações com o usuário.
-
-## Recovery order
-
-1. `ENTRYPOINT.md` or the platform adapter.
-2. `prumo.json`.
-3. `PROJECT_STATE.md`.
-4. `docs/PRUMO.md`.
-5. Active Goal under `.ai/goals/`.
-6. Only relevant canonical docs/symbols/tests selected by the context strategy.
-
-Do not load the entire repository by default.
+- **Testes**: 94 passando em 12 suítes, 0 falhas (`pnpm test` / Vitest).
+- **Tipos**: `tsc --noEmit` 0 erros (strict + `noUncheckedIndexedAccess` + `noUnusedLocals`).
+- **Verificação Visual Xvfb**: Script `scripts/test_themes_and_accents.ts` executado com sucesso em display virtual Xvfb `:99` com exportação e validação de pixels de fundo e wireframe 3D nos 3 temas.
+- **Prumo**: `prumo.json` alinhado para Node/pnpm.

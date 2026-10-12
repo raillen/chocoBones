@@ -1,9 +1,9 @@
 {
   "id": "lang-wgsl",
-  "name": "WGSL WebGPU Soundness & Shader Engineering",
-  "version": 2,
-  "schema_version": 3,
-  "purpose": "Enforce W3C WebGPU Shading Language (WGSL) standards, 16-byte struct alignment, explicit address spaces, workgroupBarrier synchronization, and naga validation.",
+  "name": "WGSL WebGPU Memory Alignment, Compute Barriers & Soundness",
+  "version": 1,
+  "schema_version": 2,
+  "purpose": "Enforce WGSL WebGPU standards, struct layout and memory alignment rules (std140/std430), compute shader workgroup barriers, atomic safety, and naga/wgpu validation.",
   "risk_level": "high",
   "modes": [
     "implementation",
@@ -11,33 +11,16 @@
     "testing"
   ],
   "inputs": [
-    {
-      "name": "shader_sources",
-      "type": "path[]",
-      "description": "WGSL shader files (*.wgsl)",
-      "required": true
-    },
-    {
-      "name": "host_buffer_definitions",
-      "type": "path",
-      "description": "Host-side Rust/C++/TS struct bindings for uniform and storage buffers",
-      "required": false
-    }
+    "Source code",
+    "Schema/Configuration",
+    "Task acceptance criteria"
   ],
   "outputs": [
-    {
-      "name": "hardened_shader",
-      "type": "diff",
-      "description": "Sound, validated WGSL shader code with explicit alignment"
-    },
-    {
-      "name": "verification_report",
-      "type": "document",
-      "description": "Shader verification report conforming to templates/wgsl-verification-report.md"
-    }
+    "Conforming source code/configuration",
+    "Verification evidence"
   ],
   "requires": [
-    "shaders",
+    "clean-code",
     "testing-quality"
   ],
   "conflicts": [],
@@ -62,31 +45,32 @@
     "examples/compute_reduction.wgsl"
   ],
   "required_evidence": [
+    "shader-compile",
     "test",
-    "build",
     "lint"
   ],
   "stop_conditions": [
     "Task acceptance criteria satisfied with evidence",
-    "Shader passes naga/tint compilation cleanly",
+    "naga/wgpu validation passes",
     "Token budget exhausted"
   ],
   "provenance": {
     "origin": "framework",
     "license": "MIT",
     "source": "prumo",
-    "version": "0.6.0",
+    "version": "0.4.0",
     "checksum": "",
-    "modified": "2026-09-23"
+    "modified": "2026-09-09"
   },
   "select": {
     "stack_any": [
       "wgsl",
       "webgpu",
       "wgpu",
-      "graphics"
+      "shaders"
     ]
   },
+  "requires_any": [],
   "tools": [
     "check-escape-hatches"
   ]

@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 const fs = require('fs');
 const PNG = require('pngjs').PNG;
 const pixelmatch = require('pixelmatch');

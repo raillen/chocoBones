@@ -1,93 +1,59 @@
 {
   "id": "memory-management",
-  "name": "Native Memory Management & Allocation Architecture",
-  "version": 2,
-  "schema_version": 3,
-  "purpose": "Design, implement, and verify custom memory allocators (Arenas, Pools, Slabs), cache line alignment (false sharing prevention), and ASan/Valgrind memory safety.",
-  "risk_level": "critical",
+  "name": "Native Memory Management",
+  "version": 1,
+  "schema_version": 2,
+  "purpose": "Manage memory pools, arenas, cache locality, and custom allocators.",
+  "risk_level": "high",
   "modes": [
-    "implementation",
-    "review",
-    "testing",
-    "audit"
+    "implementation"
   ],
   "inputs": [
-    {
-      "name": "architecture_spec",
-      "type": "path",
-      "description": "Subsystem architecture and latency/throughput SLA requirements",
-      "required": true
-    },
-    {
-      "name": "memory_budget",
-      "type": "object",
-      "description": "Maximum memory envelope and cache footprint constraints",
-      "required": false
-    }
+    "Engine architecture specification",
+    "Target hardware / GPU constraints",
+    "Benchmark fixtures"
   ],
   "outputs": [
-    {
-      "name": "allocator_implementation",
-      "type": "diff",
-      "description": "High-performance, aligned custom memory allocator source code"
-    },
-    {
-      "name": "memory_audit_report",
-      "type": "document",
-      "description": "Memory allocation and sanitizer audit report conforming to templates/memory-management-template.md"
-    }
+    "Optimized engine subsystem",
+    "Deterministic benchmark evidence",
+    "Visual test fixtures"
   ],
-  "requires": [
-    "testing-quality"
-  ],
+  "requires": [],
   "conflicts": [],
   "capabilities": [
     "filesystem.read",
     "filesystem.write",
     "process.spawn"
   ],
-  "references": [
-    "references/memory-management-guide.md"
-  ],
-  "templates": [
-    "templates/memory-management-template.md"
-  ],
+  "references": [],
+  "templates": [],
   "checks": [
     "checks/memory-management-invariants.md"
   ],
-  "scripts": [
-    "scripts/verify.sh"
-  ],
-  "examples": [
-    "examples/arena_allocator.c"
-  ],
+  "scripts": [],
+  "examples": [],
   "required_evidence": [
     "test",
-    "benchmark",
-    "security-scan"
+    "benchmark"
   ],
   "stop_conditions": [
     "Task acceptance criteria satisfied with evidence",
-    "Clean execution under AddressSanitizer with zero detected leaks",
-    "Token budget exhausted"
+    "Token budget exhausted",
+    "Blocked on external dependency"
   ],
   "provenance": {
     "origin": "framework",
     "license": "MIT",
     "source": "prumo",
-    "version": "0.6.0",
+    "version": "0.3.0",
     "checksum": "",
-    "modified": "2026-09-23"
+    "modified": "2026-08-14"
   },
   "select": {
-    "features_any": [
-      "native",
-      "low-level",
-      "systems",
-      "memory"
+    "risk_any": [
+      "performance-critical"
     ]
   },
-  "tools": [
-    "check-escape-hatches"
-  ]
+  "requires_any": [],
+  "tools": []
 }

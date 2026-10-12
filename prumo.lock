@@ -2,93 +2,411 @@
   "version": 1,
   "packages": [
     {
+      "id": "accessibility",
+      "version": "0.6.0",
+      "checksum": "9f0368184a64b8a2779383e36a2cc8157a98569cec20b17919b85afdefceef25",
+      "type": "skill"
+    },
+    {
       "id": "architecture-quality",
       "version": "0.6.0",
-      "checksum": "9027bf0b07ab66a20e080c1ca5e907a4459c6b2fa8011db06be26722963634fc",
+      "checksum": "58e9c990086306e05a0d7f6af8fdfad8a198d9cc3bdd5d5889fed3073fd78c8c",
+      "type": "skill"
+    },
+    {
+      "id": "benchmarking",
+      "version": "0.6.0",
+      "checksum": "b2052f78d0b78dd27d7e843817a1823091bb39eabd37854de8d6dbe70356d6a4",
+      "type": "skill"
+    },
+    {
+      "id": "caching",
+      "version": "0.6.0",
+      "checksum": "c7f1d6e44df819ab6927b5e58624f02e95a3feef2af18364713d46e6969796d1",
       "type": "skill"
     },
     {
       "id": "clean-code",
       "version": "0.6.0",
-      "checksum": "408a3e39d7cdc186ae38a7da0fb958092f5cd490ea354e096fcc7859c8df227d",
+      "checksum": "8923defb8bdd03d0e4617cb6e0f3b67ae1ba928b4d215996a5e03d041d1bdfff",
       "type": "skill"
     },
     {
       "id": "code-review",
       "version": "0.6.0",
-      "checksum": "8d01bc0b806529602c92be3f5c0201a115d27c72b60e9cee7e31979a382eeb49",
+      "checksum": "f16d3514cbcf949a2b5bcd046a697fc8ce10e2cc0ae3e4b7e44d88aa400901e8",
       "type": "skill"
     },
     {
       "id": "cognitive-clarity",
       "version": "0.6.0",
-      "checksum": "a6502dba89a836d1943e50c0c66f84b9982e0f52cfe5d022c32dcbf60f758341",
+      "checksum": "0c2fcb538dfd7896e84813d087e8e4874ef66de3f82166c86563ffdbe6c6b07b",
+      "type": "skill"
+    },
+    {
+      "id": "competitor-analysis",
+      "version": "0.6.0",
+      "checksum": "ec726569d70882fecc4ff0cdfad45f06c4181325bf0f32cdbff320bcdeeabfed",
+      "type": "skill"
+    },
+    {
+      "id": "component-specification",
+      "version": "0.6.0",
+      "checksum": "33f2806ac2cc1ec2cb6ed25a5c8198ef17ee369c7c908ca0b625b1b1bc37a82a",
+      "type": "skill"
+    },
+    {
+      "id": "contrast",
+      "version": "0.6.0",
+      "checksum": "2c4d767eba015f2c6ca3d65cda669f1b67cf3bb9e8bdaad0a105758eb519646e",
       "type": "skill"
     },
     {
       "id": "dependency-management",
       "version": "0.6.0",
-      "checksum": "d7a59bcce75acd8f70f7f208012cee8d732400d542ea167b7c745087001a23f0",
+      "checksum": "803ce35b7496421778df5accb935e3eaace8948ebe2109a80a2179ef4099e810",
+      "type": "skill"
+    },
+    {
+      "id": "design-research",
+      "version": "0.6.0",
+      "checksum": "b0801a2edf9f253a91d91a73baa023a95b2f6d8919689702ca00c6f479745cca",
+      "type": "skill"
+    },
+    {
+      "id": "design-system",
+      "version": "0.6.0",
+      "checksum": "532dd280e8990a683709600063454455569a9e72a26399a154d8f56b5cd84fc1",
+      "type": "skill"
+    },
+    {
+      "id": "design-tokens",
+      "version": "0.6.0",
+      "checksum": "d106e4d1f5023cb512bb7bdec51e8cace7085c8dcfcf6f1f85d4644885689bbb",
+      "type": "skill"
+    },
+    {
+      "id": "desktop-security",
+      "version": "0.6.0",
+      "checksum": "bb9767f14649c132cc330dcf50792ca00d4befcb09f63e0199289b9aa5336dce",
       "type": "skill"
     },
     {
       "id": "documentation",
       "version": "0.6.0",
-      "checksum": "2d2c2e75b79ed21dcedea00ac227a13e9de4e4b65a3f5b844e6a0fedce5af4b1",
+      "checksum": "d6ecc39c3c36af5abbf9057c75bd20f87edf6b2f32582bd6abb8ba48c426c1bc",
+      "type": "skill"
+    },
+    {
+      "id": "documentation-for-llms",
+      "version": "0.6.0",
+      "checksum": "67123719054dba32d651484a482aef3567e48134fbb3de444ae0a516b7e65f33",
+      "type": "skill"
+    },
+    {
+      "id": "documentation-publishing",
+      "version": "0.6.0",
+      "checksum": "41d5904ce44ce73db3961c76ccd6a07c13ffd9ef2933b1123c5ec79d0c76504d",
+      "type": "skill"
+    },
+    {
+      "id": "editor-tooling",
+      "version": "0.6.0",
+      "checksum": "0eb0c40de001c8715ec4225113cc87fbafce2012b60cdd136097de7502550fc8",
       "type": "skill"
     },
     {
       "id": "error-handling",
       "version": "0.6.0",
-      "checksum": "52f46983e968156cee380a4cdac817a2327aa1d18f62b0ede8a49c32f89406fa",
+      "checksum": "d2fb3e58030c8baf21e8b947ab43e74995bbf74e45c0381f125c2711c09062f3",
+      "type": "skill"
+    },
+    {
+      "id": "focus-management",
+      "version": "0.6.0",
+      "checksum": "3fa4e0fd1798dd87c2da4fc9dde4ea020de9cbccb6f882ce6e96b5cb2356dd66",
+      "type": "skill"
+    },
+    {
+      "id": "game-engine-architecture",
+      "version": "0.6.0",
+      "checksum": "37822bbdc65d3dee12f7e8521aa58b128eae674f3f2b1179ffc59eaf32e0f174",
+      "type": "skill"
+    },
+    {
+      "id": "game-runtime",
+      "version": "0.6.0",
+      "checksum": "d1de05bffe2d58c4e2bd4fe7244dcca69fc24fdce563fd68ef2a5c902a3d2645",
+      "type": "skill"
+    },
+    {
+      "id": "game-ui-testing",
+      "version": "0.6.0",
+      "checksum": "68799b6b399d223d6cfa002747795427b7b475c6580d5bc1e7ce0f17406570e4",
       "type": "skill"
     },
     {
       "id": "git-workflow",
       "version": "0.6.0",
-      "checksum": "d4bd6656cead02b83c11536de56c914b604286fcbe43786a2002fe0d8c8f2198",
+      "checksum": "323fa1d102323ccf275c0b6f7ff612b18b45da2948ddfae9603ee30a270c6fd7",
       "type": "skill"
     },
     {
       "id": "goal-management",
       "version": "0.6.0",
-      "checksum": "16a3c8e5e0cd41fb8153e33a880e1da5b5ed7b12761b4e46b91dcd10fb04c4c6",
+      "checksum": "642626107666288a752937e25aa6df4a6659b10d4ea8e986bf079e55a57b1539",
+      "type": "skill"
+    },
+    {
+      "id": "information-architecture",
+      "version": "0.6.0",
+      "checksum": "ef31e8931d674dd4d6d746f7c598deeac09350f31e2accabb04262e81dbc2004",
+      "type": "skill"
+    },
+    {
+      "id": "interaction-design",
+      "version": "0.6.0",
+      "checksum": "b5e69fdb68b7dd2476874d8268b5c80d5a9b3a04990d5b0b6677fdabafd193f8",
+      "type": "skill"
+    },
+    {
+      "id": "interaction-research",
+      "version": "0.6.0",
+      "checksum": "d7834aa160479fd9247b8cc6e4c36e9a7ec48f9b705a6d956749c25679e654d2",
+      "type": "skill"
+    },
+    {
+      "id": "keyboard-accessibility",
+      "version": "0.6.0",
+      "checksum": "99c8e011ee9bc47d9c112223aa3ad9a0a258a6f54d540438310545e1ab3537a5",
+      "type": "skill"
+    },
+    {
+      "id": "lang-javascript",
+      "version": "0.6.0",
+      "checksum": "5006ceecac9824567bf6859b787de9a9dfbce3b228e0be999820bbd2740df0e1",
+      "type": "skill"
+    },
+    {
+      "id": "lang-typescript",
+      "version": "0.6.0",
+      "checksum": "b38eede8e2b713ffb08107765883240b8d3cbbbc01214d640cefaf08a93ef7ac",
+      "type": "skill"
+    },
+    {
+      "id": "lang-wgsl",
+      "version": "0.6.0",
+      "checksum": "ad68ae8ab505523d6bfb01962edc4e271c5d50509a308c31b8311bfee04ae813",
       "type": "skill"
     },
     {
       "id": "lean-progressive-context",
       "version": "0.6.0",
-      "checksum": "72271b02aa7794fa7bd2606281d6c0df49a62e24677e1358b95f5b7a16f21601",
+      "checksum": "02ca2b36d47a7fb163d0cd21c2f02e34becb1734712bfb5505a6aa22eaf38707",
+      "type": "skill"
+    },
+    {
+      "id": "memory-management",
+      "version": "0.6.0",
+      "checksum": "0ec74b383e9fb5982b5928a1b7b5de5215f6903ac119c5c03e4852644543b25d",
+      "type": "skill"
+    },
+    {
+      "id": "motion-accessibility",
+      "version": "0.6.0",
+      "checksum": "32fae863e5eb42c1739b0187c741bdeb4e943aa5526c32cf23ded02293aa74e0",
+      "type": "skill"
+    },
+    {
+      "id": "performance-native",
+      "version": "0.6.0",
+      "checksum": "9dee4f36f17e3a51cd6b6d86539e74175bfa9558e77f00e0784975099240a227",
+      "type": "skill"
+    },
+    {
+      "id": "playtest-automation",
+      "version": "0.6.0",
+      "checksum": "d1e834ac67fd54f47a2fad8bb25fb103e7dbef007b17197facc882df3cc35688",
+      "type": "skill"
+    },
+    {
+      "id": "project-documentation-architect",
+      "version": "0.6.0",
+      "checksum": "ec36f43aea9d98ca57c7c2cfe4494839939446a31835e6a29d2856344c901864",
       "type": "skill"
     },
     {
       "id": "project-intelligence",
       "version": "0.6.0",
-      "checksum": "d0922c534ce900ee5da0376ececf7853cb930c42080cb9e324d648114804a5d3",
+      "checksum": "10dff2ff27d55e268b52a4b7152e02a8773b00930c16a5fa05b2c1068c4721d9",
       "type": "skill"
     },
     {
       "id": "prumo-navigation",
       "version": "0.6.0",
-      "checksum": "fd789d28608b596365fec7d28200d9a8ccfccedf8ad9bf42d16843fa3da5f941",
+      "checksum": "0c15b76f9fdefe0f6054c1883d97bf6101f102feb0fcee4aca2ed381113a84b5",
       "type": "skill"
     },
     {
       "id": "refactoring",
       "version": "0.6.0",
-      "checksum": "f9ac8cbf13c5b7e73726e09ebef7d459cfbad65c2e99255e6ce51112cc96c60e",
+      "checksum": "46c98bd49dadcd03b749735b70c01095792dfc5b79d28e046b98c11ef8076c5a",
       "type": "skill"
     },
     {
       "id": "release-engineering",
       "version": "0.6.0",
-      "checksum": "9d6ff0b1a7fcf39d4e0af9eb8ee602d5fb57d624d0acb9ddfb7e63f14bccc929",
+      "checksum": "09746a45f6e8a847434f7184833d045b4d94680549aea199bd8ddf315b896b91",
+      "type": "skill"
+    },
+    {
+      "id": "rendering-2d",
+      "version": "0.6.0",
+      "checksum": "56d703a16187a46bd4b29ead04e1a3392174a51b284839ed6d27dd9818a92fd6",
+      "type": "skill"
+    },
+    {
+      "id": "rendering-3d",
+      "version": "0.6.0",
+      "checksum": "8189617a47acf4ad2527259685444574dfada6ccc40b3523a1bb75f9508404e3",
+      "type": "skill"
+    },
+    {
+      "id": "scene-graph",
+      "version": "0.6.0",
+      "checksum": "5c9a14d0c41a2b682fea94ffdc210059c27ce8c4df03ee32542a920a4e40e2e9",
+      "type": "skill"
+    },
+    {
+      "id": "screen-reader",
+      "version": "0.6.0",
+      "checksum": "6cbd0eab0299dfb1505644cc16a9cb00bd98efdda229d9d514db5ba688dbf3a5",
+      "type": "skill"
+    },
+    {
+      "id": "secrets-security",
+      "version": "0.6.0",
+      "checksum": "2aa9fd4290a32d1aac0791608c609d650a7e565eee4b006652ae31b883db8bbb",
+      "type": "skill"
+    },
+    {
+      "id": "secure-coding",
+      "version": "0.6.0",
+      "checksum": "02663c3b05e3742677aa96dd9f526c0b40e405e4e7ec943f9e0da7b902a2a496",
+      "type": "skill"
+    },
+    {
+      "id": "security-review",
+      "version": "0.6.0",
+      "checksum": "7f4ea52c6680f25850e4be3d7dc2c471bcd4d33f853a38e50797286f2ef6469e",
+      "type": "skill"
+    },
+    {
+      "id": "serialization",
+      "version": "0.6.0",
+      "checksum": "5bea4fcc676d9fe7c3d8f350aba3ba5f08cc240ba51d6c82fb1fb6494b2a6374",
+      "type": "skill"
+    },
+    {
+      "id": "shaders",
+      "version": "0.6.0",
+      "checksum": "77afd7e2e5ca96956d70d3b904b4eb648dd9fd5670f59be459738682dcd0e448",
+      "type": "skill"
+    },
+    {
+      "id": "state-management",
+      "version": "0.6.0",
+      "checksum": "b15e98f0268633f18037ed7ec78324d3991b43b42ecbfa2ef26ced2aa2a56f4d",
+      "type": "skill"
+    },
+    {
+      "id": "supply-chain-security",
+      "version": "0.6.0",
+      "checksum": "decf4d227d541c14e8f7fc6ce42a6e27d377300c8c2a6e8f104080c244da0ad7",
       "type": "skill"
     },
     {
       "id": "testing-quality",
       "version": "0.6.0",
-      "checksum": "0d7844fc4994270a1122e3f5c8a0cc8f55f554df8e49542128eab504fda67c48",
+      "checksum": "5139bb7b4b841ae91b072d1ce6fd943df47f526bee574986eaca36efa67110e4",
+      "type": "skill"
+    },
+    {
+      "id": "threat-modeling",
+      "version": "0.6.0",
+      "checksum": "a1ad5840f47f205c6627aa0786c7b6dccc5c1687fabf7381c908fb5e2fe3105d",
+      "type": "skill"
+    },
+    {
+      "id": "tree-sitter-context-indexing",
+      "version": "0.6.0",
+      "checksum": "13a21782d6701255942e0b1c73d767a1f05faa20d46ffad5af715f485c8dced8",
+      "type": "skill"
+    },
+    {
+      "id": "ts-morph-context-indexing",
+      "version": "0.6.0",
+      "checksum": "8c2625860f14039d51401564229fa25e95103ca7a92593006232cb54930d680b",
+      "type": "skill"
+    },
+    {
+      "id": "ui-implementation",
+      "version": "0.6.0",
+      "checksum": "986bc5000fdc7699aa89193e3e53c7a07823d3333a6f8d3447f0ec0ea1188538",
+      "type": "skill"
+    },
+    {
+      "id": "ui-ux-review",
+      "version": "0.6.0",
+      "checksum": "5e2a69f3fbdc7f81d57c4e1a107edea9968c4b903b4148a1812ecaa5f1cc48ac",
+      "type": "skill"
+    },
+    {
+      "id": "user-flows",
+      "version": "0.6.0",
+      "checksum": "d7441018a7b756132f3bec960309807e4b34344af107e76dc7ea5c5e9c6870b3",
+      "type": "skill"
+    },
+    {
+      "id": "ux-architecture",
+      "version": "0.6.0",
+      "checksum": "c3414d17f62b9bdbbd375fea8b94a73ad04d934898b960ebd8742d47ca6e5d36",
+      "type": "skill"
+    },
+    {
+      "id": "visual-qa",
+      "version": "0.6.0",
+      "checksum": "cc128a21cf36dde9c74bbe45142de5445d82ba32a6e5754869dfadf7155361bf",
+      "type": "skill"
+    },
+    {
+      "id": "visual-reference-research",
+      "version": "0.6.0",
+      "checksum": "19ccd9e1304c8b30255960a7effe3d0d40b3fdd5d337bb7023f8fa7dc48b350d",
+      "type": "skill"
+    },
+    {
+      "id": "visual-regression",
+      "version": "0.6.0",
+      "checksum": "d66b16b08417cc52c59e7546bde2c3117991aed95f937df37fc0a883ef858cde",
+      "type": "skill"
+    },
+    {
+      "id": "website-forensics",
+      "version": "0.6.0",
+      "checksum": "416083cce3eae995cac85be36163a2c38e36ff548428bca0ad2dec7c7fc804dd",
+      "type": "skill"
+    },
+    {
+      "id": "wireframing",
+      "version": "0.6.0",
+      "checksum": "e5419937aaddc476665b13970a041ed4108a7909c066c82d05e22d8adfd0408d",
+      "type": "skill"
+    },
+    {
+      "id": "zoom-reflow",
+      "version": "0.6.0",
+      "checksum": "2b060dd09d9ab5e7596f5dd048529e1a4c62ca4e849c6c90795e3f696fd9e6e3",
       "type": "skill"
     }
   ]

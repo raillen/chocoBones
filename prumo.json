@@ -152,15 +152,17 @@
   ],
   "stack": {
     "languages": [
-      "odin"
+      "typescript",
+      "wgsl"
     ],
     "runtime": [
-      "raylib",
-      "cimgui",
-      "odin-core"
+      "node",
+      "webgpu",
+      "slint"
     ],
     "tooling": [
-      "odin"
+      "pnpm",
+      "typescript"
     ]
   },
   "version": 3

@@ -1,8 +1,8 @@
 {
   "id": "threat-modeling",
   "name": "Threat Modeling",
-  "version": 2,
-  "schema_version": 3,
+  "version": 1,
+  "schema_version": 2,
   "purpose": "Enumerate trust boundaries, attack vectors, privilege levels, and abuse cases.",
   "risk_level": "high",
   "modes": [
@@ -10,14 +10,14 @@
     "audit"
   ],
   "inputs": [
-    "System architecture, data-flow diagram, and trust boundaries",
-    "Critical assets, data flows, and attacker-reachable surfaces",
-    "Threat actors, abuse cases, and existing security controls"
+    "Security policy",
+    "Target codebase",
+    "Threat model"
   ],
   "outputs": [
-    "DFD, trust-boundary map, and STRIDE threat inventory",
-    "Prioritized abuse cases with owners and mitigations",
-    "Security requirements, residual risks, and re-review trigger"
+    "Security audit report",
+    "Vulnerability remediation patches",
+    "Security gate evidence"
   ],
   "requires": [],
   "conflicts": [],
@@ -26,29 +26,21 @@
     "filesystem.write",
     "process.spawn"
   ],
-  "references": [
-    "references/stride-methodology.md"
-  ],
+  "references": [],
   "templates": [
     "templates/threat-modeling-report.md"
   ],
   "checks": [
     "checks/threat-modeling-checklist.md"
   ],
-  "scripts": [
-    "scripts/stride_template_gen.sh",
-    "scripts/verify.sh"
-  ],
-  "examples": [
-    "examples/sample-threat-model.md",
-    "examples/ecommerce_threat_model.md"
-  ],
+  "scripts": [],
+  "examples": [],
   "required_evidence": [
     "security-scan",
     "test"
   ],
   "stop_conditions": [
-    "Every prioritized threat has an owner, mitigation, residual-risk decision, and verification status",
+    "Task acceptance criteria satisfied with evidence",
     "Token budget exhausted",
     "Blocked on external dependency"
   ],
@@ -56,9 +48,9 @@
     "origin": "framework",
     "license": "MIT",
     "source": "prumo",
-    "version": "0.4.0",
+    "version": "0.3.0",
     "checksum": "",
-    "modified": "2026-09-23"
+    "modified": "2026-08-14"
   },
   "select": {
     "risk_any": [

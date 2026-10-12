@@ -6,9 +6,9 @@
     "type": ["game-engine", "desktop", "library"]
   },
   "stack": {
-    "languages": ["odin"],
-    "runtime": ["raylib", "cimgui", "odin-core"],
-    "tooling": ["odin"]
+    "languages": ["typescript", "wgsl"],
+    "runtime": ["bun", "webgpu", "slint"],
+    "tooling": ["bun", "typescript"]
   },
   "features": [
     "rendering",

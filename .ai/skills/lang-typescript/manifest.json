@@ -1,26 +1,24 @@
 {
   "id": "lang-typescript",
-  "name": "TypeScript Strict Soundness, Domain Modeling & Boundary Validation",
-  "version": 2,
-  "schema_version": 3,
-  "purpose": "Enforce TypeScript 5.x+ strict mode, zero 'any', branded domain types, exhaustive discriminated unions with never checks, and runtime boundary schema validation.",
-  "risk_level": "medium",
+  "name": "TypeScript Strict Soundness & Boundary Schemas",
+  "version": 1,
+  "schema_version": 2,
+  "purpose": "Enforce strict TypeScript compiler mode (noImplicitAny, strictNullChecks), branded types, runtime boundary schema validation (Zod/Valibot), and prohibition of 'any'.",
+  "risk_level": "high",
   "modes": [
     "implementation",
     "review",
-    "testing",
-    "audit"
+    "testing"
   ],
   "inputs": [
-    "TypeScript source files (*.ts, *.tsx)",
-    "Compiler configuration (tsconfig.json)",
-    "Active task acceptance criteria"
+    "Source code",
+    "Project configuration",
+    "Task acceptance criteria"
   ],
   "outputs": [
-    "Strictly sound TypeScript source implementations",
-    "Nominal branded domain models and schemas",
-    "Type check and compiler diagnostic evidence",
-    "TypeScript Verification Report"
+    "Hardened source code",
+    "Verification evidence",
+    "Test evidence"
   ],
   "requires": [
     "clean-code",
@@ -49,34 +47,31 @@
   ],
   "required_evidence": [
     "test",
+    "build",
     "lint"
   ],
   "stop_conditions": [
     "Task acceptance criteria satisfied with evidence",
-    "tsc --noEmit passes with zero diagnostics",
-    "Zero occurrences of any, @ts-ignore, or unhandled discriminated unions",
-    "Token budget exhausted",
-    "Blocked on external dependency"
+    "tsc --noEmit with 0 errors",
+    "Token budget exhausted"
   ],
   "provenance": {
     "origin": "framework",
     "license": "MIT",
     "source": "prumo",
-    "version": "0.6.0",
+    "version": "0.4.0",
     "checksum": "",
-    "modified": "2026-09-23"
+    "modified": "2026-09-09"
   },
   "select": {
     "stack_any": [
       "typescript",
       "ts",
-      "tsx",
-      "zod",
-      "node",
-      "bun",
-      "deno"
+      "tsc"
     ]
   },
   "requires_any": [],
-  "tools": []
+  "tools": [
+    "check-escape-hatches"
+  ]
 }
