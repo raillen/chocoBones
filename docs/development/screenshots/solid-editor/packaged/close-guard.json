@@ -1,0 +1,22 @@
+{
+  "runtime": "native-electrobun-cef-stable",
+  "display": ":122",
+  "window": "0x1400001",
+  "url": "views://editor/index.html?qa=1",
+  "event": "X11 WM_PROTOCOLS/WM_DELETE_WINDOW ClientMessage",
+  "checks": [
+    "native-window-close-opens-unsaved-confirmation",
+    "native-window-close-cancel-preserves-window-and-document",
+    "native-window-close-canceled-save-preserves-window-and-document",
+    "native-window-close-discard-closes-owned-window"
+  ],
+  "errors": [],
+  "firstEvent": "WM_DELETE_WINDOW sent to 0x1400001",
+  "capture": {
+    "file": "08-native-close-confirmation.png",
+    "sha256": "536cbec6492135ab9b5445a7bea03de89bfa567d982f33455a2d66ad8ee87947"
+  },
+  "secondEvent": "WM_DELETE_WINDOW sent to 0x1400001",
+  "thirdEvent": "WM_DELETE_WINDOW sent to 0x1400001",
+  "failure": null
+}

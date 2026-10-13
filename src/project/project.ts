@@ -72,6 +72,7 @@ export type ProjectLayer = z.infer<typeof ProjectLayerSchema>;
 
 export const ProjectPinSchema = z.object({
   id: z.string(),
+  name: z.string().default(""),
   meshId: z.string().default(""),
   x: z.number(),
   y: z.number(),
@@ -79,6 +80,8 @@ export const ProjectPinSchema = z.object({
   offsetY: z.number().default(0),
   locked: z.boolean().default(false),
   enabled: z.boolean().default(true),
+  anchorMode: z.enum(["free", "joint", "world"]).default("free"),
+  anchorJoint: z.string().default(""),
   radius: z.number().default(64),
   falloff: z.number().default(1.5),
   strength: z.number().default(1),
@@ -102,6 +105,13 @@ export const ProjectMeshSchema = z.object({
   mode: z.string().default("Pins"),
   skinning: z.string().default("Linear"),
   strength: z.number().default(1),
+  deformation: z.enum(["MLS", "ARAP"]).default("MLS"),
+  build: z.object({
+    rows: z.number().int().min(4).max(48), cols: z.number().int().min(4).max(48),
+    alphaThreshold: z.number().int().min(1).max(255),
+    refineEdges: z.boolean(), edgeSize: z.number().finite().min(2).max(32),
+  }).optional(),
+  buildStats: z.object({ refinedCells: z.number().int().nonnegative(), budgetLimited: z.boolean() }).optional(),
 });
 
 export type ProjectMesh = z.infer<typeof ProjectMeshSchema>;
@@ -165,8 +175,8 @@ export const ProjectSchema = z.object({
   schema: z.literal("survivor-puppet"),
   version: z.number().int().default(1),
   name: z.string(),
-  width: z.number().int().default(512),
-  height: z.number().int().default(512),
+  width: z.number().int().positive().max(4096).default(512),
+  height: z.number().int().positive().max(4096).default(512),
   assets: z.array(ProjectAssetSchema).default([]),
   joints: z.array(ProjectJointSchema).default([]),
   layers: z.array(ProjectLayerSchema).default([]),
@@ -186,7 +196,7 @@ export const MAX_PROJECT_BYTES = 20 * 1024 * 1024;
  * Rejeita ciclos hierárquicos e entradas acima do limite de tamanho.
  */
 export function loadProjectFromJson(jsonString: string): Project {
-  if (jsonString.length > MAX_PROJECT_BYTES) {
+  if (new TextEncoder().encode(jsonString).byteLength > MAX_PROJECT_BYTES) {
     throw new Error(`Projeto excede limite de ${MAX_PROJECT_BYTES} bytes`);
   }
   const parsed: unknown = JSON.parse(jsonString);
@@ -214,7 +224,11 @@ export function loadProjectFromJson(jsonString: string): Project {
 export function saveProjectToJson(project: Project): string {
   // Valida antes de serializar para garantir conformidade
   const validated = ProjectSchema.parse(project);
-  return JSON.stringify(validated, null, 2);
+  const json = JSON.stringify(validated, null, 2);
+  if (new TextEncoder().encode(json).byteLength > MAX_PROJECT_BYTES) {
+    throw new Error(`Projeto excede limite de ${MAX_PROJECT_BYTES} bytes`);
+  }
+  return json;
 }
 
 /** Migra projeto v1 (só joints/layers) para v2 com coleções vazias explícitas. */
@@ -246,9 +260,31 @@ export function isProjectV2(project: Project): boolean {
 
 /** Converte caminho absoluto em portable (relativo POSIX ao dir do projeto). */
 export function toPortablePath(absPath: string, projectDir: string): string {
-  const path = require("node:path") as typeof import("node:path");
-  const rel = path.relative(projectDir, absPath);
-  return rel.split(path.sep).join("/");
+  const base = normalizedProjectPath(projectDir);
+  const target = normalizedProjectPath(absPath, projectDir);
+  if (base.root.toLowerCase() !== target.root.toLowerCase()) return target.root + target.parts.join("/");
+  const insensitive = /^[A-Za-z]:/.test(base.root);
+  let shared = 0;
+  while (shared < base.parts.length && shared < target.parts.length &&
+      (insensitive ? base.parts[shared]!.toLowerCase() === target.parts[shared]!.toLowerCase() : base.parts[shared] === target.parts[shared])) shared++;
+  return [...base.parts.slice(shared).map(() => ".."), ...target.parts.slice(shared)].join("/");
+}
+
+/** Portable normalization supports POSIX, Windows drive and UNC paths without Node globals. */
+function normalizedProjectPath(value: string, relativeTo = "/"): { root: string; parts: string[] } {
+  if (value.includes("\0")) throw new Error("Path inválido");
+  let normalized = value.replace(/\\/g, "/");
+  const absolute = /^(?:\/|[A-Za-z]:\/)/.test(normalized);
+  if (!absolute) normalized = relativeTo.replace(/\\/g, "/").replace(/\/$/, "") + "/" + normalized;
+  const drive = normalized.match(/^[A-Za-z]:\//)?.[0];
+  const unc = normalized.match(/^\/\/[^/]+\/[^/]+\//)?.[0];
+  const root = drive ?? unc ?? "/";
+  const parts: string[] = [];
+  for (const part of normalized.slice(root.length).split("/")) {
+    if (!part || part === ".") continue;
+    if (part === "..") parts.pop(); else parts.push(part);
+  }
+  return { root, parts };
 }
 
 /**
@@ -256,15 +292,15 @@ export function toPortablePath(absPath: string, projectDir: string): string {
  * Permite subpaths e basename simples; bloqueia `..` que sai da raiz e absolutos.
  */
 export function resolvePortablePath(portable: string, projectDir: string): string {
-  const path = require("node:path") as typeof import("node:path");
   if (portable.includes("\0")) throw new Error("Path inválido");
-  const normalized = portable.replace(/\\/g, "/");
-  const resolved = path.resolve(projectDir, normalized);
-  const rel = path.relative(projectDir, resolved);
-  if (rel.startsWith("..") || path.isAbsolute(normalized) && !resolved.startsWith(projectDir)) {
+  const base = normalizedProjectPath(projectDir);
+  const target = normalizedProjectPath(portable, projectDir);
+  const insensitive = /^[A-Za-z]:/.test(base.root);
+  if (base.root.toLowerCase() !== target.root.toLowerCase() || base.parts.length > target.parts.length ||
+      base.parts.some((part, i) => insensitive ? part.toLowerCase() !== target.parts[i]!.toLowerCase() : part !== target.parts[i])) {
     throw new Error(`Asset path escapa do projeto: ${portable}`);
   }
-  return resolved;
+  return target.root + target.parts.join("/");
 }
 
 /** Normaliza manifest: preenche uri portátil quando ausente (basename). */

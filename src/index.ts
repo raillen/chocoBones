@@ -4,6 +4,7 @@
  */
 
 import path from "node:path";
+import { readFileSync } from "node:fs";
 import * as slint from "slint-ui";
 import { bindSlintWindow, createInitialAppState } from "./ui/bridge";
 
@@ -13,7 +14,7 @@ async function main(): Promise<void> {
   const ui = slint.loadFile(uiFilePath);
 
   const window = new (ui as any).MainWindow();
-  const state = createInitialAppState();
+  const state = createInitialAppState(undefined, { objText: readFileSync(path.resolve(baseDir, "../assets/models/suzanne.obj"), "utf8") });
 
   const cleanup = bindSlintWindow(window, state);
 

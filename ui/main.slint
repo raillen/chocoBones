@@ -1,8 +1,9 @@
 // chocoBones — chrome contínuo, neutro e orientado ao documento.
 import { VerticalBox, HorizontalBox, ScrollView, Slider } from "std-widgets.slint";
-import { StudioPalette, StudioButton, PanelTitle, StudioScrub, StudioSwatch } from "studio-controls.slint";
+import { StudioPalette, StudioButton, PanelTitle, StudioScrub, StudioSwatch, StudioField } from "studio-controls.slint";
 export struct JointRow { id: string, name: string, parent: string, color: string }
 export struct LayerRow { id: string, name: string, joint: string, visible: bool, locked: bool, opacity: float }
+export struct PinRow { id: string, name: string, locked: bool }
 export struct ToolEntry { id: string, label: string, icon: image }
 export component MainWindow inherits Window {
     title: "chocoBones — Estúdio de personagens";
@@ -33,7 +34,7 @@ export component MainWindow inherits Window {
     in-out property <string> dock_tab: "Elementos";
     out property <string> tool_label: active_tool == "Move" ? "Mover" : active_tool == "Rotate" ? "Girar" :
         active_tool == "Scale" ? "Escala" : active_tool == "Pivot" ? "Pivô" : active_tool == "Joint" ? "Juntas" :
-        active_tool == "CreateBone" ? "Criar osso" : active_tool == "Pose" ? "Pose" : active_tool == "Pin" ? "Pinos MLS" : "Pesos";
+        active_tool == "CreateBone" ? "Criar osso" : active_tool == "Pose" ? "Pose" : active_tool == "Pin" ? "Pinos de deformação" : "Pesos";
     property <[ToolEntry]> tools: [
         {id: "Move", label: "Mover", icon: @image-url("../assets/icons/phosphor/svg/regular/cursor.svg")},
         {id: "Rotate", label: "Girar", icon: @image-url("../assets/icons/phosphor/svg/regular/arrow-u-up-left.svg")},
@@ -42,9 +43,52 @@ export component MainWindow inherits Window {
         {id: "Joint", label: "Juntas", icon: @image-url("../assets/icons/phosphor/svg/regular/bone.svg")},
         {id: "CreateBone", label: "Criar osso", icon: @image-url("../assets/icons/phosphor/svg/regular/plus.svg")},
         {id: "Pose", label: "Pose", icon: @image-url("../assets/icons/phosphor/svg/regular/person-arms-spread.svg")},
-        {id: "Pin", label: "Pinos MLS", icon: @image-url("../assets/icons/phosphor/svg/regular/push-pin.svg")},
+        {id: "Pin", label: "Pinos", icon: @image-url("../assets/icons/phosphor/svg/regular/push-pin.svg")},
         {id: "Weight", label: "Pesos", icon: @image-url("../assets/icons/phosphor/svg/regular/paint-brush.svg")}
     ];
+    in-out property <bool> has_sprite: false;
+    in-out property <bool> import_busy: false;
+    in-out property <string> png_path: "";
+    in-out property <float> canvas_width: 512;
+    in-out property <float> canvas_height: 512;
+    in-out property <float> mesh_rows: 16;
+    in-out property <float> mesh_cols: 16;
+    in-out property <float> alpha_threshold: 10;
+    in-out property <float> mesh_triangles: 0;
+    in-out property <float> mesh_vertices: 0;
+    in-out property <bool> refine_edges: false;
+    in-out property <float> edge_size: 4;
+    in-out property <bool> mesh_budget_limited: false;
+    in-out property <string> deformation: "MLS";
+    in-out property <bool> show_mesh: true;
+    in-out property <bool> show_skeleton: true;
+    in-out property <bool> onion_skin: false;
+    in-out property <bool> snap_pins: true;
+    in-out property <float> motion_amplitude: 12;
+    in-out property <float> motion_frequency: 0.625;
+    in-out property <string> motion_preset: "breath";
+    in-out property <[PinRow]> pins_list;
+    in-out property <string> selected_pin_id;
+    in-out property <string> selected_pin_name;
+    in-out property <bool> selected_pin_locked;
+    in-out property <float> selected_pin_radius: 0;
+    in-out property <float> selected_pin_strength: 1;
+    in-out property <bool> performance_armed: false;
+    callback choose_png();
+    callback import_png_file(string);
+    callback fit_canvas();
+    callback rebuild_mesh();
+    callback set_deformation(string);
+    callback auto_pins();
+    callback set_sprite_parameter(string, string);
+    callback toggle_sprite_overlay(string);
+    callback choose_pin(string);
+    callback lock_selected_pin();
+    callback remove_selected_pin();
+    callback apply_pin_motion(string);
+    callback key_pin_pose();
+    callback arm_performance();
+    callback export_spritesheet();
     // =========================================================================
     // ESTADO DA APLICAÇÃO
     // =========================================================================
@@ -166,6 +210,7 @@ export component MainWindow inherits Window {
                 StudioButton { has-icon: true; icon: @image-url("../assets/icons/phosphor/svg/regular/file-plus.svg"); description: "Novo projeto"; clicked => { root.new_project(); } }
                 StudioButton { has-icon: true; icon: @image-url("../assets/icons/phosphor/svg/regular/folder-open.svg"); description: "Abrir projeto"; clicked => { root.load_project(); } }
                 StudioButton { has-icon: true; icon: @image-url("../assets/icons/phosphor/svg/regular/floppy-disk.svg"); description: "Salvar projeto"; clicked => { root.save_project(); } }
+                StudioButton { has-icon: true; icon: @image-url("../assets/icons/phosphor/svg/regular/image.svg"); description: "Importar PNG"; enabled: !root.import_busy; clicked => { root.choose_png(); } }
                 StudioButton { label: root.compact_layout ? "PNG" : "Exportar PNG"; quiet: false; clicked => { root.export_png(); } }
                 StudioButton { has-icon: true; icon: @image-url("../assets/icons/phosphor/svg/regular/gear.svg"); description: "Aparência"; active: root.appearance_open; clicked => { root.appearance_open = !root.appearance_open; } }
             }
@@ -180,8 +225,9 @@ export component MainWindow inherits Window {
                 Rectangle { width: 1px; height: 16px; background: StudioPalette.border; }
                 StudioButton { label: "Repouso"; height: 24px; active: root.editor_mode == "Setup"; clicked => { root.set_editor_mode("Setup"); } }
                 StudioButton { label: "Pose"; height: 24px; active: root.editor_mode == "Animate"; clicked => { root.set_editor_mode("Animate"); } }
-                if root.active_workspace == "Rig" || root.active_workspace == "Animacao": StudioButton { label: root.ik_enabled ? "IK ligado" : "IK desligado"; height: 24px; active: root.ik_enabled; clicked => { root.toggle_ik(); } }
+                if !root.has_sprite && (root.active_workspace == "Rig" || root.active_workspace == "Animacao"): StudioButton { label: root.ik_enabled ? "IK ligado" : "IK desligado"; height: 24px; active: root.ik_enabled; clicked => { root.toggle_ik(); } }
                 if root.active_workspace == "Montagem": StudioButton { label: "+ Camada"; height: 24px; clicked => { root.add_layer(); } }
+                StudioButton { label: "Puppet"; height: 24px; active: root.dock_tab == "Puppet"; clicked => { root.dock_tab = root.dock_tab == "Puppet" ? "Elementos" : "Puppet"; } }
                 Rectangle { horizontal-stretch: 1; }
                 if !root.compact_layout: Text { text: root.element_tab == "Juntas" ? root.selected_joint_name : root.selected_layer_name; color: StudioPalette.muted; font-size: 11px; vertical-alignment: center; }
                 StudioButton { label: "2D"; height: 24px; active: root.viewport_mode == "2D"; clicked => { root.set_viewport_mode("2D"); } }
@@ -217,7 +263,7 @@ export component MainWindow inherits Window {
                     height: 27px; background: StudioPalette.surface;
                     HorizontalLayout {
                         padding-left: 12px; padding-right: 12px;
-                        Text { text: "Personagem · " + (root.viewport_mode == "2D" ? "Esqueleto 2D" : "Malha 3D"); color: StudioPalette.text; font-size: 11px; vertical-alignment: center; }
+                        Text { text: "Personagem · " + (root.viewport_mode == "2D" ? "Palco 2D" : "Malha 3D"); color: StudioPalette.text; font-size: 11px; vertical-alignment: center; }
                         Text { text: root.active_workspace == "Animacao" ? "Clipe: " + root.active_clip_name : root.editor_mode == "Setup" ? "Editar estrutura de repouso" : "Editar pose"; color: StudioPalette.muted; font-size: 10px; horizontal-alignment: right; vertical-alignment: center; }
                     }
                     Rectangle { y: parent.height - 1px; height: 1px; width: 100%; background: StudioPalette.border; }
@@ -252,8 +298,8 @@ export component MainWindow inherits Window {
                                 StudioButton { has-icon: true; icon: root.is_playing ? @image-url("../assets/icons/phosphor/svg/regular/pause.svg") : @image-url("../assets/icons/phosphor/svg/regular/play.svg"); active: root.is_playing; description: root.is_playing ? "Pausar" : "Reproduzir"; clicked => { root.toggle_play(); } }
                                 StudioButton { label: "Repouso"; clicked => { root.reset_to_rest(); } }
                                 Rectangle { width: 1px; height: 16px; background: StudioPalette.border; }
-                                StudioButton { label: "Idle"; active: root.active_clip_name == "idle"; clicked => { root.select_clip("idle"); } }
-                                StudioButton { label: "Walk"; active: root.active_clip_name == "walk"; clicked => { root.select_clip("walk"); } }
+                                StudioButton { label: root.has_sprite ? "Respirar" : "Idle"; active: root.has_sprite ? root.active_clip_name == "Respiração" : root.active_clip_name == "idle"; clicked => { root.select_clip("idle"); } }
+                                StudioButton { label: root.has_sprite ? "Passos" : "Walk"; active: root.has_sprite ? root.active_clip_name == "Caminhada" : root.active_clip_name == "walk"; clicked => { root.select_clip("walk"); } }
                                 Rectangle { horizontal-stretch: 1; }
                                 Text { text: round(root.timeline_time * 100) / 100 + " / " + root.timeline_duration + " s"; color: StudioPalette.text; font-size: 11px; vertical-alignment: center; }
                             }
@@ -280,15 +326,111 @@ export component MainWindow inherits Window {
                 VerticalLayout {
                     spacing: 0px;
                     // Em telas estreitas, seções dividem abas para preservar o palco.
-                    if root.compact_layout: Rectangle {
+                    Rectangle {
                         height: 30px; background: StudioPalette.bg;
                         HorizontalLayout {
                             padding-left: 4px; padding-right: 4px; spacing: 2px;
                             StudioButton { label: "Elementos"; height: 24px; active: root.dock_tab == "Elementos"; clicked => { root.dock_tab = "Elementos"; } }
                             StudioButton { label: "Inspetor"; height: 24px; active: root.dock_tab == "Inspetor"; clicked => { root.dock_tab = "Inspetor"; } }
+                            StudioButton { label: "Puppet"; height: 24px; active: root.dock_tab == "Puppet"; clicked => { root.dock_tab = "Puppet"; } }
                         }
                     }
-                    if !root.compact_layout || root.dock_tab == "Elementos": VerticalLayout {
+                    if root.dock_tab == "Puppet": ScrollView {
+                        vertical-stretch: 1;
+                        VerticalLayout {
+                            spacing: 7px; padding: 8px;
+                            PanelTitle { label: "Imagem e canvas"; detail: round(root.canvas_width) + "×" + round(root.canvas_height); }
+                            HorizontalLayout {
+                                spacing: 4px;
+                                StudioButton { label: "Importar PNG"; quiet: false; enabled: !root.import_busy; clicked => { root.choose_png(); } }
+                                StudioButton { label: "Enquadrar"; quiet: false; clicked => { root.fit_canvas(); } }
+                            }
+                            StudioField { description: "Caminho do PNG"; value <=> root.png_path; committed(value) => { root.import_png_file(value); } }
+                            Text { text: "Cole um caminho PNG e pressione Enter."; font-size: 10px; color: StudioPalette.muted; }
+                            PanelTitle { label: "Malha por transparência"; detail: round(root.mesh_vertices) + " v / " + round(root.mesh_triangles) + " t"; }
+                            HorizontalLayout {
+                                spacing: 5px;
+                                Text { text: "Linhas"; color: StudioPalette.muted; font-size: 10px; vertical-alignment: center; }
+                                StudioField { description: "Linhas da malha"; value: root.mesh_rows + ""; committed(value) => { root.set_sprite_parameter("rows", value); } }
+                                Text { text: "Colunas"; color: StudioPalette.muted; font-size: 10px; vertical-alignment: center; }
+                                StudioField { description: "Colunas da malha"; value: root.mesh_cols + ""; committed(value) => { root.set_sprite_parameter("cols", value); } }
+                            }
+                            HorizontalLayout {
+                                spacing: 4px;
+                                Text { text: "Limiar alfa"; color: StudioPalette.muted; font-size: 11px; vertical-alignment: center; }
+                                StudioField { description: "Limiar alfa de 1 a 255"; value: root.alpha_threshold + ""; committed(value) => { root.set_sprite_parameter("alpha", value); } }
+                                StudioButton { label: "Aplicar"; quiet: false; enabled: root.has_sprite; clicked => { root.rebuild_mesh(); } }
+                            }
+                            HorizontalLayout {
+                                spacing: 4px;
+                                StudioButton { label: "Refinar contorno"; active: root.refine_edges; clicked => { root.toggle_sprite_overlay("refine"); } }
+                                StudioField { description: "Tamanho da célula no contorno, de 2 a 32 pixels; pressione Aplicar"; value: root.edge_size + ""; committed(value) => { root.set_sprite_parameter("edge", value); } }
+                                Text { text: "px"; color: StudioPalette.muted; font-size: 10px; vertical-alignment: center; }
+                            }
+                            if root.mesh_budget_limited: Text { text: "Limite de vértices atingido; parte do contorno usa células maiores."; wrap: word-wrap; font-size: 10px; color: StudioPalette.muted; }
+                            HorizontalLayout {
+                                spacing: 4px;
+                                StudioButton { label: "MLS"; active: root.deformation == "MLS"; enabled: root.has_sprite; clicked => { root.set_deformation("MLS"); } }
+                                StudioButton { label: "ARAP"; active: root.deformation == "ARAP"; enabled: root.has_sprite; clicked => { root.set_deformation("ARAP"); } }
+                            }
+                            Text { text: root.deformation == "ARAP" ? "ARAP preserva formas locais. Pinos na malha são alvos exatos." : "MLS usa raio e peso para distribuir a influência dos pinos."; wrap: word-wrap; font-size: 10px; color: StudioPalette.muted; }
+                            HorizontalLayout {
+                                spacing: 3px;
+                                StudioButton { label: "Malha"; active: root.show_mesh; clicked => { root.toggle_sprite_overlay("mesh"); } }
+                                StudioButton { label: "Ossos"; active: root.show_skeleton; clicked => { root.toggle_sprite_overlay("skeleton"); } }
+                                StudioButton { label: "Onion"; active: root.onion_skin; clicked => { root.toggle_sprite_overlay("onion"); } }
+                            }
+                            PanelTitle { label: "Pinos de deformação"; detail: root.pins_list.length + " pinos"; }
+                            HorizontalLayout {
+                                spacing: 4px;
+                                StudioButton { label: "Sugerir pinos"; quiet: false; enabled: root.has_sprite; clicked => { root.auto_pins(); } }
+                                StudioButton { label: "Snap alfa"; active: root.snap_pins; clicked => { root.toggle_sprite_overlay("snap"); } }
+                            }
+                            Text { text: "Repouso: clique para criar/mover. Pose: arraste para animar."; wrap: word-wrap; font-size: 10px; color: StudioPalette.muted; }
+                            for pin[i] in root.pins_list: StudioButton {
+                                label: pin.name; has-icon: true;
+                                icon: pin.locked ? @image-url("../assets/icons/phosphor/svg/regular/lock.svg") : @image-url("../assets/icons/phosphor/svg/regular/push-pin.svg");
+                                active: root.selected_pin_id == pin.id;
+                                clicked => { root.choose_pin(pin.id); }
+                            }
+                            HorizontalLayout {
+                                spacing: 3px;
+                                StudioButton { label: root.selected_pin_locked ? "Destravar" : "Fixar âncora"; quiet: false; enabled: root.selected_pin_id != ""; clicked => { root.lock_selected_pin(); } }
+                                StudioButton { has-icon: true; icon: @image-url("../assets/icons/phosphor/svg/regular/trash.svg"); description: "Remover pino"; enabled: root.selected_pin_id != ""; clicked => { root.remove_selected_pin(); } }
+                            }
+                            if root.selected_pin_id != "" && root.deformation == "MLS": HorizontalLayout {
+                                spacing: 4px;
+                                Text { text: "Raio"; color: StudioPalette.muted; font-size: 10px; vertical-alignment: center; }
+                                StudioField { description: "Raio local; zero significa toda a malha"; value: root.selected_pin_radius + ""; committed(value) => { root.set_sprite_parameter("radius", value); } }
+                                Text { text: "Peso"; color: StudioPalette.muted; font-size: 10px; vertical-alignment: center; }
+                                StudioField { description: "Influência relativa entre zero e um"; value: root.selected_pin_strength + ""; committed(value) => { root.set_sprite_parameter("strength", value); } }
+                            }
+                            PanelTitle { label: "Movimento assistido"; detail: "Keyframes"; }
+                            HorizontalLayout {
+                                spacing: 5px;
+                                Text { text: "Amplitude px"; font-size: 10px; color: StudioPalette.muted; vertical-alignment: center; }
+                                StudioField { description: "Amplitude em pixels"; value: root.motion_amplitude + ""; committed(value) => { root.set_sprite_parameter("amplitude", value); } }
+                                Text { text: "Hz"; font-size: 10px; color: StudioPalette.muted; vertical-alignment: center; }
+                                StudioField { description: "Frequência em Hz"; value: root.motion_frequency + ""; committed(value) => { root.set_sprite_parameter("frequency", value); } }
+                            }
+                            HorizontalLayout {
+                                spacing: 2px;
+                                StudioButton { label: "Respirar"; quiet: false; enabled: root.has_sprite; clicked => { root.apply_pin_motion("breath"); } }
+                                StudioButton { label: "Ondular"; quiet: false; enabled: root.has_sprite; clicked => { root.apply_pin_motion("sway"); } }
+                                StudioButton { label: "Passos"; quiet: false; enabled: root.has_sprite; clicked => { root.apply_pin_motion("walk"); } }
+                            }
+                            Text { text: "Aplicar substitui o clipe ativo; Desfazer recupera o anterior."; color: StudioPalette.muted; font-size: 10px; wrap: word-wrap; }
+                            HorizontalLayout {
+                                spacing: 3px;
+                                StudioButton { label: "Gravar pose"; quiet: false; enabled: root.has_sprite; clicked => { root.key_pin_pose(); } }
+                                StudioButton { label: "Gravar gesto"; active: root.performance_armed; enabled: root.has_sprite; clicked => { root.arm_performance(); } }
+                            }
+                            StudioButton { label: "Exportar spritesheet · 8 quadros"; quiet: false; enabled: root.has_sprite; clicked => { root.export_spritesheet(); } }
+                            Text { text: "PNG e spritesheet: transparência, sem grade, pinos ou ossos."; color: StudioPalette.muted; font-size: 10px; wrap: word-wrap; }
+                            Rectangle { vertical-stretch: 1; }
+                        }
+                    }
+                    if root.dock_tab != "Puppet" && (!root.compact_layout || root.dock_tab == "Elementos"): VerticalLayout {
                         spacing: 0px;
                         PanelTitle { label: "Elementos"; detail: root.element_tab == "Juntas" ? root.joints_list.length + " juntas" : root.layers_list.length + " camadas"; }
                         HorizontalLayout {
@@ -350,7 +492,7 @@ export component MainWindow inherits Window {
                             StudioButton { label: "Excluir"; clicked => { root.remove_selected_layers(); } }
                         }
                     }
-                    if !root.compact_layout || root.dock_tab == "Inspetor": VerticalLayout {
+                    if root.dock_tab != "Puppet" && (!root.compact_layout || root.dock_tab == "Inspetor"): VerticalLayout {
                         spacing: 0px;
                         PanelTitle { label: "Transformação"; detail: root.element_tab == "Juntas" ? "Junta" : "Camada"; }
                         ScrollView {
@@ -403,7 +545,7 @@ export component MainWindow inherits Window {
                             }
                         }
                     }
-                    if !root.short_layout && !root.compact_layout: VerticalLayout {
+                    if root.dock_tab != "Puppet" && !root.short_layout && !root.compact_layout: VerticalLayout {
                         spacing: 0px;
                         PanelTitle { label: "Navegador"; detail: root.viewport_mode; }
                         Rectangle {
@@ -417,7 +559,7 @@ export component MainWindow inherits Window {
                             StudioButton { has-icon: true; icon: @image-url("../assets/icons/phosphor/svg/regular/plus.svg"); description: "Aumentar zoom"; clicked => { root.zoom_in(); } }
                         }
                     }
-                    Rectangle { vertical-stretch: 1; }
+                    if root.dock_tab != "Puppet": Rectangle { vertical-stretch: 1; }
                 }
                 Rectangle { x: 0px; y: 0px; width: 1px; height: 100%; background: StudioPalette.border; }
             }

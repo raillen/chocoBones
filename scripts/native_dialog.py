@@ -23,7 +23,9 @@ def run_zenity(mode, title, filter_spec, multiple):
     if multiple and mode != "save":
         cmd.append("--multiple")
         cmd.append("--separator=\n")
-    if filter_spec == "image":
+    if filter_spec == "png":
+        cmd.append("--file-filter=PNG | *.png")
+    elif filter_spec == "image":
         cmd.append("--file-filter=Imagens (PNG, JPG, BMP, TGA) | *.png *.jpg *.jpeg *.bmp *.tga")
         cmd.append("--file-filter=Todos os arquivos | *")
     elif filter_spec == "project":
@@ -43,7 +45,9 @@ def run_kdialog(mode, title, filter_spec, multiple):
     if not shutil.which("kdialog"):
         return None
     pattern = "*"
-    if filter_spec == "image":
+    if filter_spec == "png":
+        pattern = "*.png"
+    elif filter_spec == "image":
         pattern = "*.png *.jpg *.jpeg *.bmp *.tga"
     elif filter_spec == "project":
         pattern = "*.json *.puppet.json"
@@ -80,7 +84,9 @@ def run_tkinter(mode, title, filter_spec, multiple):
         root.attributes("-topmost", True)
         
         types = [("Todos os arquivos", "*.*")]
-        if filter_spec == "image":
+        if filter_spec == "png":
+            types = [("PNG Image", "*.png")]
+        elif filter_spec == "image":
             types = [
                 ("Imagens (PNG, JPG, BMP, TGA)", "*.png *.jpg *.jpeg *.bmp *.tga"),
                 ("PNG Image", "*.png"),

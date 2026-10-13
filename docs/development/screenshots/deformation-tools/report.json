@@ -1,0 +1,272 @@
+{
+  "display": ":119",
+  "source": "assets/test-kits/frontier-survival/vector-rig/base-survivor.png",
+  "checks": [
+    "native-slint-window-visible",
+    "png-import-defaults-to-mls-and-unrefined-grid",
+    "capture-01-mls-regular-rest",
+    "native-pointer-drag-deforms-texture-without-editing-rest",
+    "capture-02-mls-regular-posed",
+    "native-solver-choice-retains-pose-and-arap-exact-embedded-handles",
+    "capture-03-arap-regular-posed",
+    "native-locked-pin-cannot-drag-and-remains-exact-arap-anchor",
+    "native-alpha-refinement-rebuild-preserves-model-pins-and-pose-with-bounded-mesh",
+    "capture-04-arap-refined-posed",
+    "capture-05-arap-refined-detail",
+    "capture-06-arap-refined-light",
+    "capture-07-arap-refined-artwork",
+    "refined-arap-transparent-export-excludes-editor-overlays",
+    "native-save-load-retains-arap-refinement-settings-and-identical-artwork"
+  ],
+  "captures": [
+    {
+      "name": "01-mls-regular-rest",
+      "file": "01-mls-regular-rest.png",
+      "theme": "Dark",
+      "size": {
+        "width": 1400,
+        "height": 1000
+      },
+      "viewport": [
+        1092,
+        747
+      ],
+      "deformation": "MLS",
+      "build": {
+        "rows": 16,
+        "cols": 16,
+        "alphaThreshold": 10,
+        "refineEdges": false,
+        "edgeSize": 4
+      },
+      "vertices": 101,
+      "triangles": 152,
+      "buildStats": {
+        "refinedCells": 0,
+        "budgetLimited": false
+      },
+      "zoom": 0.5989583333333334,
+      "pan": {
+        "x": 206.66666666666666,
+        "y": 20
+      },
+      "time": 0,
+      "frameHash": "7fd57c05c82c3ba5243860e45b0097305fba0f83802f25837edd8775c62a0963",
+      "screenshotHash": "a3aa3ea19eba41c8da5bc9fd6fb1208ba0b9bdd112d58b9f3237c74033266a4d"
+    },
+    {
+      "name": "02-mls-regular-posed",
+      "file": "02-mls-regular-posed.png",
+      "theme": "Dark",
+      "size": {
+        "width": 1400,
+        "height": 1000
+      },
+      "viewport": [
+        1092,
+        747
+      ],
+      "deformation": "MLS",
+      "build": {
+        "rows": 16,
+        "cols": 16,
+        "alphaThreshold": 10,
+        "refineEdges": false,
+        "edgeSize": 4
+      },
+      "vertices": 101,
+      "triangles": 152,
+      "buildStats": {
+        "refinedCells": 0,
+        "budgetLimited": false
+      },
+      "zoom": 0.5989583333333334,
+      "pan": {
+        "x": 206.66666666666666,
+        "y": 20
+      },
+      "time": 0,
+      "frameHash": "f7545c231a8a9440528b3e50cf2c9ab4085a3518088db1c5215fb9173dd69988",
+      "screenshotHash": "5d8541f23d9fa3e09a0d8b05c0d3a76d014f5f4a2fd2ed5bcacebf4eebd259bc"
+    },
+    {
+      "name": "03-arap-regular-posed",
+      "file": "03-arap-regular-posed.png",
+      "theme": "Dark",
+      "size": {
+        "width": 1400,
+        "height": 1000
+      },
+      "viewport": [
+        1092,
+        747
+      ],
+      "deformation": "ARAP",
+      "build": {
+        "rows": 16,
+        "cols": 16,
+        "alphaThreshold": 10,
+        "refineEdges": false,
+        "edgeSize": 4
+      },
+      "vertices": 101,
+      "triangles": 152,
+      "buildStats": {
+        "refinedCells": 0,
+        "budgetLimited": false
+      },
+      "zoom": 0.5989583333333334,
+      "pan": {
+        "x": 206.66666666666666,
+        "y": 20
+      },
+      "time": 0,
+      "frameHash": "05ead84d2967c2a59a706e94926d200f3a74a3efd19f69969c0c86e9ff342a42",
+      "screenshotHash": "0b88267f25ac510dcf1dbdb3e76e9a81cfecff6fb751ae0c0a663ec08f318597"
+    },
+    {
+      "name": "04-arap-refined-posed",
+      "file": "04-arap-refined-posed.png",
+      "theme": "Dark",
+      "size": {
+        "width": 1400,
+        "height": 1000
+      },
+      "viewport": [
+        1092,
+        747
+      ],
+      "deformation": "ARAP",
+      "build": {
+        "rows": 16,
+        "cols": 16,
+        "alphaThreshold": 10,
+        "refineEdges": true,
+        "edgeSize": 8
+      },
+      "vertices": 1303,
+      "triangles": 2152,
+      "buildStats": {
+        "refinedCells": 462,
+        "budgetLimited": false
+      },
+      "zoom": 0.5989583333333334,
+      "pan": {
+        "x": 206.66666666666666,
+        "y": 20
+      },
+      "time": 0,
+      "frameHash": "7545aff835e8a9f0fe67741c74d484f2562e5ba60661dd762ef6dced26dcb0cd",
+      "screenshotHash": "7eee72f6c415d3b3ff374e1e7dd694fe5236f3b8f0f919b23a6ed85b08f94b3b"
+    },
+    {
+      "name": "05-arap-refined-detail",
+      "file": "05-arap-refined-detail.png",
+      "theme": "Dark",
+      "size": {
+        "width": 1400,
+        "height": 1000
+      },
+      "viewport": [
+        1092,
+        747
+      ],
+      "deformation": "ARAP",
+      "build": {
+        "rows": 16,
+        "cols": 16,
+        "alphaThreshold": 10,
+        "refineEdges": true,
+        "edgeSize": 8
+      },
+      "vertices": 1303,
+      "triangles": 2152,
+      "buildStats": {
+        "refinedCells": 462,
+        "budgetLimited": false
+      },
+      "zoom": 1.169840494791667,
+      "pan": {
+        "x": 206.66666666666666,
+        "y": 20
+      },
+      "time": 0,
+      "frameHash": "0038d13d418c8022f17296e883d28e43f631dd8235ab5651260d9aea95901891",
+      "screenshotHash": "5931a8939052b9c55d852209980ce232e5991907b89ba9c40defa71fb54cda96"
+    },
+    {
+      "name": "06-arap-refined-light",
+      "file": "06-arap-refined-light.png",
+      "theme": "Light",
+      "size": {
+        "width": 1400,
+        "height": 1000
+      },
+      "viewport": [
+        1092,
+        747
+      ],
+      "deformation": "ARAP",
+      "build": {
+        "rows": 16,
+        "cols": 16,
+        "alphaThreshold": 10,
+        "refineEdges": true,
+        "edgeSize": 8
+      },
+      "vertices": 1303,
+      "triangles": 2152,
+      "buildStats": {
+        "refinedCells": 462,
+        "budgetLimited": false
+      },
+      "zoom": 0.5989583333333334,
+      "pan": {
+        "x": 206.66666666666666,
+        "y": 20
+      },
+      "time": 0,
+      "frameHash": "b78e4165c4e125296159ffdd30130f6e81adafa8957a5e2a9034f56dd05923b1",
+      "screenshotHash": "a16774c63fec86b9511775184b0b794692449232e465f1949c3853b57b475819"
+    },
+    {
+      "name": "07-arap-refined-artwork",
+      "file": "07-arap-refined-artwork.png",
+      "theme": "Dark",
+      "size": {
+        "width": 1400,
+        "height": 1000
+      },
+      "viewport": [
+        1092,
+        747
+      ],
+      "deformation": "ARAP",
+      "build": {
+        "rows": 16,
+        "cols": 16,
+        "alphaThreshold": 10,
+        "refineEdges": true,
+        "edgeSize": 8
+      },
+      "vertices": 1303,
+      "triangles": 2152,
+      "buildStats": {
+        "refinedCells": 462,
+        "budgetLimited": false
+      },
+      "zoom": 0.5989583333333334,
+      "pan": {
+        "x": 206.66666666666666,
+        "y": 20
+      },
+      "time": 0,
+      "frameHash": "dcc2028981005ae7092aae84193a58e8b1d00f7e7d9db0aee1eaf600f21aa820",
+      "screenshotHash": "f58a3cf0077f1a4ae0335688f5920289fa99a97367716c1c3dccda7ac9de9a2b"
+    }
+  ],
+  "limitations": [
+    "Headless Linux Slint software rendering; desktop platform packaging is outside this QA.",
+    "This validates a repository-owned single-image puppet; larger images and multi-layer rigs require separate coverage."
+  ]
+}

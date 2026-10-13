@@ -1,80 +1,78 @@
 # Interface do editor
 
-O editor atual usa TypeScript, Node.js e Slint. `ui/main.slint` compõe os espaços de trabalho; `ui/studio-controls.slint` define paleta e controles; `src/ui/bridge.ts` liga as ações ao documento. As descrições antigas de docking em Odin/ImGui não representam esta implementação.
+A GUI principal usa **SolidJS + TypeScript** numa webview **CEF do Electrobun 2.0.2**, com Bun no processo nativo. `src/desktop/view/App.tsx` compõe os painéis; `src/editor/controller.ts` mantém os comandos e o documento; `src/desktop/host/` cuida de arquivos e codecs. A implementação Slint permanece disponível por `pnpm run legacy:start`, como compatibilidade e referência histórica.
 
-## Leitura da referência e adaptação
+## Referência visual e organização
 
-A imagem de referência apresenta a mesma interface em quatro níveis de luminosidade. A estrutura permanece estável: duas barras superiores, ferramentas verticais à esquerda, documento dominante e painéis contínuos à direita. O azul externo é o fundo da apresentação. As grandes áreas azuis, laranjas e rosas dentro das janelas pertencem à ilustração, não ao tema do editor.
+A referência fornecida mostra a mesma estrutura em quatro luminosidades: barras superiores compactas, documento dominante, ferramentas e painéis separados por divisórias finas. O azul externo é o fundo da apresentação; azul, laranja e rosa dentro das janelas pertencem à ilustração. A adaptação mantém chrome neutro, poucos destaques e ícones Phosphor; não usa a paleta da ilustração como tema do produto.
 
-O primeiro plano dedica aproximadamente 80% da largura interna ao documento. O chrome é neutro, com divisórias finas e poucos elementos em destaque. A persona ativa usa uma cápsula ciano; alternativas ficam discretas. Cabeçalhos e abas organizam painéis encaixados, sem margens entre cards. Ícones monocromáticos e controles curtos sustentam a densidade. Mudar a luminosidade mantém posição, hierarquia e leitura dos controles.
+A primeira versão Slint concentrou importação, malha, pinos, presets e gravação numa coluna Puppet. A nova interface distribui esses controles conforme a tarefa e a seleção:
 
-A adaptação ao chocoBones segue estes princípios:
-
-| Referência | Aplicação no chocoBones |
+| Área | Conteúdo |
 |---|---|
-| Personas de edição | Montagem, Rig, Animação e Foco |
-| Barra contextual | Ferramenta, edição de repouso/pose, IK quando pertinente e vista 2D/3D |
-| Rail estreita | Nove ferramentas existentes, com SVGs Phosphor, sem emojis |
-| Documento dominante | Palco proporcional; buffer RGBA realmente entregue ao Slint |
-| Painéis encaixados | Elementos, Transformação e Navegador, separados por linhas de 1 px |
-| Abas de recursos de desenho | Camadas/juntas; opacidade para camada, posição/rotação para junta |
-| Configuração de aparência | Painel próprio com três luminosidades e seis acentos |
-| Barra inferior | Timeline dos clipes Idle/Walk e estado do editor |
+| Barra principal | Arquivo/Editar/Exibir, etapas Preparar/Rig/Animar, histórico, tema e salvar |
+| Barra do documento | Documento ativo, dimensões do canvas, importar e exportar |
+| Projeto à esquerda | Assets/camadas, estrutura de juntas e controles por pino |
+| Palco central | Seleção/movimento, pinos, juntas, navegação, overlays e enquadramento |
+| Inspetor à direita | Propriedades do documento ou seleção e ferramentas da etapa |
+| Timeline inferior | Trilhas de pinos/juntas/camadas, reprodução, scrub, keyframes e interpolação |
+| Estado | Mensagens de operações, seleção e contagem da malha |
 
-Não foram incluídos controles decorativos de pincéis, cores do desenho ou efeitos sem vínculo com ações existentes. O painel de aparência modifica a interface; a cor de destaque não muda as cores do rig. O fundo/grid do preview e da exportação continua seguindo o comportamento existente de tema do renderizador; esta mudança não separa essas duas superfícies.
+Os painéis têm separadores arrastáveis e persistem suas dimensões localmente. Dark/Dim/Light persistem nas preferências do host desktop ou no armazenamento do browser, sem alterar o documento. O modo Foco amplia o palco. Em tela compacta, o inspetor pode ser aberto/fechado para conservar espaço de edição; listas e propriedades têm rolagem. As [capturas Solid](screenshots/solid-editor/README.md) registram os tamanhos efetivamente verificados, separados dos limites da implementação Slint.
 
-## Sistema visual
+## Preparar, Rig e Animar
 
-`StudioPalette` compartilha cores semânticas entre todos os componentes, inclusive hover, foco, campos e seleção. Os temas são Dark (base `#202020`), Dim (`#393939`) e Light (`#DEDEDE`). O palco conserva as cores do renderizador. Os acentos são Ciano, Azul, Violeta, Rosa, Verde e Âmbar; o fundo da seleção deriva do acento ativo com transparência.
+**Preparar** recebe imagens PNG como camadas independentes. O inspetor apresenta propriedades da camada, vínculo a junta, transformações e construção da malha. Linhas/colunas, limiar alfa, refinamento e célula de contorno configuram a próxima reconstrução. O limite de vértices pode reduzir o detalhe pedido; o painel informa essa condição. Reconstruir preserva pinos e clipe.
 
-`StudioButton`, `StudioScrub` e `StudioSwatch` substituem os botões e sliders de aparência fixa do sistema. Fontes Inter Regular/Medium e ícones Phosphor usam os arquivos e licenças existentes em `assets/`. Controles ativos, foco e hover acompanham o tema. As descrições acessíveis identificam ferramentas e ações iconográficas.
+**Rig** expõe propriedades do pino/junta selecionado, sugestões aditivas de pinos, Snap alfa, MLS/ARAP e estruturas de ossos. Em repouso, pinos mudam sua posição local; em animação, editam offsets. Âncora fixa mantém o repouso da imagem e não representa uma constraint IK global. MLS usa raio/peso; ARAP impõe alvos exatos sobre a malha, e esses campos deixam de aparecer.
 
-A composição usa barra principal de 40 px, contexto de 34 px, rail de 40 px e dock de 268 px. Em 1400 px, o palco dispõe de 1092 px de largura. A timeline fica sob o palco, mantendo o inspetor disponível durante animação. Os presets de estrutura ficam no inspetor do espaço Rig, em vez de ocupar a barra de todos os espaços.
+**Animar** mostra controle da pose, presets Respiração/Balanço/Passos, amplitude/frequência, configuração do clipe e gravação. Presets substituem o clipe ativo com undo. Gesto grava um take de pino até quatro segundos. A timeline permite selecionar trilhas, inserir pose, mover/excluir keyframes e escolher Linear/Suave/Hold/Bézier. O seletor de interpolação não equivale a um editor gráfico de tangentes; mistura de clipes e editor gráfico de curvas continuam pendentes.
 
-## Adaptação e interação
+O documento possui comandos tipados; um arrasto constitui uma edição no histórico. Reatividade Solid acompanha o view model e as revisões, sem inserir pixels, buffers de geometria e caches na árvore reativa do DOM. Seleção e disponibilidade determinam as ações visíveis/ativas; estados vazios explicam o próximo passo.
 
-| Espaço | Organização |
+## Palco e responsividade
+
+Uma única webview compõe HTML, palco WebGL2 e overlay Canvas. Menus e diálogos podem ficar sobre o palco sem uma superfície GPU nativa separada. Texturas e buffers permanecem residentes na GPU; existe fallback de rasterização por software quando WebGL2 não está disponível.
+
+MLS/ARAP roda em worker com, no máximo, um cálculo em execução e uma pose pendente substituível. Alterações de geometria/configuração atualizam o worker; movimento e reprodução enviam poses. Buffers de saída são transferíveis e independentes dos arrays do documento/histórico. Resultados de um documento substituído são descartados; aceitar a última pose concluída do documento atual evita starvation em playback quando o solver demora mais que um refresh.
+
+O worker conserva a responsividade do chrome, mas não reduz a latência matemática. O benchmark anterior do ARAP CPU mediu aproximadamente 112 ms com 1.304 vértices apenas em `solve()`. WebGL2 acelera desenho, não a solução da malha. Exportação PNG/spritesheet usa raster CPU; filtragem e cobertura podem diferir do preview GPU.
+
+## Arquivos e atalhos
+
+No desktop, diálogos nativos abrem PNGs/projetos e escolhem a pasta de destino. O SDK utilizado não oferece save dialog TS: **Salvar como/Exportar** combina um modal da aplicação, nome de arquivo e seletor nativo de pasta. O modal também configura quadros/colunas de spritesheet e substituição de arquivo. Projetos incorporam as imagens; não dependem do caminho de origem.
+
+Novo/abrir projeto e fechar a janela desktop oferecem **Salvar/Descartar/Cancelar** quando há alterações. Cancelar a gravação mantém o documento aberto; alterações feitas durante uma gravação continuam marcadas como pendentes. Novo/abrir inicia um histórico próprio, evitando que undo restaure o documento anterior. Câmera, seleção, reprodução e tema não contam como alterações do projeto.
+
+No desenvolvimento web, importação usa arquivos reais escolhidos pelo browser e salvar/exportar gera downloads. Esse adaptador permite QA da interface, mas não comprova diálogo nativo ou RPC Electrobun.
+
+| Atalho | Ação |
 |---|---|
-| Montagem | Camadas, opacidade, ordem e visibilidade |
-| Rig | Juntas, vínculo, posição, rotação, IK e presets |
-| Animação | Camadas e inspetor, timeline com reprodução e scrubbing |
-| Foco | Palco ampliado; dock e timeline ocultos |
+| Ctrl/Cmd N, O, I | Novo, abrir projeto, importar PNG |
+| Ctrl/Cmd S; Shift S | Salvar; salvar como |
+| Ctrl/Cmd Z; Shift Z ou Y | Desfazer; refazer |
+| Enter; Home | Play/pause no palco; início do clipe |
+| Espaço + arrasto | Navegar no palco |
+| K | Inserir keyframe da pose |
+| V, P, B, H | Mover, pino, junta, navegar |
+| F; M | Enquadrar; mostrar/ocultar malha |
+| Delete/Backspace | Excluir seleção |
 
-A troca de espaço adapta a aba de elementos sem reconstruir o documento, interromper playback ou apagar seleção. As duas abas continuam acessíveis em cada espaço.
+Atalhos de edição não interceptam campos, selects e diálogos. Controles usam nomes acessíveis, foco visível e SVGs Phosphor existentes em `assets/icons/`; Inter permanece em `assets/fonts/`. Não há emojis.
 
-Abaixo de 1100 px, o dock usa 232 px e Elementos/Inspetor compartilham abas. Abaixo de 720 px de altura, a timeline fica compacta e o Navegador é oculto. Rail, listas e inspetor têm rolagem. O mínimo suportado é 760×560; não há docking livre ou persistência de layouts nesta versão Slint.
-
-A imagem do palco usa `image-fit: contain`. `src/ui/viewport/geometry.ts` transforma coordenadas lógicas da janela em pixels do buffer, descontando margens e escala. Cliques nas margens não iniciam edição; um arrasto iniciado na imagem pode continuar fora dela. Isso evita deslocar o picking ao redimensionar a janela e mantém a proporção do personagem.
-
-O palco encaminha atalhos existentes, incluindo Espaço, C, F/Home, Delete/Backspace e Alt+R, traduzindo os códigos especiais do Slint. Teclas não tratadas permanecem disponíveis para navegação de foco. Botões e acentos aceitam Espaço/Enter; timeline e opacidade aceitam setas e Home/End. Clique com Shift seleciona faixas de camadas. O painel de aparência intercepta cliques nas suas áreas vazias, evitando ações no palco ou nas barras por baixo dele.
-
-## Verificação reproduzível
-
-Na raiz do checkout:
+## Validação e histórico
 
 ```sh
 pnpm run typecheck
-pnpm run build
 pnpm test
-SLINT_BACKEND=winit-femtovg pnpm exec tsx scripts/test_themes_and_accents.ts
+pnpm run build
+pnpm run qa:editor
 ```
 
-O último comando requer um display gráfico. A suíte unitária cobre entrega de RGBA, cleanup do loop, mudança de dimensões do buffer e picking/arrasto com escalas e margens. O teste de temas verifica callbacks, pixels renderizados e exportação 2D/3D; ele não é uma certificação de contraste ou uma comparação visual com a referência.
+`qa:editor` usa o servidor `pnpm dev:web` e um Chromium/Chrome disponível para Playwright, ou conecta ao CEF de uma aplicação real por `CHOCOBONES_QA_CDP`. `CHOCOBONES_QA_URL` escolhe a URL web e `CHOCOBONES_QA_OUTPUT` escolhe o diretório dos artefatos. Os [relatórios Solid](screenshots/solid-editor/README.md) identificam separadamente browser, host Electrobun em desenvolvimento e bundle nativo. O roteiro exercita arquivos/downloads reais no browser e RPC/arquivos reais no desktop; o seletor de arquivos do sistema operacional não foi automatizado.
 
-`scripts/qa_studio.ts` abre a janela Slint real, captura temas e resoluções, verifica pixels do chrome e compara o RGBA nativo com o framebuffer. Também exercita ações por eventos nativos e callbacks. Requer X11, Xvfb, ImageMagick (`import`) e `xwininfo`. Exemplo em um display isolado:
+A suíte atual passou **303 testes em 30 suítes**, além de tipos do núcleo/view/host e build da view. O [QA Solid](screenshots/solid-editor/README.md) passou **19 verificações no Chromium/WebGL2, DPR 2**, e **20 no Electrobun/Bun/CEF Linux em desenvolvimento**. O CEF cloud utilizou o fallback Canvas2D; o teste browser usou SwiftShader. Não há resultado de GPU física nem de builds macOS/Windows.
 
-```sh
-Xvfb :102 -screen 0 1600x1000x24 -nolisten tcp -extension MIT-SHM > /tmp/chocobones-xvfb.log 2>&1 &
-qa_display_pid=$!
-# Aguarde xdpyinfo -display :102 retornar sucesso.
-DISPLAY=:102 LIBGL_ALWAYS_SOFTWARE=1 LIBGL_DRI3_DISABLE=1 \
-  SLINT_BACKEND=winit-femtovg XDG_CACHE_HOME=/tmp/chocobones-qa-cache \
-  CHOCOBONES_QA_OUTPUT=/tmp/chocobones-studio-qa pnpm exec tsx scripts/qa_studio.ts
-kill "$qa_display_pid"
-```
+As evidências anteriores permanecem históricas: [Slint/referência](screenshots/slint-studio/README.md), [Puppet por imagem](screenshots/puppet-tools/README.md) e [MLS/ARAP/refinamento](screenshots/deformation-tools/README.md). A última entrega Slint passou 267 testes em 26 suítes e 15 verificações nativas de deformação. Esses números não comprovam a nova GUI.
 
-Em containers com namespaces IPC separados, desativar a extensão MIT-SHM do display virtual evita imagens desatualizadas por falha de compartilhamento de memória. Isso não desativa verificação de pacotes ou TLS. O aviso de D-Bus para configurações do desktop é separado da abertura/renderização da janela.
-
-A matriz visual cobre Dark/Dim/Light em 900×640, 1280×720 e 1400×900, os quatro espaços, o painel de aparência e o mínimo 760×560. A execução produz PNGs e `report.json` com dimensões, hashes e verificações. Capturas devem ser revisadas junto do relatório; afirmar apenas que a propriedade de tema mudou não comprova que a janela foi redesenhada.
-
-A verificação da implementação passou em tipagem, build e 132 testes em 16 suítes. O roteiro nativo passou 28 verificações e gerou 15 capturas; a revisão visual confirmou Phosphor, temas e composição em tela ampla e compacta. As [15 capturas nativas e o relatório](screenshots/slint-studio/README.md) estão versionados em `screenshots/slint-studio/`. O script QA também passou tipagem estrita própria, pois `scripts/` não faz parte do `tsconfig.json` principal.
+[Arquitetura e execução da migração](desktop-migration.md) · [Avaliação da stack e fontes](electrobun-solid-evaluation.md) · [Comparação de ferramentas e limites](puppet-tools-comparison.md).

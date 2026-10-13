@@ -5,6 +5,37 @@ O formato baseia-se no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0
 
 ## [Não lançado]
 
+### Migração desktop e organização das ferramentas
+
+- GUI principal migrada para Electrobun 2.0.2 + SolidJS 1.9.17 + TypeScript/Vite 8.3.4; runtime Bun explícito e CEF nas três plataformas, com GPU habilitada. `start/dev` abre o novo desktop; `legacy:start` preserva Slint.
+- Etapas Preparar/Rig/Animar, assets e árvore de rig à esquerda, propriedades contextuais à direita, palco central e timeline por trilhas com edição de tempo/easing dos keyframes. Painéis redimensionáveis, temas neutros, Inter e SVGs Phosphor sem emojis.
+- Documento, comandos, view model e histórico portáveis em `src/editor/`; arquivos/codecs/exportação no host Bun, RPC tipado com Zod e assets RGBA/PNG por URLs loopback com token, sem framebuffer por JSON.
+- Palco WebGL2 com texturas/buffers residentes, overlay Canvas e fallback software. MLS/ARAP em worker, com um cálculo em execução e uma pose pendente substituível para evitar fila crescente durante edição/playback.
+- Salvar como/exportar com modal próprio de nome e seletor nativo de pasta; spritesheet com quantidade de quadros/colunas. Adaptador browser com seleção de arquivos e downloads reais para desenvolvimento/QA.
+- Tema persistido separado do documento e confirmação Salvar/Descartar/Cancelar antes de novo/abrir/fechar. Novo/abrir limpa undo/redo do documento anterior; opacidade/visibilidade em Animar pertence à pose. Navegação por Espaço respeita controles/diálogos; zoom 3D altera a câmera orbital e nós recolhidos ocultam descendentes na árvore.
+- Formato de projeto, ferramentas matemáticas, visualização 3D existente e testes legados preservados. Curvas gráficas, mistura de clipes, pintura de pesos, caminhos e módulos avançados/3D não são considerados reintegrados por esta migração. GPU acelera desenho, sem promessa de redução do custo do solver ARAP.
+- Guia de arquitetura/execução em `docs/development/desktop-migration.md`; documentação da interface e stack atualizada. Evidências Slint anteriores permanecem históricas.
+- Verificação atual: 303 testes em 30 suítes; checagens estritas do núcleo/view/host e build da view passaram. QA Solid: 19 verificações no browser WebGL2/DPR 2 e 20 no host Electrobun/Bun/CEF Linux em desenvolvimento. [Capturas e relatórios](docs/development/screenshots/solid-editor/README.md) distinguem os ambientes; GPU física e builds macOS/Windows não foram executados.
+
+### Refinamento e deformação Puppet
+
+- Refinamento adaptativo de células que cruzam o alfa, com borda configurável de 2–32 px, UVs originais e arestas compartilhadas sem T-junctions; orçamento de 3968 vértices no editor, reservando espaço para pinos até o teto ARAP de 4096.
+- ARAP 2D real em `deform/arap_solver.ts`: rotações locais e sistema global esparso com gradientes conjugados precondicionados e constraints exatas. O solver legado em `deform/advanced.ts` permanece um relaxamento Laplaciano.
+- Escolha MLS/ARAP no painel Puppet; Raio/Peso aparecem para MLS. ARAP insere controles na topologia e prioriza âncoras coincidentes, mantendo a força da malha como escala dos deltas.
+- Textura, wireframe, onion skin e export usam o mesmo pacote de geometria. Cache de quatro poses determinísticas, com invalidação por geometria/UVs/repouso dos pinos, inclusive edições no mesmo objeto.
+- Método e configurações de construção persistidos por malha; reconstrução preserva modo, skinning e força; undo/redo recupera as configurações e o documento. Troca de método, reconstrução e load validam o teto ARAP antes de alterar o documento. GUI Slint mantida.
+- Validação nativa de deformação: 15 verificações, 7 capturas e 3 exports transparentes em `docs/development/screenshots/deformation-tools/`. Total verificado: 267 testes aprovados em 26 suítes.
+
+### Puppet por imagem
+
+- Importação PNG 8-bit com alfa e dados incorporados ao projeto; grade configurável por linhas/colunas, preservando células com conteúdo fino, UVs e enquadramento do canvas.
+- Renderizador de sprites CPU com MLS, amostragem bilinear e composição alfa; pinos editáveis com transformação local/mundo, snap, locks e influência relativa.
+- Respiração, Ondulação e Passos com amplitude/frequência, bake em keyframes e gesto do ponteiro até 4 segundos; scrub pausado avalia pose imediatamente.
+- PNG sem overlays e spritesheet transparente de 8 quadros/4 colunas; endpoint de clips não-loop incluído; export atual respeita a pose do editor.
+- Persistência de PNG/canvas/UVs/pinos, compatibilidade de projetos legados e histórico completo de importação, malha, presets e exclusão de layers.
+- Análise das referências oficiais Warp Studio/Cartoon Animator e 18 verificações nativas com 8 capturas; 214 testes automatizados em 23 suítes.
+
+
 ### Alterado
 
 - Interface Slint reestruturada a partir da referência: chrome neutro e contínuo, barras compactas, rail Phosphor sem emojis, painéis de elementos/transformação/navegador e aparência separada das propriedades do personagem.
@@ -21,12 +52,12 @@ O formato baseia-se no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0
 ### Adicionado
 
 - **Dossiê P2 (perf/export/skinning)**: `rig/compiled.ts` (rig pré-compilado O(n)), `mesh/cache.ts` (`MeshCache` + `VertexPool` + `GpuBufferManager` dirty-only), `export/runtime.ts` (contratos runtime v2/export v1, sequência determinística, spritesheet), `deform/lbs.ts` (LBS + DQ planar, ordem `bones-then-mls` v1).
-- **Dossiê Fases 1–4**: `geometry/` (Moore, Douglas-Peucker, triangulação intra-contorno, edição/validação), `rig/retarget.ts` + `rig/constraints.ts` (transform constraints, SmartBones, FABRIK, sockets, retarget por papéis), `procedural/operators.ts` (breath/gait/look/squash + bake fps-independente), `deform/advanced.ts` (ARAP, BBW aprox., cage) + `player/runtime.ts` (`PuppetPlayer`). Suíte: 115 testes em 14 arquivos, `tsc` limpo.
+- **Dossiê Fases 1–4**: `geometry/` (Moore, Douglas-Peucker, triangulação intra-contorno, edição/validação), `rig/retarget.ts` + `rig/constraints.ts` (transform constraints, SmartBones, FABRIK, sockets, retarget por papéis), `procedural/operators.ts` (breath/gait/look/squash + bake fps-independente), `deform/advanced.ts` (relaxamento Laplaciano, BBW aprox., cage) + `player/runtime.ts` (`PuppetPlayer`). Suíte: 115 testes em 14 arquivos, `tsc` limpo.
 - **Estúdio Criativo Adaptativo Multi-Tema em TypeScript & Slint UI**:
   - Implementação completa dos 3 temas de estúdio criativo em tempo real: Dark (Obsidian `#121214`), Dim/Grafite (`#242428`) e Light (`#f4f4f6`), alternáveis instantaneamente via barra superior sem reinicialização.
   - 6 presets de cor de destaque (Accent) com contraste WCAG AA (`Ciano`, `Azul`, `Violeta`, `Rosa`, `Verde`, `Âmbar`) integrados a propriedades computadas reativas da interface Slint.
   - Rasterização de viewport adaptativa ao tema (`ViewportBuffer`): fundo dinâmico (Light `244, 244, 246`, Dim `32, 32, 36`, Dark `14, 14, 16`), grade com contraste ajustado e wireframe 3D com paleta de alta legibilidade (`#0284c7` no papel claro e `#38bdf8` no escuro).
-  - Dual-Bar Header com switcher de personas/workspaces em cápsulas (`Montagem`, `Rig`, `Animação`, `🌐 3D`, `Foco`), barra contextual de ferramenta ativa, alternador de IK 2-Bone e botões de ação rápida (Undo, Redo, Salvar, Carregar, Exportar PNG).
+  - Dual-Bar Header com switcher de personas/workspaces em cápsulas (`Montagem`, `Rig`, `Animação`, `3D`, `Foco`), barra contextual de ferramenta ativa, alternador de IK 2-Bone e botões de ação rápida (Undo, Redo, Salvar, Carregar, Exportar PNG).
   - Rail vertical esquerdo compacto (46px) com atalhos para as 12 ferramentas do padrão Odin (`Mover`, `Girar`, `Escala`, `Pivô`, `Juntas`, `Criar Osso`, `Pose`, `Pinos`, `Pesos`, etc.) com anel e ponto de destaque ativo.
   - Inspetor lateral multi-card com abas de elementos (`Juntas` / `Camadas`), edição de propriedades, ajuste de opacidade e visualizador de hierarquia esquelética.
   - Linha do tempo animada com transport controls, scrubbing temporal contínuo e alternância de clipes.

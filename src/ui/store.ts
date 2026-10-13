@@ -2,7 +2,6 @@
  * chocoBones store reativo (Item 5 — extraído de bridge.ts)
  * Estado único + criação inicial. Bridge compõe actions/viewport/loop.
  */
-import * as fs from "fs";
 import { OrbitCamera } from "../core/math3d";
 import { createCubeMesh } from "../mesh3d/primitives";
 import { Mesh3D, mesh3dNormalizeAndCenter } from "../mesh3d/mesh3d";
@@ -18,10 +17,28 @@ import { SpringChain, createSpringChain } from "../physics2d/spring";
 import { FixedStepAccumulator } from "../animation/clock";
 import { EditorMode } from "./modes";
 import { SelectionState } from "./selection";
-import { AppPaths, defaultAppPaths } from "./app_config";
+import type { AppPaths } from "./app_paths";
 import { ViewportDrag } from "./viewport/controller";
+import type { SpriteImage } from "../assets/image";
+import { captureEditorDocument, restoreEditorDocument } from "./document_history";
 
 export interface AppState {
+  canvasWidth: number;
+  canvasHeight: number;
+  spriteAssets: Map<string, SpriteImage>;
+  meshUvs: Map<string, import("../core/types").Vec2[]>;
+  meshRows: number;
+  meshCols: number;
+  alphaThreshold: number;
+  refineEdges: boolean;
+  edgeSize: number;
+  snapPins: boolean;
+  showMesh: boolean;
+  showSkeleton: boolean;
+  onionSkin: boolean;
+  motionAmplitude: number;
+  motionFrequency: number;
+  motionPreset: string;
   themeMode: string;
   accentName: string;
   activeTool: string;
@@ -62,7 +79,13 @@ export interface AppState {
   springHz: number;
 }
 
-export function createInitialAppState(paths?: AppPaths): AppState {
+export interface InitialAppOptions {
+  /** Loaded by the desktop host, never by the editor/browser module. */
+  objText?: string;
+  emptyDocument?: boolean;
+}
+
+export function createInitialAppState(paths?: AppPaths, options: InitialAppOptions = {}): AppState {
   const defaultLayers: Layer[] = [
     {
       id: "head_lyr",
@@ -138,22 +161,35 @@ export function createInitialAppState(paths?: AppPaths): AppState {
     },
   ];
 
-  const resolvedPaths = paths ?? defaultAppPaths();
-  let mesh3D: Mesh3D;
-  if (fs.existsSync(resolvedPaths.suzanneObj)) {
+  const resolvedPaths: AppPaths = paths ?? {
+    projectFile: "choco_puppet.project.json", exportPng: "screenshot_export.png",
+    suzanneObj: "assets/models/suzanne.obj",
+  };
+  let mesh3D = createCubeMesh(1.8);
+  if (options.objText) {
     try {
-      const content = fs.readFileSync(resolvedPaths.suzanneObj, "utf-8");
-      const m = loadObjFromString(content, "Suzanne (Blender Monkey)");
-      mesh3dNormalizeAndCenter(m, 2.2);
-      mesh3D = m;
-    } catch {
-      mesh3D = createCubeMesh(1.8);
-    }
-  } else {
-    mesh3D = createCubeMesh(1.8);
+      mesh3D = loadObjFromString(options.objText, "Suzanne (Blender Monkey)");
+      mesh3dNormalizeAndCenter(mesh3D, 2.2);
+    } catch { /* Keep the 3D cube demo if the supplied OBJ is invalid. */ }
   }
 
-  return {
+  const state: AppState = {
+    canvasWidth: 512,
+    canvasHeight: 512,
+    spriteAssets: new Map(),
+    meshUvs: new Map(),
+    meshRows: 16,
+    meshCols: 16,
+    alphaThreshold: 10,
+    refineEdges: false,
+    edgeSize: 4,
+    snapPins: true,
+    showMesh: true,
+    showSkeleton: true,
+    onionSkin: false,
+    motionAmplitude: 12,
+    motionFrequency: 0.625,
+    motionPreset: "breath",
     themeMode: "Dark",
     accentName: "Ciano",
     activeTool: "Move",
@@ -195,4 +231,13 @@ export function createInitialAppState(paths?: AppPaths): AppState {
     springAcc: new FixedStepAccumulator(120),
     springHz: 120,
   };
+  if (options.emptyDocument) {
+    state.layers = []; state.joints = []; state.meshes = []; state.pins = [];
+    state.meshLayer.clear(); state.meshUvs.clear(); state.springs = [];
+    state.selectedJointId = ""; state.selectedLayerId = "";
+    state.selection = { selectedJointIds: [], selectedLayerIds: [], anchorLayerIdx: -1 };
+    state.isPlaying = false; state.editorMode = EditorMode.Setup;
+  }
+  state.history.setDocumentHooks(() => captureEditorDocument(state), (doc) => restoreEditorDocument(state, doc));
+  return state;
 }

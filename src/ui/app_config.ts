@@ -4,11 +4,8 @@
  */
 import * as path from "path";
 
-export interface AppPaths {
-  projectFile: string;
-  exportPng: string;
-  suzanneObj: string;
-}
+import type { AppPaths } from "./app_paths";
+export type { AppPaths } from "./app_paths";
 
 export function defaultAppPaths(cwd: string = process.cwd()): AppPaths {
   return {

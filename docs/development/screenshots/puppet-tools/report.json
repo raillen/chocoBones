@@ -1,0 +1,146 @@
+{
+  "display": ":107",
+  "source": "assets/test-kits/frontier-survival/vector-rig/base-survivor.png",
+  "checks": [
+    "native-window-visible",
+    "png-import-alpha-mesh-snapped-pins-and-centered-fit",
+    "capture-dark-setup-1400x1000",
+    "capture-dark-motion-rest-1400x1000",
+    "quarter-cycle-deforms-real-texture-and-transparent-canvas-export",
+    "editor-overlays-excluded-from-export",
+    "capture-dark-motion-posed-1400x1000",
+    "capture-dim-motion-posed-1400x1000",
+    "capture-light-motion-posed-1400x1000",
+    "capture-light-puppet-compact-900x640",
+    "capture-light-puppet-controls-compact-900x640",
+    "breath-sway-walk-native-callbacks-produce-editable-motion",
+    "native-pointer-drag-edits-pin-motion-without-changing-rest",
+    "locked-native-pin-stays-at-transformed-rest-position",
+    "native-performance-recording-replays-and-preserves-final-pose",
+    "capture-dark-recorded-gesture-1400x1000",
+    "native-spritesheet-export-eight-frames-transparent",
+    "portable-project-roundtrip-retains-source-png-mesh-uvs-motion-and-render"
+  ],
+  "captures": [
+    {
+      "name": "dark-setup-1400x1000",
+      "file": "dark-setup-1400x1000.png",
+      "theme": "Dark",
+      "size": {},
+      "viewport": [
+        1092,
+        747
+      ],
+      "dock": "Puppet",
+      "time": 0.6320000000000001,
+      "clip": "Respiração / Repouso",
+      "frameHash": "7fd57c05c82c3ba5243860e45b0097305fba0f83802f25837edd8775c62a0963",
+      "screenshotHash": "bb6c48962abb0fc44ee1647a0c3b8b6ab02d5d1b18c3f97e29c41b55ccf41ad9"
+    },
+    {
+      "name": "dark-motion-rest-1400x1000",
+      "file": "dark-motion-rest-1400x1000.png",
+      "theme": "Dark",
+      "size": {},
+      "viewport": [
+        1092,
+        747
+      ],
+      "dock": "Puppet",
+      "time": 0,
+      "clip": "Respiração",
+      "frameHash": "7fd57c05c82c3ba5243860e45b0097305fba0f83802f25837edd8775c62a0963",
+      "screenshotHash": "54079aa37a3050204433c79776af91b68b44ce8258f5d0c6299022d2db2e3c4f"
+    },
+    {
+      "name": "dark-motion-posed-1400x1000",
+      "file": "dark-motion-posed-1400x1000.png",
+      "theme": "Dark",
+      "size": {},
+      "viewport": [
+        1092,
+        747
+      ],
+      "dock": "Puppet",
+      "time": 1,
+      "clip": "Respiração",
+      "frameHash": "5d30275cc64aee8dd677768792cb831d88e2901374c1c4a3149fb18e70d2746f",
+      "screenshotHash": "1e07f11f60f05cc9acc02e6eb0f320455ca268f60282d580e8d578adb3133c96"
+    },
+    {
+      "name": "dim-motion-posed-1400x1000",
+      "file": "dim-motion-posed-1400x1000.png",
+      "theme": "Dim",
+      "size": {},
+      "viewport": [
+        1092,
+        747
+      ],
+      "dock": "Puppet",
+      "time": 1,
+      "clip": "Respiração",
+      "frameHash": "05c76c02e6e3a1d6310e95f1b549c569e7036a3f8e722b2b9da8ecaee0f872fe",
+      "screenshotHash": "da131e86e70aabd395c366fdbfe3babcb90901978e672c3e3763dcc14fc4524c"
+    },
+    {
+      "name": "light-motion-posed-1400x1000",
+      "file": "light-motion-posed-1400x1000.png",
+      "theme": "Light",
+      "size": {},
+      "viewport": [
+        1092,
+        747
+      ],
+      "dock": "Puppet",
+      "time": 1,
+      "clip": "Respiração",
+      "frameHash": "774d94e1dbe0f5156229522794808d3ccdbce96bfec279adbbbee2392824752b",
+      "screenshotHash": "95a3787609a1bf883b8d972add223e8514e4dcc114ffce2acc5e4f59ef897bae"
+    },
+    {
+      "name": "light-puppet-compact-900x640",
+      "file": "light-puppet-compact-900x640.png",
+      "theme": "Light",
+      "size": {},
+      "viewport": [
+        628,
+        419.0000305175781
+      ],
+      "dock": "Puppet",
+      "time": 1,
+      "clip": "Respiração",
+      "frameHash": "774d94e1dbe0f5156229522794808d3ccdbce96bfec279adbbbee2392824752b",
+      "screenshotHash": "72d6d8d0600efe2383e48742eb743ad44ccc44a6ef2cb6fc350ec781b2f8ec71"
+    },
+    {
+      "name": "light-puppet-controls-compact-900x640",
+      "file": "light-puppet-controls-compact-900x640.png",
+      "theme": "Light",
+      "size": {},
+      "viewport": [
+        628,
+        419.0000305175781
+      ],
+      "dock": "Puppet",
+      "time": 1,
+      "clip": "Respiração",
+      "frameHash": "774d94e1dbe0f5156229522794808d3ccdbce96bfec279adbbbee2392824752b",
+      "screenshotHash": "42500ad8b37aca96cf0758a171f0470edf5d64fc22101710d26181ffa85b4e31"
+    },
+    {
+      "name": "dark-recorded-gesture-1400x1000",
+      "file": "dark-recorded-gesture-1400x1000.png",
+      "theme": "Dark",
+      "size": {},
+      "viewport": [
+        1092,
+        747
+      ],
+      "dock": "Puppet",
+      "time": 0.35,
+      "clip": "Gesto gravado",
+      "frameHash": "747f2dbcbdf2ac5acc08648a731ca82e7313892660f64d6463fbf8e2aea71f72",
+      "screenshotHash": "743900ec584778901d73ad7f2d4bdb745f9573f95d86cec38b24bf0f8b5920de"
+    }
+  ]
+}

@@ -1,0 +1,823 @@
+{
+  "runtime": "native-electrobun-cef",
+  "url": "http://127.0.0.1:5173",
+  "cdp": "http://127.0.0.1:9333",
+  "source": "assets/test-kits/frontier-survival/vector-rig/base-survivor.png",
+  "checks": [
+    "capture-01-prepare-empty",
+    "native-electrobun-rpc-import-and-binary-asset-transport",
+    "native-png-import-retains-texture-and-dimensions",
+    "capture-02-prepare-imported",
+    "rig-tools-create-movable-and-fixed-controls",
+    "capture-03-rig-mls",
+    "adaptive-arap-mesh-rebuild-preserves-rig",
+    "capture-04-rig-arap-refined",
+    "toolbar-undo-redo-restores-mesh-topology",
+    "timeline-scrub-updates-real-worker-canvas",
+    "capture-05-animate-breath",
+    "real-stage-pointer-drag-edits-pose-and-retains-rig",
+    "fixed-control-remains-locked-through-stage-pointer-drag",
+    "editing-fields-suppress-play-undo-and-delete-shortcuts",
+    "native-png-export-has-canvas-dimensions-and-alpha",
+    "native-project-save-retains-embedded-assets-and-model",
+    "native-rpc-project-reopen-preserves-document-and-export",
+    "capture-06-animate-light",
+    "capture-07-animate-compact",
+    "no-browser-errors-during-editor-workflow"
+  ],
+  "captures": [
+    {
+      "name": "01-prepare-empty",
+      "file": "01-prepare-empty.png",
+      "viewport": {
+        "width": 1439,
+        "height": 959
+      },
+      "devicePixelRatio": 1,
+      "geometry": {
+        "overflow": false,
+        "stage": {
+          "width": 915,
+          "height": 586
+        },
+        "canvas": {
+          "width": 915,
+          "height": 586
+        }
+      },
+      "state": {
+        "revision": 2,
+        "phase": "prepare",
+        "hasSprite": false,
+        "dimensions": [
+          512,
+          512
+        ],
+        "layers": [],
+        "selectedLayer": "",
+        "selectedPin": "",
+        "mesh": null,
+        "pins": [],
+        "pose": [],
+        "time": 0,
+        "isPlaying": false,
+        "clip": {
+          "duration": 2,
+          "fps": 60,
+          "frames": 0,
+          "loop": true
+        },
+        "camera": {
+          "zoom": 1,
+          "x": 201.5,
+          "y": 3
+        }
+      },
+      "screenshotHash": "f6ff20656880d825047b95db43f5f69ba22547ab350faf9e64d50b8e68de017b",
+      "stageHash": "d3415fdf337d99f3aaf75a7aa86dce4e193128e978cdb91888a01eaae160f503"
+    },
+    {
+      "name": "02-prepare-imported",
+      "file": "02-prepare-imported.png",
+      "viewport": {
+        "width": 1439,
+        "height": 959
+      },
+      "devicePixelRatio": 1,
+      "geometry": {
+        "overflow": false,
+        "stage": {
+          "width": 915,
+          "height": 586
+        },
+        "canvas": {
+          "width": 915,
+          "height": 586
+        }
+      },
+      "state": {
+        "revision": 3,
+        "phase": "prepare",
+        "hasSprite": true,
+        "dimensions": [
+          512,
+          768
+        ],
+        "layers": [
+          {
+            "id": "layer_9099752b_2",
+            "name": "base-survivor.png",
+            "asset": "image_2c2e55c1_1"
+          }
+        ],
+        "selectedLayer": "layer_9099752b_2",
+        "selectedPin": "",
+        "mesh": {
+          "vertices": 101,
+          "triangles": 152,
+          "deformation": "MLS",
+          "build": {
+            "rows": 16,
+            "cols": 16,
+            "alphaThreshold": 10,
+            "refineEdges": false,
+            "edgeSize": 4
+          }
+        },
+        "pins": [],
+        "pose": [],
+        "time": 0,
+        "isPlaying": false,
+        "clip": {
+          "duration": 2,
+          "fps": 60,
+          "frames": 0,
+          "loop": true
+        },
+        "camera": {
+          "zoom": 0.7109375,
+          "x": 275.5,
+          "y": 20
+        }
+      },
+      "screenshotHash": "ae0b7d87cc7fb7f724b1984023b29e8d10c3d92e7c8a6214dfa3bd2ef335717c",
+      "stageHash": "514e1f00f307e03c45b7f4f9b1f095977002c70c22b658114452ac18e424bd4c"
+    },
+    {
+      "name": "03-rig-mls",
+      "file": "03-rig-mls.png",
+      "viewport": {
+        "width": 1439,
+        "height": 959
+      },
+      "devicePixelRatio": 1,
+      "geometry": {
+        "overflow": false,
+        "stage": {
+          "width": 915,
+          "height": 586
+        },
+        "canvas": {
+          "width": 915,
+          "height": 586
+        }
+      },
+      "state": {
+        "revision": 5,
+        "phase": "rig",
+        "hasSprite": true,
+        "dimensions": [
+          512,
+          768
+        ],
+        "layers": [
+          {
+            "id": "layer_9099752b_2",
+            "name": "base-survivor.png",
+            "asset": "image_2c2e55c1_1"
+          }
+        ],
+        "selectedLayer": "layer_9099752b_2",
+        "selectedPin": "pin_f518471b_4",
+        "mesh": {
+          "vertices": 101,
+          "triangles": 152,
+          "deformation": "MLS",
+          "build": {
+            "rows": 16,
+            "cols": 16,
+            "alphaThreshold": 10,
+            "refineEdges": false,
+            "edgeSize": 4
+          }
+        },
+        "pins": [
+          {
+            "id": "pin_98084939_3",
+            "name": "Base",
+            "x": 246.5,
+            "y": 460.5,
+            "locked": true,
+            "enabled": true,
+            "meshId": "0"
+          },
+          {
+            "id": "pin_f518471b_4",
+            "name": "Superior",
+            "x": 256,
+            "y": 115.19999999999999,
+            "locked": false,
+            "enabled": true,
+            "meshId": "0"
+          },
+          {
+            "id": "pin_2f1f69c9_5",
+            "name": "Lateral",
+            "x": 363.5,
+            "y": 351.5,
+            "locked": false,
+            "enabled": true,
+            "meshId": "0"
+          },
+          {
+            "id": "pin_d610b296_6",
+            "name": "Pé esquerdo",
+            "x": 167.5,
+            "y": 689.5,
+            "locked": false,
+            "enabled": true,
+            "meshId": "0"
+          },
+          {
+            "id": "pin_e93b9cae_7",
+            "name": "Pé direito",
+            "x": 344.5,
+            "y": 689.5,
+            "locked": false,
+            "enabled": true,
+            "meshId": "0"
+          }
+        ],
+        "pose": [],
+        "time": 0,
+        "isPlaying": false,
+        "clip": {
+          "duration": 2,
+          "fps": 60,
+          "frames": 0,
+          "loop": true
+        },
+        "camera": {
+          "zoom": 0.7109375,
+          "x": 275.5,
+          "y": 20
+        }
+      },
+      "screenshotHash": "09047b3ff775c18052c730d0672956e559573c1eff053f8cd5ef7939c87b2851",
+      "stageHash": "1b557a3033016c2c1864476fd07078465c602cb27e73604897cfdaae1c5a7f62"
+    },
+    {
+      "name": "04-rig-arap-refined",
+      "file": "04-rig-arap-refined.png",
+      "viewport": {
+        "width": 1439,
+        "height": 959
+      },
+      "devicePixelRatio": 1,
+      "geometry": {
+        "overflow": false,
+        "stage": {
+          "width": 915,
+          "height": 586
+        },
+        "canvas": {
+          "width": 915,
+          "height": 586
+        }
+      },
+      "state": {
+        "revision": 9,
+        "phase": "rig",
+        "hasSprite": true,
+        "dimensions": [
+          512,
+          768
+        ],
+        "layers": [
+          {
+            "id": "layer_9099752b_2",
+            "name": "base-survivor.png",
+            "asset": "image_2c2e55c1_1"
+          }
+        ],
+        "selectedLayer": "layer_9099752b_2",
+        "selectedPin": "pin_f518471b_4",
+        "mesh": {
+          "vertices": 1303,
+          "triangles": 2152,
+          "deformation": "ARAP",
+          "build": {
+            "rows": 16,
+            "cols": 16,
+            "alphaThreshold": 10,
+            "refineEdges": true,
+            "edgeSize": 8
+          }
+        },
+        "pins": [
+          {
+            "id": "pin_98084939_3",
+            "name": "Base",
+            "x": 246.5,
+            "y": 460.5,
+            "locked": true,
+            "enabled": true,
+            "meshId": "0"
+          },
+          {
+            "id": "pin_f518471b_4",
+            "name": "Superior",
+            "x": 256,
+            "y": 115.19999999999999,
+            "locked": false,
+            "enabled": true,
+            "meshId": "0"
+          },
+          {
+            "id": "pin_2f1f69c9_5",
+            "name": "Lateral",
+            "x": 363.5,
+            "y": 351.5,
+            "locked": false,
+            "enabled": true,
+            "meshId": "0"
+          },
+          {
+            "id": "pin_d610b296_6",
+            "name": "Pé esquerdo",
+            "x": 167.5,
+            "y": 689.5,
+            "locked": false,
+            "enabled": true,
+            "meshId": "0"
+          },
+          {
+            "id": "pin_e93b9cae_7",
+            "name": "Pé direito",
+            "x": 344.5,
+            "y": 689.5,
+            "locked": false,
+            "enabled": true,
+            "meshId": "0"
+          }
+        ],
+        "pose": [],
+        "time": 0,
+        "isPlaying": false,
+        "clip": {
+          "duration": 2,
+          "fps": 60,
+          "frames": 0,
+          "loop": true
+        },
+        "camera": {
+          "zoom": 0.7109375,
+          "x": 275.5,
+          "y": 20
+        }
+      },
+      "screenshotHash": "d64355cb7b0834487da87f9eb768bf54efab73ce2a044f251b4ea460e4b002ce",
+      "stageHash": "a645b90faa0263b07db47d72719a19c34433b325ea8e203679106ee35d2bc3eb"
+    },
+    {
+      "name": "05-animate-breath",
+      "file": "05-animate-breath.png",
+      "viewport": {
+        "width": 1439,
+        "height": 959
+      },
+      "devicePixelRatio": 1,
+      "geometry": {
+        "overflow": false,
+        "stage": {
+          "width": 915,
+          "height": 586
+        },
+        "canvas": {
+          "width": 915,
+          "height": 586
+        }
+      },
+      "state": {
+        "revision": 14,
+        "phase": "animate",
+        "hasSprite": true,
+        "dimensions": [
+          512,
+          768
+        ],
+        "layers": [
+          {
+            "id": "layer_9099752b_2",
+            "name": "base-survivor.png",
+            "asset": "image_2c2e55c1_1"
+          }
+        ],
+        "selectedLayer": "layer_9099752b_2",
+        "selectedPin": "pin_f518471b_4",
+        "mesh": {
+          "vertices": 1303,
+          "triangles": 2152,
+          "deformation": "ARAP",
+          "build": {
+            "rows": 16,
+            "cols": 16,
+            "alphaThreshold": 10,
+            "refineEdges": true,
+            "edgeSize": 8
+          }
+        },
+        "pins": [
+          {
+            "id": "pin_98084939_3",
+            "name": "Base",
+            "x": 246.5,
+            "y": 460.5,
+            "locked": true,
+            "enabled": true,
+            "meshId": "0"
+          },
+          {
+            "id": "pin_f518471b_4",
+            "name": "Superior",
+            "x": 256,
+            "y": 115.19999999999999,
+            "locked": false,
+            "enabled": true,
+            "meshId": "0"
+          },
+          {
+            "id": "pin_2f1f69c9_5",
+            "name": "Lateral",
+            "x": 363.5,
+            "y": 351.5,
+            "locked": false,
+            "enabled": true,
+            "meshId": "0"
+          },
+          {
+            "id": "pin_d610b296_6",
+            "name": "Pé esquerdo",
+            "x": 167.5,
+            "y": 689.5,
+            "locked": false,
+            "enabled": true,
+            "meshId": "0"
+          },
+          {
+            "id": "pin_e93b9cae_7",
+            "name": "Pé direito",
+            "x": 344.5,
+            "y": 689.5,
+            "locked": false,
+            "enabled": true,
+            "meshId": "0"
+          }
+        ],
+        "pose": [
+          [
+            "pin_98084939_3",
+            [
+              0,
+              0
+            ]
+          ],
+          [
+            "pin_f518471b_4",
+            [
+              -0.40714285714285736,
+              -12
+            ]
+          ],
+          [
+            "pin_2f1f69c9_5",
+            [
+              2.7310969876371227,
+              -7.80313425039178
+            ]
+          ],
+          [
+            "pin_d610b296_6",
+            [
+              -0.6299999999999999,
+              -1.7999999999999998
+            ]
+          ],
+          [
+            "pin_e93b9cae_7",
+            [
+              0.5078571428571428,
+              -1.7999999999999998
+            ]
+          ]
+        ],
+        "time": 0.4,
+        "isPlaying": false,
+        "clip": {
+          "duration": 1.6,
+          "fps": 60,
+          "frames": 97,
+          "loop": true
+        },
+        "camera": {
+          "zoom": 0.7109375,
+          "x": 275.5,
+          "y": 20
+        }
+      },
+      "screenshotHash": "f6cf82e6dac198ca705c7de0ccb75c701de2523334cbeccc2a2e4af34fc9c700",
+      "stageHash": "3a9da22d5ea72710b4f35b2693b58408c19d7426b2de1b47ea80674001caf3af"
+    },
+    {
+      "name": "06-animate-light",
+      "file": "06-animate-light.png",
+      "viewport": {
+        "width": 1439,
+        "height": 959
+      },
+      "devicePixelRatio": 1,
+      "geometry": {
+        "overflow": false,
+        "stage": {
+          "width": 915,
+          "height": 586
+        },
+        "canvas": {
+          "width": 915,
+          "height": 586
+        }
+      },
+      "state": {
+        "revision": 33,
+        "phase": "animate",
+        "hasSprite": true,
+        "dimensions": [
+          512,
+          768
+        ],
+        "layers": [
+          {
+            "id": "layer_9099752b_2",
+            "name": "base-survivor.png",
+            "asset": "image_2c2e55c1_1"
+          }
+        ],
+        "selectedLayer": "layer_9099752b_2",
+        "selectedPin": "",
+        "mesh": {
+          "vertices": 1303,
+          "triangles": 2152,
+          "deformation": "ARAP",
+          "build": {
+            "rows": 16,
+            "cols": 16,
+            "alphaThreshold": 10,
+            "refineEdges": true,
+            "edgeSize": 8
+          }
+        },
+        "pins": [
+          {
+            "id": "pin_98084939_3",
+            "name": "Base",
+            "x": 246.5,
+            "y": 460.5,
+            "locked": true,
+            "enabled": true,
+            "meshId": "0"
+          },
+          {
+            "id": "pin_f518471b_4",
+            "name": "Superior",
+            "x": 256,
+            "y": 115.19999999999999,
+            "locked": false,
+            "enabled": true,
+            "meshId": "0"
+          },
+          {
+            "id": "pin_2f1f69c9_5",
+            "name": "Lateral",
+            "x": 363.5,
+            "y": 351.5,
+            "locked": false,
+            "enabled": true,
+            "meshId": "0"
+          },
+          {
+            "id": "pin_d610b296_6",
+            "name": "Pé esquerdo",
+            "x": 167.5,
+            "y": 689.5,
+            "locked": false,
+            "enabled": true,
+            "meshId": "0"
+          },
+          {
+            "id": "pin_e93b9cae_7",
+            "name": "Pé direito",
+            "x": 344.5,
+            "y": 689.5,
+            "locked": false,
+            "enabled": true,
+            "meshId": "0"
+          }
+        ],
+        "pose": [
+          [
+            "pin_98084939_3",
+            [
+              0,
+              0
+            ]
+          ],
+          [
+            "pin_f518471b_4",
+            [
+              0,
+              0
+            ]
+          ],
+          [
+            "pin_2f1f69c9_5",
+            [
+              0,
+              0
+            ]
+          ],
+          [
+            "pin_d610b296_6",
+            [
+              0,
+              0
+            ]
+          ],
+          [
+            "pin_e93b9cae_7",
+            [
+              0,
+              0
+            ]
+          ]
+        ],
+        "time": 0,
+        "isPlaying": false,
+        "clip": {
+          "duration": 1.6,
+          "fps": 60,
+          "frames": 97,
+          "loop": true
+        },
+        "camera": {
+          "zoom": 0.7109375,
+          "x": 275.5,
+          "y": 20
+        }
+      },
+      "screenshotHash": "afb9954a58d145d8f636349ff11db023fec5cc559d1cf87b8bbd55aec93ce48b",
+      "stageHash": "50f29d8f386714b78d476865a9d9682dffe1e3090e7c061b72ba84e1e55cfc5b"
+    },
+    {
+      "name": "07-animate-compact",
+      "file": "07-animate-compact.png",
+      "viewport": {
+        "width": 960,
+        "height": 720
+      },
+      "devicePixelRatio": 1,
+      "geometry": {
+        "overflow": false,
+        "stage": {
+          "width": 732,
+          "height": 347
+        },
+        "canvas": {
+          "width": 732,
+          "height": 347
+        }
+      },
+      "state": {
+        "revision": 35,
+        "phase": "animate",
+        "hasSprite": true,
+        "dimensions": [
+          512,
+          768
+        ],
+        "layers": [
+          {
+            "id": "layer_9099752b_2",
+            "name": "base-survivor.png",
+            "asset": "image_2c2e55c1_1"
+          }
+        ],
+        "selectedLayer": "layer_9099752b_2",
+        "selectedPin": "",
+        "mesh": {
+          "vertices": 1303,
+          "triangles": 2152,
+          "deformation": "ARAP",
+          "build": {
+            "rows": 16,
+            "cols": 16,
+            "alphaThreshold": 10,
+            "refineEdges": true,
+            "edgeSize": 8
+          }
+        },
+        "pins": [
+          {
+            "id": "pin_98084939_3",
+            "name": "Base",
+            "x": 246.5,
+            "y": 460.5,
+            "locked": true,
+            "enabled": true,
+            "meshId": "0"
+          },
+          {
+            "id": "pin_f518471b_4",
+            "name": "Superior",
+            "x": 256,
+            "y": 115.19999999999999,
+            "locked": false,
+            "enabled": true,
+            "meshId": "0"
+          },
+          {
+            "id": "pin_2f1f69c9_5",
+            "name": "Lateral",
+            "x": 363.5,
+            "y": 351.5,
+            "locked": false,
+            "enabled": true,
+            "meshId": "0"
+          },
+          {
+            "id": "pin_d610b296_6",
+            "name": "Pé esquerdo",
+            "x": 167.5,
+            "y": 689.5,
+            "locked": false,
+            "enabled": true,
+            "meshId": "0"
+          },
+          {
+            "id": "pin_e93b9cae_7",
+            "name": "Pé direito",
+            "x": 344.5,
+            "y": 689.5,
+            "locked": false,
+            "enabled": true,
+            "meshId": "0"
+          }
+        ],
+        "pose": [
+          [
+            "pin_98084939_3",
+            [
+              0,
+              0
+            ]
+          ],
+          [
+            "pin_f518471b_4",
+            [
+              0,
+              0
+            ]
+          ],
+          [
+            "pin_2f1f69c9_5",
+            [
+              0,
+              0
+            ]
+          ],
+          [
+            "pin_d610b296_6",
+            [
+              0,
+              0
+            ]
+          ],
+          [
+            "pin_e93b9cae_7",
+            [
+              0,
+              0
+            ]
+          ]
+        ],
+        "time": 0,
+        "isPlaying": false,
+        "clip": {
+          "duration": 1.6,
+          "fps": 60,
+          "frames": 97,
+          "loop": true
+        },
+        "camera": {
+          "zoom": 0.7109375,
+          "x": 184,
+          "y": -99.5
+        }
+      },
+      "screenshotHash": "38f42da19c33a0b002c0fca8e90793fd99887268a470255364463ca03b6a8a94",
+      "stageHash": "59f9b4c7ef0db1884bf86969c0fa994ee88380906b6aec64ed67966d4c42de47"
+    }
+  ],
+  "errors": [],
+  "failure": null,
+  "output": "."
+}

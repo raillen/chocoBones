@@ -5,6 +5,8 @@
  */
 import * as slint from "slint-ui";
 import { promises as fsp } from "fs";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 import * as path from "path";
 import { findJoint } from "../rig/joint";
 import { OrbitCamera } from "../core/math3d";
@@ -23,14 +25,24 @@ import { resetToRest, seekTimeline, selectClip, togglePlay } from "./actions/ani
 import { applyJointDrag } from "./viewport/controller";
 import { pickEntity } from "./viewport/picking";
 import { mapViewportPoint } from "./viewport/geometry";
-import { movePinOffset, movePinRest } from "../mesh/mesh";
+import { movePinRest } from "../mesh/mesh";
 import { loadProjectFromJson } from "../project/project";
+import { importSpriteFile, fitCanvas, rebuildSpriteMesh, autoSpritePins, setSpriteDeformation, syncSpriteBuildSettings } from "./actions/sprite_actions";
+import { nearestOpaquePoint } from "../mesh/sprite_mesh";
+import { pinLocalPoint, pickScenePin } from "./viewport/pin_space";
+import { createPinMotionClip, upsertPinKeyframe, type PinMotionPreset } from "../animation/pin_motion";
+import { createClip } from "../animation/timeline";
+import { renderArtwork } from "../render/sprite_scene";
+import { composeSpritesheet } from "../export/runtime";
+import { matApply, matInverse } from "../core/math";
+import { layerMatrix } from "../rig/fk";
 
 export type { AppState };
 export { createInitialAppState };
 
 export function exportPngSync(state: AppState): Buffer {
-  return encodeRgbaToPng(state.viewportBuffer.width, state.viewportBuffer.height, state.viewportBuffer.pixels);
+  const buffer = state.spriteAssets.size ? renderArtwork(state) : state.viewportBuffer;
+  return encodeRgbaToPng(buffer.width, buffer.height, buffer.pixels);
 }
 
 function syncJointsList(window: any, state: AppState): void {
@@ -81,6 +93,46 @@ function syncEditorMode(window: any, state: AppState): void {
   }
 }
 
+const selectedControlLayer = new WeakMap<object, string>();
+function syncSpriteControls(window: any, state: AppState): void {
+  const layer = state.layers.find((l) => l.id === state.selectedLayerId);
+  const meshId = layer ? state.meshLayer.get(layer.id) : undefined;
+  const image = layer ? state.spriteAssets.get(layer.asset) : undefined;
+  const mesh = meshId === undefined ? undefined : state.meshes[Number(meshId)];
+  if (selectedControlLayer.get(window) !== state.selectedLayerId) {
+    syncSpriteBuildSettings(state);
+    selectedControlLayer.set(window, state.selectedLayerId);
+  }
+  window.has_sprite = !!image;
+  window.canvas_width = state.canvasWidth;
+  window.canvas_height = state.canvasHeight;
+  window.mesh_rows = state.meshRows; window.mesh_cols = state.meshCols;
+  window.alpha_threshold = state.alphaThreshold;
+  window.refine_edges = state.refineEdges; window.edge_size = state.edgeSize;
+  window.deformation = mesh?.deformation ?? "MLS";
+  window.mesh_vertices = mesh?.vertices.length ?? 0;
+  window.mesh_budget_limited = mesh?.buildStats?.budgetLimited ?? false;
+  window.mesh_triangles = mesh?.triangles.length ?? 0;
+  window.show_mesh = state.showMesh; window.show_skeleton = state.showSkeleton;
+  window.onion_skin = state.onionSkin; window.snap_pins = state.snapPins;
+  window.motion_amplitude = state.motionAmplitude; window.motion_frequency = state.motionFrequency;
+  window.motion_preset = state.motionPreset;
+  window.zoom_level = state.cameraZoom;
+  window.is_playing = state.isPlaying;
+  window.timeline_time = state.timelineTime; window.timeline_duration = state.timelineDuration;
+  window.active_clip_name = state.activeClipName;
+  const pins = state.pins.filter((p) => p.meshId === meshId);
+  window.pins_list = new slint.ArrayModel(pins.map((p) => ({ id: p.id, name: p.name, locked: p.locked })));
+  const selected = pins.find((p) => p.id === state.selectedPinId);
+  window.selected_pin_id = selected?.id ?? "";
+  window.selected_pin_name = selected?.name ?? "";
+  window.selected_pin_locked = selected?.locked ?? false;
+  window.selected_pin_radius = selected?.radius ?? 0;
+  window.selected_pin_strength = selected?.strength ?? 1;
+  syncSelectedLayer(window, state);
+  syncEditorMode(window, state);
+}
+
 export function bindSlintWindow(window: any, state: AppState): () => void {
   window.active_workspace = state.activeWorkspace;
   window.viewport_mode = state.viewportMode;
@@ -102,6 +154,7 @@ export function bindSlintWindow(window: any, state: AppState): () => void {
   syncLayersList(window, state);
   syncSelectedJoint(window, state);
   syncSelectedLayer(window, state);
+  syncSpriteControls(window, state);
   state.history.push("Estado Inicial", state.joints, state.layers, state.currentPose);
 
   // --- tema e adaptabilidade ---
@@ -141,39 +194,42 @@ export function bindSlintWindow(window: any, state: AppState): () => void {
   };
   window.set_editor_mode = (mode: string) => {
     state.editorMode = mode === "Setup" ? EditorMode.Setup : EditorMode.Animate;
+    if (state.editorMode === EditorMode.Setup) { state.isPlaying = false; restoreBindPose(state.currentPose); }
+    else seekTimeline(state, state.timelineTime);
+    window.is_playing = state.isPlaying;
     syncEditorMode(window, state);
     window.status_text = state.editorMode === EditorMode.Setup ? "Modo Setup — edita repouso" : "Modo Animar — edita pose (Alt+R restaura bind)";
   };
   window.toggle_editor_mode = () => {
-    state.editorMode = state.editorMode === EditorMode.Setup ? EditorMode.Animate : EditorMode.Setup;
-    syncEditorMode(window, state);
+    window.set_editor_mode(state.editorMode === EditorMode.Setup ? EditorMode.Animate : EditorMode.Setup);
   };
   window.undo = () => {
-    const desc = state.history.undo(state.joints, state.layers, state.currentPose);
+    const desc = state.history.undo(state.joints, state.layers, state.currentPose, state.pins);
     if (desc) {
       syncJointsList(window, state);
       syncLayersList(window, state);
       syncSelectedJoint(window, state);
+      syncSpriteControls(window, state);
       window.status_text = `Desfazer: ${desc}`;
     } else window.status_text = "Nenhuma ação anterior para desfazer.";
   };
   window.redo = () => {
-    const desc = state.history.redo(state.joints, state.layers, state.currentPose);
+    const desc = state.history.redo(state.joints, state.layers, state.currentPose, state.pins);
     if (desc) {
       syncJointsList(window, state);
       syncLayersList(window, state);
       syncSelectedJoint(window, state);
+      syncSpriteControls(window, state);
       window.status_text = `Refazer: ${desc}`;
     } else window.status_text = "Nenhuma ação para refazer.";
   };
   window.new_project = () => {
-    applyRigPreset(state, "Humanoid");
-    state.currentPose.joints.clear();
-    state.cameraPan = { x: 104, y: -40 };
-    state.cameraZoom = 1.0;
-    window.zoom_level = 1.0;
-    syncJointsList(window, state);
-    syncSelectedJoint(window, state);
+    state.history.push("Novo projeto", state.joints, state.layers, state.currentPose, state.pins);
+    applyProjectToState(state, stateToProject(createInitialAppState(state.paths)));
+    state.isPlaying = false; state.showSkeleton = true; state.showMesh = true;
+    state.cameraPan = { x: 104, y: -40 }; state.cameraZoom = 1;
+    syncJointsList(window, state); syncLayersList(window, state);
+    syncSelectedJoint(window, state); syncSpriteControls(window, state);
     window.status_text = "Novo projeto iniciado com rig Humanoide.";
   };
   window.save_project = () => {
@@ -191,6 +247,7 @@ export function bindSlintWindow(window: any, state: AppState): () => void {
         syncJointsList(window, state);
         syncLayersList(window, state);
         syncSelectedJoint(window, state);
+        fitCanvas(state); syncSpriteControls(window, state);
         window.status_text = "Projeto carregado com sucesso!";
       })
       .catch((err: unknown) => {
@@ -200,7 +257,10 @@ export function bindSlintWindow(window: any, state: AppState): () => void {
       });
   };
   window.export_png = () => {
-    encodeRgbaToPngAsync(state.viewportBuffer.width, state.viewportBuffer.height, state.viewportBuffer.pixels)
+    let buffer;
+    try { buffer = state.spriteAssets.size ? renderArtwork(state) : state.viewportBuffer; }
+    catch (error) { window.status_text = error instanceof Error ? error.message : String(error); return; }
+    encodeRgbaToPngAsync(buffer.width, buffer.height, buffer.pixels)
       .then(async (png) => {
         await fsp.writeFile(state.paths.exportPng, png);
         window.status_text = `Frame exportado: ${path.basename(state.paths.exportPng)}`;
@@ -278,29 +338,34 @@ export function bindSlintWindow(window: any, state: AppState): () => void {
     const idx = state.layers.findIndex((l) => l.id === id);
     if (idx >= 0) state.selection.anchorLayerIdx = idx;
     syncSelectedLayer(window, state);
+    syncSpriteControls(window, state);
   };
   window.select_layer_range = (id: string, extend: boolean) => {
     selectionSelectLayerRange(state.layers, state.selection, id, extend);
     const last = state.selection.selectedLayerIds[state.selection.selectedLayerIds.length - 1];
     if (last) state.selectedLayerId = last;
     syncSelectedLayer(window, state);
+    syncSpriteControls(window, state);
   };
   window.add_layer = () => {
     const lyr = addLayer(state);
     syncLayersList(window, state);
     syncSelectedLayer(window, state);
+    syncSpriteControls(window, state);
     window.status_text = `Camada criada: ${lyr.name}`;
   };
   window.remove_layer = (id: string) => {
     removeLayer(state, id);
     syncLayersList(window, state);
     syncSelectedLayer(window, state);
+    syncSpriteControls(window, state);
     window.status_text = "Camada removida.";
   };
   window.remove_selected_layers = () => {
     const gone = removeSelectedLayers(state);
     syncLayersList(window, state);
     syncSelectedLayer(window, state);
+    syncSpriteControls(window, state);
     window.status_text = gone.length > 0 ? `${gone.length} camada(s) removida(s).` : "Nada selecionado.";
   };
   window.move_layer = (id: string, dir: number) => {
@@ -322,6 +387,7 @@ export function bindSlintWindow(window: any, state: AppState): () => void {
     setLayerOpacity(state, id, opacity);
     syncLayersList(window, state);
     syncSelectedLayer(window, state);
+    syncSpriteControls(window, state);
   };
 
   // --- pinos (P1-7) ---
@@ -357,6 +423,7 @@ export function bindSlintWindow(window: any, state: AppState): () => void {
   // --- animação ---
   window.toggle_play = () => {
     togglePlay(state);
+    if (state.isPlaying) { state.editorMode = EditorMode.Animate; syncEditorMode(window, state); }
     window.is_playing = state.isPlaying;
   };
   window.timeline_seek = (time: number) => {
@@ -364,6 +431,7 @@ export function bindSlintWindow(window: any, state: AppState): () => void {
     window.timeline_time = state.timelineTime;
   };
   window.select_clip = (clipName: string) => {
+    if (state.spriteAssets.size) { window.apply_pin_motion(clipName === "walk" ? "walk" : "breath"); return; }
     selectClip(state, clipName);
     window.active_clip_name = state.activeClipName;
     window.timeline_duration = state.timelineDuration;
@@ -388,6 +456,101 @@ export function bindSlintWindow(window: any, state: AppState): () => void {
     return action;
   };
 
+  const runSpriteAction = (action: () => void, success: string) => {
+    try { action(); syncSpriteControls(window, state); syncLayersList(window, state); window.status_text = success; }
+    catch (error) { window.status_text = error instanceof Error ? error.message : String(error); }
+  };
+  window.import_png_file = (filename: string) => {
+    if (window.import_busy) return;
+    window.import_busy = true;
+    return importSpriteFile(state, filename).then(() => {
+      state.activeTool = "Pin"; window.active_tool = "Pin"; window.dock_tab = "Puppet";
+      state.elementTab = "Camadas"; window.element_tab = "Camadas";
+      syncLayersList(window, state); syncSpriteControls(window, state);
+      window.status_text = "PNG importado. Sugira pinos ou clique na imagem para criá-los.";
+    }).catch((error: unknown) => { window.status_text = error instanceof Error ? error.message : String(error); })
+      .finally(() => { window.import_busy = false; });
+  };
+  window.choose_png = () => {
+    promisify(execFile)("python3", [path.resolve("scripts/native_dialog.py"), "open", "Importar PNG", "png"], { timeout: 120000 })
+      .then(({ stdout }) => { const filename = stdout.trim(); if (filename) window.import_png_file(filename); })
+      .catch(() => { window.status_text = "Use o campo de caminho PNG para importar neste ambiente."; });
+  };
+  window.fit_canvas = () => { fitCanvas(state); syncSpriteControls(window, state); };
+  window.rebuild_mesh = () => runSpriteAction(() => rebuildSpriteMesh(state), "Malha reconstruída; pinos preservados.");
+  window.set_deformation = (mode: string) => runSpriteAction(() => {
+    if (mode !== "MLS" && mode !== "ARAP") throw new Error("Escolha MLS ou ARAP.");
+    setSpriteDeformation(state, mode);
+  }, mode === "ARAP" ? "ARAP: pinos na malha são restrições exatas; âncoras mantêm o repouso." : "MLS: influência por distância, raio e peso do pino.");
+  window.auto_pins = () => runSpriteAction(() => autoSpritePins(state), "Sugestões adicionadas; ajuste a posição e as âncoras.");
+  window.set_sprite_parameter = (name: string, value: string) => runSpriteAction(() => {
+    const v = Number(value); if (!Number.isFinite(v)) throw new Error("Digite um número finito.");
+    if (name === "rows") state.meshRows = Math.round(Math.max(4, Math.min(48, v)));
+    else if (name === "cols") state.meshCols = Math.round(Math.max(4, Math.min(48, v)));
+    else if (name === "alpha") state.alphaThreshold = Math.round(Math.max(1, Math.min(255, v)));
+    else if (name === "edge") state.edgeSize = Math.max(2, Math.min(32, v));
+    else if (name === "amplitude") state.motionAmplitude = Math.max(0, Math.min(200, v));
+    else if (name === "frequency") state.motionFrequency = Math.max(0.1, Math.min(6, v));
+    else if (name === "radius" || name === "strength") {
+      const pin = state.pins.find((p) => p.id === state.selectedPinId);
+      if (!pin) throw new Error("Selecione um pino.");
+      state.history.push("Ajustar influência do pino", state.joints, state.layers, state.currentPose, state.pins);
+      setPinInfluence(state, pin.id, name === "radius" ? Math.max(0, Math.min(4096, v)) : pin.radius ?? 0,
+        pin.falloff ?? 2, name === "strength" ? Math.max(0, Math.min(1, v)) : pin.strength ?? 1);
+    }
+  }, "Parâmetro atualizado.");
+  window.toggle_sprite_overlay = (name: string) => {
+    if (name === "mesh") state.showMesh = !state.showMesh;
+    else if (name === "skeleton") state.showSkeleton = !state.showSkeleton;
+    else if (name === "onion") state.onionSkin = !state.onionSkin;
+    else if (name === "snap") state.snapPins = !state.snapPins;
+    else if (name === "refine") state.refineEdges = !state.refineEdges;
+    syncSpriteControls(window, state);
+  };
+  window.choose_pin = (id: string) => { state.selectedPinId = id; syncSpriteControls(window, state); };
+  window.lock_selected_pin = () => runSpriteAction(() => {
+    togglePinLock(state, state.selectedPinId);
+  }, "Âncora do pino atualizada.");
+  window.remove_selected_pin = () => runSpriteAction(() => {
+    deletePin(state, state.selectedPinId); state.selectedPinId = "";
+  }, "Pino removido.");
+  window.apply_pin_motion = (preset: string) => runSpriteAction(() => {
+    if (!["breath", "sway", "walk"].includes(preset)) throw new Error("Preset desconhecido.");
+    const layerMesh = state.meshLayer.get(state.selectedLayerId);
+    const pins = state.pins.filter((p) => p.meshId === layerMesh);
+    if (pins.filter((p) => !p.locked && p.enabled !== false).length < 1) throw new Error("Crie ao menos um pino livre.");
+    state.history.push("Aplicar movimento de pinos", state.joints, state.layers, state.currentPose, state.pins);
+    state.activeClip = createPinMotionClip(pins, { preset: preset as PinMotionPreset,
+      amplitude: state.motionAmplitude, frequency: state.motionFrequency, duration: 4, intensity: 1 });
+    state.activeClipName = state.activeClip.name; state.timelineDuration = state.activeClip.duration;
+    seekTimeline(state, 0); state.motionPreset = preset; state.isPlaying = true;
+    state.editorMode = EditorMode.Animate; state.activeWorkspace = "Animacao";
+    window.active_workspace = "Animacao"; window.dock_tab = "Puppet";
+  }, "Movimento aplicado como keyframes editáveis no clipe ativo.");
+  window.key_pin_pose = () => runSpriteAction(() => {
+    state.history.push("Gravar pose de pinos", state.joints, state.layers, state.currentPose, state.pins);
+    upsertPinKeyframe(state.activeClip, state.currentPose, state.timelineTime);
+  }, "Pose gravada na timeline.");
+  let performanceArmed = false;
+  let performanceStart: number | null = null;
+  window.arm_performance = () => {
+    performanceArmed = !performanceArmed; window.performance_armed = performanceArmed;
+    state.isPlaying = false; state.editorMode = EditorMode.Animate;
+    syncSpriteControls(window, state);
+    window.status_text = performanceArmed ? "Arraste um pino livre para gravar um gesto de até 4 segundos." : "Gravação desarmada.";
+  };
+  window.export_spritesheet = () => runSpriteAction(() => {
+    if (!state.spriteAssets.size) throw new Error("Importe um PNG primeiro.");
+    const frameCount = 8; const columns = 4;
+    if (state.canvasWidth * state.canvasHeight * frameCount > 16_777_216) throw new Error("Spritesheet excede 16 milhões de pixels.");
+    const frames = Array.from({ length: frameCount }, (_, i) => renderArtwork(state, i / (state.activeClip.loop ? frameCount : frameCount - 1) * state.activeClip.duration).pixels);
+    const sheet = composeSpritesheet(frames, state.canvasWidth, state.canvasHeight, columns);
+    const target = path.join(path.dirname(state.paths.exportPng), "spritesheet_export.png");
+    fsp.writeFile(target, encodeRgbaToPng(sheet.width, sheet.height, sheet.pixels))
+      .then(() => { window.status_text = "Spritesheet exportada: 8 quadros, 4 colunas, fundo transparente."; })
+      .catch((error: unknown) => { window.status_text = String(error); });
+  }, "Exportando spritesheet...");
+
   // --- viewport mouse (usa controller + Setup/Animate + picking por ferramenta P1-8) ---
   const drag = state.viewportDrag;
   const viewportPoint = (x: number, y: number) => mapViewportPoint(
@@ -407,15 +570,48 @@ export function bindSlintWindow(window: any, state: AppState): () => void {
     drag.startPan = { ...state.cameraPan };
     if (state.viewportMode === "2D") {
       const [wx, wy] = state.viewportBuffer.screenToWorld(sx, sy, state.cameraPan.x, state.cameraPan.y, state.cameraZoom);
-      const hit = pickEntity(state.joints, state.pins, state.currentPose, wx, wy, state.activeTool, state.cameraZoom);
+      const pinHit = pickScenePin(state, [wx, wy], 16 / Math.max(0.05, state.cameraZoom));
+      const hit = pinHit ? { kind: "pin", id: pinHit } : pickEntity(state.showSkeleton ? state.joints : [], [], state.currentPose, wx, wy, state.activeTool, state.cameraZoom);
       if (hit.kind === "pin") {
-        drag.beginPin(sx, sy, hit.id, state.cameraPan);
+        const pin = state.pins.find((p) => p.id === hit.id)!;
         state.selectedPinId = hit.id;
+        const owner = [...state.meshLayer].find(([, meshId]) => meshId === pin.meshId)?.[0];
+        if (owner) state.selectedLayerId = owner;
+        syncSpriteControls(window, state);
+        if (pin.locked) { window.status_text = "Pino âncora: desbloqueie para mover."; return; }
+        state.isPlaying = false; window.is_playing = false;
+        drag.beginPin(sx, sy, hit.id, state.cameraPan);
         state.history.push(`Arrastar Pino ${hit.id}`, state.joints, state.layers, state.currentPose, state.pins);
-        window.status_text = `Pino selecionado: ${hit.id}`;
+        if (performanceArmed) {
+          performanceStart = Date.now();
+          state.activeClip = createClip("gesture", "Gesto gravado", 4, 60, false);
+          state.activeClipName = state.activeClip.name; state.timelineDuration = 4; state.timelineTime = 0;
+          upsertPinKeyframe(state.activeClip, state.currentPose, 0);
+        }
+        syncSpriteControls(window, state);
+        window.status_text = performanceArmed ? "Gravando gesto..." : "Pino selecionado.";
         return;
       }
+      if (state.activeTool === "Pin" && state.editorMode === EditorMode.Setup && state.spriteAssets.size) {
+        const layer = state.layers.find((l) => l.id === state.selectedLayerId);
+        const image = layer ? state.spriteAssets.get(layer.asset) : undefined;
+        const meshId = layer ? state.meshLayer.get(layer.id) : undefined;
+        if (layer && image && meshId !== undefined && !layer.locked && layer.visible) {
+          const matrix = layerMatrix(layer, state.joints, state.currentPose, boneMatrices(state.joints, state.currentPose));
+          if (Math.abs(matrix.a * matrix.d - matrix.b * matrix.c) < 1e-10) return;
+          let local = matApply(matInverse(matrix), [wx, wy]);
+          if (local[0] >= 0 && local[1] >= 0 && local[0] < image.width && local[1] < image.height) {
+            if (state.snapPins) local = nearestOpaquePoint(image, local[0], local[1], state.alphaThreshold) ?? local;
+            runSpriteAction(() => {
+              const pin = addPin(state, meshId, local[0], local[1]);
+              state.selectedPinId = pin.id;
+            }, "Pino criado.");
+            return;
+          }
+        }
+      }
       if (hit.kind === "joint") {
+        state.isPlaying = false; window.is_playing = false;
         drag.beginJoint(sx, sy, hit.id, state.cameraPan);
         state.selectedJointId = hit.id;
         state.selection.selectedJointIds = [hit.id];
@@ -438,8 +634,8 @@ export function bindSlintWindow(window: any, state: AppState): () => void {
         state.orbitCamera.yaw += dx * 0.01;
         state.orbitCamera.pitch = Math.max(-1.4, Math.min(1.4, state.orbitCamera.pitch - dy * 0.01));
       } else {
-        state.cameraPan.x = drag.startPan.x + (sx - drag.startMouse[0]) / state.cameraZoom;
-        state.cameraPan.y = drag.startPan.y + (sy - drag.startMouse[1]) / state.cameraZoom;
+        state.cameraPan.x = drag.startPan.x + (sx - drag.startMouse[0]);
+        state.cameraPan.y = drag.startPan.y + (sy - drag.startMouse[1]);
       }
     } else if (drag.mode === "joint") {
       const [wx, wy] = state.viewportBuffer.screenToWorld(sx, sy, state.cameraPan.x, state.cameraPan.y, state.cameraZoom);
@@ -453,21 +649,44 @@ export function bindSlintWindow(window: any, state: AppState): () => void {
       const [wx, wy] = state.viewportBuffer.screenToWorld(sx, sy, state.cameraPan.x, state.cameraPan.y, state.cameraZoom);
       const pin = state.pins.find((p) => p.id === drag.pinId);
       if (pin) {
+        const local = pinLocalPoint(state, pin, [wx, wy]);
+        if (!local) return;
         if (state.editorMode === EditorMode.Setup) {
-          movePinRest(state.pins, pin.id, wx, wy);
-        } else {
-          movePinOffset(state.currentPose, pin.id, dx / state.cameraZoom, dy / state.cameraZoom);
+          const layer = state.layers.find((l) => state.meshLayer.get(l.id) === pin.meshId);
+          const image = layer ? state.spriteAssets.get(layer.asset) : undefined;
+          const snapped = state.snapPins && image ? nearestOpaquePoint(image, local[0], local[1], state.alphaThreshold) : local;
+          if (snapped) movePinRest(state.pins, pin.id, snapped[0], snapped[1]);
+        }
+        else {
+          state.currentPose.pins.set(pin.id, [local[0] - pin.x, local[1] - pin.y]);
+          if (performanceStart !== null) {
+            state.timelineTime = Math.min(4, (Date.now() - performanceStart) / 1000);
+            upsertPinKeyframe(state.activeClip, state.currentPose, state.timelineTime);
+            window.timeline_time = state.timelineTime;
+          }
         }
       }
     }
     drag.lastMouse = [sx, sy];
   };
   window.viewport_mouse_up = () => {
-    drag.end();
+    if (drag.mode === "pin" && state.editorMode === EditorMode.Animate) {
+      state.timelineTime = Math.min(state.activeClip.duration, Math.round(state.timelineTime * state.activeClip.fps) / state.activeClip.fps);
+      if (performanceStart !== null) state.timelineTime = Math.max(1 / state.activeClip.fps, state.timelineTime);
+      upsertPinKeyframe(state.activeClip, state.currentPose, state.timelineTime);
+    }
+    if (performanceStart !== null) {
+      state.activeClip.frames = state.activeClip.frames.filter((frame) => frame.time <= state.timelineTime);
+      state.activeClip.duration = Math.max(1 / 60, state.timelineTime);
+      state.timelineDuration = state.activeClip.duration;
+      performanceStart = null; performanceArmed = false; window.performance_armed = false;
+      window.status_text = "Gesto gravado em keyframes. Reproduza para conferir.";
+    }
+    drag.end(); syncSpriteControls(window, state);
   };
   window.viewport_scroll = (deltaY: number) => {
     const factor = deltaY > 0 ? 0.9 : 1.1;
-    state.cameraZoom = Math.min(5.0, Math.max(0.2, state.cameraZoom * factor));
+    state.cameraZoom = Math.min(5.0, Math.max(0.05, state.cameraZoom * factor));
     window.zoom_level = state.cameraZoom;
   };
   window.zoom_in = () => {
@@ -475,7 +694,7 @@ export function bindSlintWindow(window: any, state: AppState): () => void {
     window.zoom_level = state.cameraZoom;
   };
   window.zoom_out = () => {
-    state.cameraZoom = Math.max(0.2, state.cameraZoom * 0.8);
+    state.cameraZoom = Math.max(0.05, state.cameraZoom * 0.8);
     window.zoom_level = state.cameraZoom;
   };
   window.reset_view = () => {

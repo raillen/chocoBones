@@ -128,8 +128,8 @@
     "protocol": "POP"
   },
   "project": {
-    "description": "2D/3D character puppet creator and skeletal animation studio in Odin (DOD, Memory Arenas, MLS mesh deformation, 14-joint FK/IK rig, Bezier timelines, ImGui docking UI)",
-    "name": "chocoBones-std",
+    "description": "2D puppet and skeletal animation editor in TypeScript, Electrobun/Bun and SolidJS; MLS/ARAP deformation, contextual inspector and keyframe timeline; legacy Slint adapter retained",
+    "name": "chocoBones-ts",
     "type": [
       "game-engine",
       "desktop",
@@ -137,7 +137,7 @@
     ]
   },
   "protocol": {
-    "compatible": "\u003e=3 \u003c4",
+    "compatible": ">=3 <4",
     "version": 3
   },
   "quality": {
@@ -153,16 +153,24 @@
   "stack": {
     "languages": [
       "typescript",
+      "tsx",
       "wgsl"
     ],
     "runtime": [
+      "bun",
+      "electrobun",
+      "cef",
+      "webgl2",
+      "web-worker",
       "node",
-      "webgpu",
-      "slint"
+      "slint-legacy"
     ],
     "tooling": [
       "pnpm",
-      "typescript"
+      "typescript",
+      "solidjs",
+      "vite",
+      "vitest"
     ]
   },
   "version": 3

@@ -6,6 +6,29 @@ import { Layer } from "../../rig/joint";
 import { moveLayerOrder } from "../selection";
 import type { AppState } from "../store";
 
+function cleanRemovedLayers(state: AppState, removed: Layer[]): void {
+  for (const layer of removed) {
+    const meshId = state.meshLayer.get(layer.id);
+    state.meshLayer.delete(layer.id);
+    if (!state.layers.some((l) => l.asset === layer.asset)) state.spriteAssets.delete(layer.asset);
+    if (meshId !== undefined && ![...state.meshLayer.values()].includes(meshId)) {
+      state.meshUvs.delete(meshId);
+      const mesh = state.meshes[Number(meshId)];
+      if (mesh) { mesh.vertices = []; mesh.triangles = []; mesh.weights = []; }
+      const gone = state.pins.filter((p) => p.meshId === meshId).map((p) => p.id);
+      state.pins = state.pins.filter((p) => p.meshId !== meshId);
+      for (const id of gone) {
+        state.currentPose.pins.delete(id);
+        for (const frame of state.activeClip.frames) {
+          frame.pins.delete(id);
+          frame.channels = frame.channels.filter((channel) => channel !== `pin:${id}`);
+        }
+      }
+      if (gone.includes(state.selectedPinId)) state.selectedPinId = "";
+    }
+  }
+}
+
 export function addLayer(state: AppState): Layer {
   state.history.push("Adicionar Camada", state.joints, state.layers, state.currentPose);
   const layer: Layer = {
@@ -27,8 +50,10 @@ export function addLayer(state: AppState): Layer {
 }
 
 export function removeLayer(state: AppState, id: string): void {
-  state.history.push(`Remover Camada ${id}`, state.joints, state.layers, state.currentPose);
+  state.history.push(`Remover Camada ${id}`, state.joints, state.layers, state.currentPose, state.pins);
+  const removed = state.layers.filter((l) => l.id === id);
   state.layers = state.layers.filter((l) => l.id !== id);
+  cleanRemovedLayers(state, removed);
   state.selection.selectedLayerIds = state.selection.selectedLayerIds.filter((s) => s !== id);
   if (state.selectedLayerId === id) state.selectedLayerId = state.layers[0]?.id ?? "";
 }
@@ -36,9 +61,11 @@ export function removeLayer(state: AppState, id: string): void {
 export function removeSelectedLayers(state: AppState): string[] {
   const ids = state.selection.selectedLayerIds.length > 0 ? state.selection.selectedLayerIds : state.selectedLayerId ? [state.selectedLayerId] : [];
   if (ids.length === 0) return [];
-  state.history.push(`Remover ${ids.length} camada(s)`, state.joints, state.layers, state.currentPose);
+  state.history.push(`Remover ${ids.length} camada(s)`, state.joints, state.layers, state.currentPose, state.pins);
   const gone = [...ids];
+  const removed = state.layers.filter((l) => ids.includes(l.id));
   state.layers = state.layers.filter((l) => !ids.includes(l.id));
+  cleanRemovedLayers(state, removed);
   state.selection.selectedLayerIds = [];
   state.selectedLayerId = state.layers[0]?.id ?? "";
   return gone;
