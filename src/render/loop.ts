@@ -4,8 +4,13 @@
  */
 import { advanceTime } from "../animation/clock";
 import { evaluateClipInto } from "../animation/evaluator";
-import { boneMatrices } from "../rig/fk";
-import { meshWorld } from "../mesh/mesh";
+import { boneMatrices, layerMatrix } from "../rig/fk";
+import { matApply } from "../core/math";
+import { createPose } from "../rig/joint";
+import { drawSpriteScene } from "./sprite_scene";
+import { pinWorldPoint } from "../ui/viewport/pin_space";
+import { meshWorld, computeGridUvs } from "../mesh/mesh";
+import { deformSpriteMesh } from "./deformed_sprite";
 import { stepSpring } from "../physics2d/spring";
 import type { AppState } from "../ui/store";
 import type { ImageData } from "slint-ui";
@@ -37,8 +42,17 @@ export function renderFrame(state: AppState): void {
     } else {
       buf.drawGrid(32, state.cameraPan.x, state.cameraPan.y, state.cameraZoom, 28, 28, 34);
     }
-    buf.renderLayers(state.layers, bones, state.selectedLayerId, state.cameraPan.x, state.cameraPan.y, state.cameraZoom);
-    buf.renderSkeleton(state.joints, bones, state.selectedJointId, state.cameraPan.x, state.cameraPan.y, state.cameraZoom);
+    if (state.spriteAssets.size === 0) {
+      buf.renderLayers(state.layers, bones, state.selectedLayerId, state.cameraPan.x, state.cameraPan.y, state.cameraZoom);
+    } else {
+      if (state.onionSkin && !state.isPlaying) {
+        const ghost = createPose();
+        evaluateClipInto(state.activeClip, Math.max(0, state.timelineTime - 1 / state.activeClip.fps), ghost);
+        drawSpriteScene(buf, state, ghost, state.cameraPan.x, state.cameraPan.y, state.cameraZoom, 0.22);
+      }
+      drawSpriteScene(buf, state, state.currentPose, state.cameraPan.x, state.cameraPan.y, state.cameraZoom);
+    }
+    if (state.showSkeleton) buf.renderSkeleton(state.joints, bones, state.selectedJointId, state.cameraPan.x, state.cameraPan.y, state.cameraZoom);
     // P0-2: puppet deformado com deslocamentos efetivos de pose.pins (mesmo p/ export)
     renderPuppetMeshes(state, bones);
   } else {
@@ -63,8 +77,9 @@ export function tickAnimation(state: AppState, deltaSeconds: number): void {
     for (const chain of state.springs) stepSpring(chain, dt);
   }
   if (!state.isPlaying) return;
-  state.timelineTime = advanceTime(state.timelineTime, deltaSeconds, state.timelineDuration, true);
+  state.timelineTime = advanceTime(state.timelineTime, deltaSeconds, state.timelineDuration, state.activeClip.loop);
   evaluateClipInto(state.activeClip, state.timelineTime, state.currentPose);
+  if (!state.activeClip.loop && state.timelineTime >= state.timelineDuration) state.isPlaying = false;
   // Dinâmica secundária aditiva após sampling (não destrói keyframes)
   for (const chain of state.springs) {
     chain.jointIds.forEach((jid, i) => {
@@ -86,16 +101,24 @@ export function tickAnimation(state: AppState, deltaSeconds: number): void {
 export function renderPuppetMeshes(state: AppState, bones: Map<string, import("../core/types").Mat2x3>): void {
   const buf = state.viewportBuffer;
   for (const layer of state.layers) {
-    if (!layer.visible) continue;
+    if (!layer.visible || state.currentPose.layers.get(layer.id)?.visible === false) continue;
+    if (state.spriteAssets.size > 0 && !state.spriteAssets.has(layer.asset)) continue;
     const meshIdx = state.meshLayer.get(layer.id);
     if (meshIdx === undefined) continue;
     const mesh = state.meshes[Number(meshIdx)];
     if (!mesh || mesh.vertices.length === 0) continue;
     // Pinos da malha (filtra por meshId quando presente)
-    const pins = state.pins.filter((p) => !p.meshId || p.meshId === meshIdx);
-    const world = meshWorld(mesh, pins, null, layer, state.joints, state.currentPose, bones);
+    const image = state.spriteAssets.get(layer.asset);
+    const pins = state.pins.filter((p) => p.meshId === meshIdx || (!image && !p.meshId));
+    const stored = state.meshUvs.get(meshIdx);
+    const packet = image ? deformSpriteMesh(mesh,
+      stored?.length === mesh.vertices.length ? stored : computeGridUvs(mesh, image.width, image.height),
+      pins, state.currentPose.pins) : undefined;
+    const matrix = layerMatrix(layer, state.joints, state.currentPose, bones);
+    const world = packet ? packet.vertices.map((p) => matApply(matrix, p))
+      : meshWorld(mesh, pins, null, layer, state.joints, state.currentPose, bones);
     // Wireframe ciano suave
-    for (const [a, b, c] of mesh.triangles) {
+    for (const [a, b, c] of state.showMesh ? packet?.triangles ?? mesh.triangles : []) {
       const pa = world[a];
       const pb = world[b];
       const pc = world[c];
@@ -109,11 +132,12 @@ export function renderPuppetMeshes(state: AppState, bones: Map<string, import(".
     }
     // Pinos: verde livre, âmbar travado, cinza desabilitado
     for (const pin of pins) {
-      const d = state.currentPose.pins.get(pin.id) ?? [0, 0];
-      const [sx, sy] = buf.worldToScreen(pin.x + d[0], pin.y + d[1], state.cameraPan.x, state.cameraPan.y, state.cameraZoom);
+      const point = pinWorldPoint(state, pin);
+      const [sx, sy] = buf.worldToScreen(point[0], point[1], state.cameraPan.x, state.cameraPan.y, state.cameraZoom);
       if (pin.enabled === false) buf.drawCircle(sx, sy, 4, 113, 113, 122);
       else if (pin.locked) buf.drawCircle(sx, sy, 4, 245, 158, 11);
       else buf.drawCircle(sx, sy, 4, 16, 185, 129);
+      if (pin.id === state.selectedPinId) buf.drawCircleOutline(sx, sy, 6, 1, 255, 255, 255);
     }
   }
 }
@@ -147,6 +171,7 @@ export function startRenderLoop(state: AppState, window: unknown, opts: LoopOpti
         };
         w["viewport_frame"] = frame;
         if (typeof w["timeline_time"] !== "undefined") w["timeline_time"] = state.timelineTime;
+        if (typeof w["is_playing"] !== "undefined") w["is_playing"] = state.isPlaying;
       }
     } catch {
       // janela fechada: ignora

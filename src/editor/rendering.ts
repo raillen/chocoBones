@@ -1,0 +1,145 @@
+/** Browser-safe deterministic fallback renderer and animation tick. Stage uses GPU/worker. */
+import { advanceTime } from "../animation/clock";
+import { evaluateClipInto } from "../animation/evaluator";
+import { boneMatrices, layerMatrix } from "../rig/fk";
+import { matApply } from "../core/math";
+import { createPose } from "../rig/joint";
+import { drawSpriteScene } from "../render/sprite_scene";
+import { pinWorldPoint } from "../ui/viewport/pin_space";
+import { meshWorld, computeGridUvs } from "../mesh/mesh";
+import { deformSpriteMesh } from "../render/deformed_sprite";
+import { stepSpring } from "../physics2d/spring";
+import type { AppState } from "../ui/store";
+
+export interface LoopOptions {
+  fps?: number;
+}
+
+export function renderFrame(state: AppState): void {
+  const bones = boneMatrices(state.joints, state.currentPose);
+  const buf = state.viewportBuffer;
+
+  const isLight = state.themeMode === "Light";
+  const isDim = state.themeMode === "Dim";
+
+  if (isLight) {
+    buf.clear(244, 244, 246);
+  } else if (isDim) {
+    buf.clear(32, 32, 36);
+  } else {
+    buf.clear(14, 14, 16);
+  }
+
+  if (state.viewportMode === "2D") {
+    if (isLight) {
+      buf.drawGrid(32, state.cameraPan.x, state.cameraPan.y, state.cameraZoom, 218, 220, 226);
+    } else if (isDim) {
+      buf.drawGrid(32, state.cameraPan.x, state.cameraPan.y, state.cameraZoom, 48, 48, 56);
+    } else {
+      buf.drawGrid(32, state.cameraPan.x, state.cameraPan.y, state.cameraZoom, 28, 28, 34);
+    }
+    if (state.spriteAssets.size === 0) {
+      buf.renderLayers(state.layers, bones, state.selectedLayerId, state.cameraPan.x, state.cameraPan.y, state.cameraZoom);
+    } else {
+      if (state.onionSkin && !state.isPlaying) {
+        const ghost = createPose();
+        evaluateClipInto(state.activeClip, Math.max(0, state.timelineTime - 1 / state.activeClip.fps), ghost);
+        drawSpriteScene(buf, state, ghost, state.cameraPan.x, state.cameraPan.y, state.cameraZoom, 0.22);
+      }
+      drawSpriteScene(buf, state, state.currentPose, state.cameraPan.x, state.cameraPan.y, state.cameraZoom);
+    }
+    if (state.showSkeleton) buf.renderSkeleton(state.joints, bones, state.selectedJointId, state.cameraPan.x, state.cameraPan.y, state.cameraZoom);
+    // P0-2: puppet deformado com deslocamentos efetivos de pose.pins (mesmo p/ export)
+    renderPuppetMeshes(state, bones);
+  } else {
+    if (isLight) {
+      buf.drawGrid(40, 0, 0, 1.0, 218, 220, 226);
+      buf.render3D(state.mesh3D, state.orbitCamera, 2, 132, 199);
+    } else if (isDim) {
+      buf.drawGrid(40, 0, 0, 1.0, 48, 48, 56);
+      buf.render3D(state.mesh3D, state.orbitCamera, 56, 189, 248);
+    } else {
+      buf.drawGrid(40, 0, 0, 1.0, 28, 28, 34);
+      buf.render3D(state.mesh3D, state.orbitCamera, 56, 189, 248);
+    }
+  }
+}
+
+export function tickAnimation(state: AppState, deltaSeconds: number): void {
+  // P0-6: física em passo fixo (determinística sob scrub/export via bake)
+  const steps = state.springAcc.stepsFor(deltaSeconds);
+  const dt = 1 / Math.max(1, state.springHz);
+  for (let s = 0; s < steps; s++) {
+    for (const chain of state.springs) stepSpring(chain, dt);
+  }
+  if (!state.isPlaying) return;
+  state.timelineTime = advanceTime(state.timelineTime, deltaSeconds, state.timelineDuration, state.activeClip.loop);
+  evaluateClipInto(state.activeClip, state.timelineTime, state.currentPose);
+  if (!state.activeClip.loop && state.timelineTime >= state.timelineDuration) state.isPlaying = false;
+  // Dinâmica secundária aditiva após sampling (não destrói keyframes)
+  for (const chain of state.springs) {
+    chain.jointIds.forEach((jid, i) => {
+      const add = chain.angle[i] ?? 0;
+      if (Math.abs(add) < 1e-9) return;
+      const cur = state.currentPose.joints.get(jid) ?? { angle: 0, x: 0, y: 0 };
+      state.currentPose.joints.set(jid, { ...cur, angle: cur.angle + add });
+    });
+  }
+  if (state.viewportMode === "3D") {
+    state.orbitCamera.yaw += deltaSeconds * 0.3;
+  }
+}
+
+/**
+ * P0-2: desenha malhas deformadas por MLS usando pose.pins.
+ * Preview e export usam esta mesma função via renderFrame/renderOffscreen.
+ */
+export function renderPuppetMeshes(state: AppState, bones: Map<string, import("../core/types").Mat2x3>): void {
+  const buf = state.viewportBuffer;
+  for (const layer of state.layers) {
+    if (!layer.visible || state.currentPose.layers.get(layer.id)?.visible === false) continue;
+    if (state.spriteAssets.size > 0 && !state.spriteAssets.has(layer.asset)) continue;
+    const meshIdx = state.meshLayer.get(layer.id);
+    if (meshIdx === undefined) continue;
+    const mesh = state.meshes[Number(meshIdx)];
+    if (!mesh || mesh.vertices.length === 0) continue;
+    // Pinos da malha (filtra por meshId quando presente)
+    const image = state.spriteAssets.get(layer.asset);
+    const pins = state.pins.filter((p) => p.meshId === meshIdx || (!image && !p.meshId));
+    const stored = state.meshUvs.get(meshIdx);
+    const packet = image ? deformSpriteMesh(mesh,
+      stored?.length === mesh.vertices.length ? stored : computeGridUvs(mesh, image.width, image.height),
+      pins, state.currentPose.pins) : undefined;
+    const matrix = layerMatrix(layer, state.joints, state.currentPose, bones);
+    const world = packet ? packet.vertices.map((p) => matApply(matrix, p))
+      : meshWorld(mesh, pins, null, layer, state.joints, state.currentPose, bones);
+    // Wireframe ciano suave
+    for (const [a, b, c] of state.showMesh ? packet?.triangles ?? mesh.triangles : []) {
+      const pa = world[a];
+      const pb = world[b];
+      const pc = world[c];
+      if (!pa || !pb || !pc) continue;
+      const [sax, say] = buf.worldToScreen(pa[0], pa[1], state.cameraPan.x, state.cameraPan.y, state.cameraZoom);
+      const [sbx, sby] = buf.worldToScreen(pb[0], pb[1], state.cameraPan.x, state.cameraPan.y, state.cameraZoom);
+      const [scx, scy] = buf.worldToScreen(pc[0], pc[1], state.cameraPan.x, state.cameraPan.y, state.cameraZoom);
+      buf.drawLine(sax, say, sbx, sby, 56, 189, 248);
+      buf.drawLine(sbx, sby, scx, scy, 56, 189, 248);
+      buf.drawLine(scx, scy, sax, say, 56, 189, 248);
+    }
+    // Pinos: verde livre, âmbar travado, cinza desabilitado
+    for (const pin of pins) {
+      const point = pinWorldPoint(state, pin);
+      const [sx, sy] = buf.worldToScreen(point[0], point[1], state.cameraPan.x, state.cameraPan.y, state.cameraZoom);
+      if (pin.enabled === false) buf.drawCircle(sx, sy, 4, 113, 113, 122);
+      else if (pin.locked) buf.drawCircle(sx, sy, 4, 245, 158, 11);
+      else buf.drawCircle(sx, sy, 4, 16, 185, 129);
+      if (pin.id === state.selectedPinId) buf.drawCircleOutline(sx, sy, 6, 1, 255, 255, 255);
+    }
+  }
+}
+
+/** Render offscreen determinístico p/ export: mesmo evaluate(t) do preview. */
+export function renderOffscreen(state: AppState, time: number): void {
+  evaluateClipInto(state.activeClip, time, state.currentPose);
+  renderFrame(state);
+}

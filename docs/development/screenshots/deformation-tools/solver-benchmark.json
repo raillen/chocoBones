@@ -1,0 +1,267 @@
+{
+  "generatedAt": "2026-10-12T16:00:50.859Z",
+  "scope": "Pure deterministic solve() latency after mesh preparation and one warmup per configuration. Solver construction, pin insertion, native UI, full frame, rasterization, packet pose cache and export are excluded.",
+  "machine": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64",
+    "cpuModel": "AMD EPYC 9V74 80-Core Processor",
+    "logicalCpus": 5,
+    "totalMemoryBytes": 35743784960
+  },
+  "sourceImage": "assets/test-kits/frontier-survival/vector-rig/base-survivor.png",
+  "sourceSize": [
+    512,
+    768
+  ],
+  "meshParameters": {
+    "alphaThreshold": 12,
+    "edgeSize": 8,
+    "maxVertices": 3968,
+    "rowsAndCols": "16 or 48, as indicated by each record label"
+  },
+  "poseDescription": "Five opaque-snapped autopins; base fixed, superior moves +24x, lateral +16y, left foot -12x, right foot +12x.",
+  "configurations": {
+    "default": {
+      "iterations": 16,
+      "tolerance": 1e-7,
+      "maxCgIterations": "min(free vertices, 256)"
+    },
+    "bounded": {
+      "iterations": 8,
+      "maxCgIterations": 64,
+      "tolerance": 0.00001
+    },
+    "reference": {
+      "iterations": 64,
+      "maxCgIterations": 1024,
+      "tolerance": 1e-9
+    }
+  },
+  "samples": {
+    "warmupPerConfiguration": 1,
+    "default": 7,
+    "bounded": 7,
+    "reference": 3
+  },
+  "energyDefinition": "Sum over directed unique mesh edges of ||(q_i-q_j)-R_i(p_i-p_j)||^2 in source pixels squared, with each R_i refitted from that pose by SO(2) polar atan2. Uniform positive weights; every undirected edge contributes twice.",
+  "caveats": "Informational cloud timings; concurrent work affects latency. Reference is a bounded 64-step solve, not proof of full convergence. The production renderer/export both retain the default 16-step quality, without playback warm starts.",
+  "records": [
+    {
+      "label": "grade16",
+      "vertices": 106,
+      "triangles": 162,
+      "points": [
+        [
+          246.5,
+          460.5
+        ],
+        [
+          256,
+          115.19999999999999
+        ],
+        [
+          363.5,
+          351.5
+        ],
+        [
+          167.5,
+          689.5
+        ],
+        [
+          343.5,
+          691.5
+        ]
+      ],
+      "indices": [
+        101,
+        102,
+        103,
+        104,
+        105
+      ],
+      "metrics": {
+        "default": {
+          "medianMs": 2.8536770000000047,
+          "minMs": 2.094154000000003,
+          "edgeEnergy": 771.8788082366909
+        },
+        "bounded": {
+          "medianMs": 1.0091999999999928,
+          "minMs": 0.8782620000000065,
+          "edgeEnergy": 782.3504593128473
+        },
+        "reference": {
+          "medianMs": 12.695937000000015,
+          "minMs": 8.409021999999993,
+          "edgeEnergy": 771.0294390902565
+        }
+      },
+      "defaultVsReferencePx": 0.8273222691567416,
+      "boundedVsDefaultPx": 1.5809412046481692,
+      "boundedVsReferencePx": 2.406897327028128
+    },
+    {
+      "label": "grade16-refined8",
+      "vertices": 1304,
+      "triangles": 2156,
+      "points": [
+        [
+          246.5,
+          460.5
+        ],
+        [
+          256,
+          115.19999999999999
+        ],
+        [
+          363.5,
+          351.5
+        ],
+        [
+          167.5,
+          689.5
+        ],
+        [
+          343.5,
+          691.5
+        ]
+      ],
+      "indices": [
+        1299,
+        1300,
+        1301,
+        1302,
+        1303
+      ],
+      "metrics": {
+        "default": {
+          "medianMs": 111.66034000000002,
+          "minMs": 97.45178700000002,
+          "edgeEnergy": 95.87632039499887
+        },
+        "bounded": {
+          "medianMs": 24.558377999999948,
+          "minMs": 22.203793000000132,
+          "edgeEnergy": 128.4329857730663
+        },
+        "reference": {
+          "medianMs": 457.4727790000002,
+          "minMs": 448.8299259999999,
+          "edgeEnergy": 83.25863197641557
+        }
+      },
+      "defaultVsReferencePx": 4.106253826109432,
+      "boundedVsDefaultPx": 2.8208569371721475,
+      "boundedVsReferencePx": 6.433367740988987
+    },
+    {
+      "label": "grade48",
+      "vertices": 638,
+      "triangles": 1084,
+      "points": [
+        [
+          246.5,
+          460.5
+        ],
+        [
+          256,
+          115.19999999999999
+        ],
+        [
+          363.5,
+          351.5
+        ],
+        [
+          167.5,
+          689.5
+        ],
+        [
+          343.5,
+          691.5
+        ]
+      ],
+      "indices": [
+        633,
+        634,
+        635,
+        636,
+        637
+      ],
+      "metrics": {
+        "default": {
+          "medianMs": 30.078324000000066,
+          "minMs": 29.68129500000032,
+          "edgeEnergy": 143.89305595582974
+        },
+        "bounded": {
+          "medianMs": 10.108975999999984,
+          "minMs": 9.631516999999803,
+          "edgeEnergy": 165.48462909253774
+        },
+        "reference": {
+          "medianMs": 136.29393000000027,
+          "minMs": 132.21499300000005,
+          "edgeEnergy": 137.87330111265317
+        }
+      },
+      "defaultVsReferencePx": 2.6048849721763663,
+      "boundedVsDefaultPx": 1.9153955004480503,
+      "boundedVsReferencePx": 3.9223070205672896
+    },
+    {
+      "label": "grade48-refined8",
+      "vertices": 1447,
+      "triangles": 2454,
+      "points": [
+        [
+          246.5,
+          460.5
+        ],
+        [
+          256,
+          115.19999999999999
+        ],
+        [
+          363.5,
+          351.5
+        ],
+        [
+          167.5,
+          689.5
+        ],
+        [
+          343.5,
+          691.5
+        ]
+      ],
+      "indices": [
+        1442,
+        1443,
+        1444,
+        1445,
+        1446
+      ],
+      "metrics": {
+        "default": {
+          "medianMs": 121.08640999999989,
+          "minMs": 118.81314400000065,
+          "edgeEnergy": 82.42403503240833
+        },
+        "bounded": {
+          "medianMs": 26.025574999999662,
+          "minMs": 23.8745229999995,
+          "edgeEnergy": 107.9079195008388
+        },
+        "reference": {
+          "medianMs": 571.1790639999999,
+          "minMs": 558.2527230000005,
+          "edgeEnergy": 68.68500536088393
+        }
+      },
+      "defaultVsReferencePx": 5.334152772332294,
+      "boundedVsDefaultPx": 2.7479747887498065,
+      "boundedVsReferencePx": 8.07848698587803
+    }
+  ]
+}

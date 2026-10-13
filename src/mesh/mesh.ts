@@ -40,6 +40,15 @@ export enum SkinningMode {
   DualQuaternion = "DualQuaternion",
 }
 
+export type SpriteDeformation = "MLS" | "ARAP";
+export interface SpriteMeshBuild {
+  rows: number;
+  cols: number;
+  alphaThreshold: number;
+  refineEdges: boolean;
+  edgeSize: number;
+}
+
 export interface Mesh {
   density: number;
   vertices: Vec2[];
@@ -49,6 +58,9 @@ export interface Mesh {
   mode: MeshMode;
   skinning: SkinningMode;
   strength: number;
+  deformation?: SpriteDeformation;
+  build?: SpriteMeshBuild;
+  buildStats?: { refinedCells: number; budgetLimited: boolean };
 }
 
 export function buildGridMesh(width: number, height: number, density: number): Mesh {
@@ -168,7 +180,7 @@ export function warpPoint(
 
   const lenRot = Math.sqrt(cosSum * cosSum + sinSum * sinSum);
   if (lenRot < 1e-9) {
-    return [vertex[0] + qx - px, vertex[1] + qy - py];
+    return [vertex[0] + (qx - px) * strength, vertex[1] + (qy - py) * strength];
   }
 
   const cosVal = cosSum / lenRot;

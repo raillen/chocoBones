@@ -158,3 +158,20 @@ export component StudioSwatch inherits Rectangle {
         clicked => { swatch-focus.focus(); root.clicked(); }
     }
 }
+
+export component StudioField inherits Rectangle {
+    in-out property <string> value;
+    in property <string> description;
+    callback committed(string);
+    height: 26px; min-width: 42px;
+    background: StudioPalette.field;
+    border-width: 1px; border-color: input.has-focus ? StudioPalette.accent : StudioPalette.border;
+    border-radius: 3px;
+    input := TextInput {
+        x: 6px; y: 0px; width: parent.width - 12px; height: parent.height;
+        text <=> root.value; color: StudioPalette.text;
+        font-size: 11px; vertical-alignment: center;
+        accessible-label: root.description;
+        accepted => { root.committed(self.text); }
+    }
+}

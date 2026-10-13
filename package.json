@@ -1,27 +1,39 @@
 {
   "name": "chocobones-ts",
   "version": "0.1.0",
-  "description": "2D/3D character puppet creator and skeletal animation studio in TypeScript (Node + pnpm + Slint + WebGPU)",
+  "description": "2D/3D puppet editor in TypeScript, Electrobun and SolidJS",
   "type": "module",
   "packageManager": "pnpm@12.9.1",
   "scripts": {
-    "start": "tsx src/index.ts",
-    "dev": "tsx watch src/index.ts",
-    "typecheck": "tsc --noEmit",
-    "build": "tsc",
+    "start": "node scripts/run_desktop.mjs",
+    "dev": "node scripts/run_desktop.mjs --watch",
+    "dev:web": "vite --host 127.0.0.1",
+    "desktop:prepare": "electrobun prepare",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.view.json --noEmit && tsc -p tsconfig.desktop.json --noEmit",
+    "build": "tsc && vite build",
+    "build:desktop": "node scripts/run_desktop.mjs --build",
+    "legacy:start": "tsx src/index.ts",
+    "legacy:dev": "tsx watch src/index.ts",
+    "qa:editor": "tsx scripts/qa_solid_editor.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },
   "dependencies": {
     "gl-matrix": "^3.4.3",
     "slint-ui": "^1.8.0",
+    "solid-js": "1.9.17",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/node": "^22.13.4",
+    "@types/bun": "1.4.3",
     "@webgpu/types": "^0.1.51",
     "tsx": "^4.23.15",
     "typescript": "^5.6.3",
-    "vitest": "^3.0.5"
+    "vitest": "^3.0.5",
+    "electrobun": "2.0.2",
+    "vite": "8.3.4",
+    "vite-plugin-solid": "2.11.14",
+    "playwright-core": "1.64.0"
   }
 }

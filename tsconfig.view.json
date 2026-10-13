@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "types": ["vite/client", "@webgpu/types"],
+    "paths": { "electrobun/view": ["./.hutch/devkit/api/browser/index.ts"] },
+    "noEmit": true
+  },
+  "include": ["src/desktop/view/**/*", "src/desktop/shared.ts"],
+  "exclude": []
+}

@@ -7,6 +7,10 @@ import { createPin, movePinRest, Pin, PinAnchorMode, resetPinOffset, setPinOffse
 import type { AppState } from "../store";
 
 export function addPin(state: AppState, meshId: string, x: number, y: number, name?: string): Pin {
+  const mesh = state.meshes[Number(meshId)];
+  if (mesh?.deformation === "ARAP" && mesh.vertices.length + state.pins.filter((p) => p.meshId === meshId && p.enabled !== false).length + 1 > 4096) {
+    throw new Error("Reduza a densidade ou o refinamento da malha para adicionar mais pinos ARAP.");
+  }
   state.history.push("Adicionar Pino", state.joints, state.layers, state.currentPose, state.pins);
   const pin = createPin(generateId("pin"), meshId, x, y, { name: name ?? `Pino ${state.pins.length + 1}` });
   state.pins.push(pin);
@@ -45,6 +49,11 @@ export function togglePinLock(state: AppState, id: string): boolean {
 export function setPinEnabled(state: AppState, id: string, enabled: boolean): boolean {
   const pin = state.pins.find((p) => p.id === id);
   if (!pin) return false;
+  const mesh = pin.meshId === undefined ? undefined : state.meshes[Number(pin.meshId)];
+  if (enabled && pin.enabled === false && mesh?.deformation === "ARAP" &&
+      mesh.vertices.length + state.pins.filter((p) => p.meshId === pin.meshId && p.enabled !== false).length + 1 > 4096) {
+    return false;
+  }
   pin.enabled = enabled;
   return true;
 }

@@ -1,0 +1,15 @@
+{
+  "runtime": "native-electrobun-cef",
+  "capture": "X11 application window, not Chromium preview",
+  "file": "08-native-x11-window.png",
+  "display": ":120",
+  "windowTitle": "chocoBones",
+  "windowSize": [
+    1440,
+    960
+  ],
+  "sha256": "6d193955d9b21c3a1dd1dcb853dcb14a786e3d36454f6aca4aab7d0850290f40",
+  "renderer": "Canvas2D",
+  "reason": "WebGL2 blocked by the cloud CEF GPU blocklist; production fallback exercised",
+  "document": "portable.puppet.json restored through native RPC; ARAP refined mesh and breath clip"
+}

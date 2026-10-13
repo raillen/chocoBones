@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-10-11T19:18:20Z",
+  "updated_at": "2026-10-12",
   "summary": {
     "cached_tokens": 0,
     "direct_cost": 0,
@@ -139,6 +139,194 @@
         "Cores de fundo do preview/export mantêm comportamento prévio do renderizador"
       ],
       "metrics_note": "Custos e tokens não medidos; baseline de summary preservado."
+    },
+    {
+      "id": "image-puppet-warp-cartoon-workflow-2026-10-12",
+      "kind": "local-implementation-evidence",
+      "recorded_on": "2026-10-12",
+      "status": "implemented-and-validated-in-xvfb",
+      "formal_goal": null,
+      "canonical_document": "docs/development/puppet-tools-comparison.md",
+      "changes": [
+        "PNG alpha texture -> occupancy grid/UV -> MLS local pins -> pin presets/gesture -> transparent export",
+        "Atomic portable project PNG/canvas/UVs/pins and full history hooks",
+        "Paused scrub and non-loop endpoint consistency"
+      ],
+      "verification": {
+        "typecheck": "passed",
+        "build": "passed",
+        "vitest": {
+          "result": "passed",
+          "tests": 214,
+          "suites": 23
+        },
+        "native_ui": {
+          "result": "passed",
+          "checks": 18,
+          "captures": 8,
+          "report": "docs/development/screenshots/puppet-tools/report.json"
+        },
+        "qa_script_strict_typecheck": "passed"
+      },
+      "research_sources": [
+        "https://crockiestar.itch.io/warp-studio",
+        "https://www.reallusion.com/cartoon-animator/puppet-animation.html",
+        "https://www.reallusion.com/cartoon-animator/"
+      ],
+      "limitations": [
+        "YouTube URLs returned403; not watched",
+        "CPU MLS and alpha occupancy grid, not integrated ARAP/adaptive boundary refinement",
+        "Single-take gesture replaces active clip; no blend/smoothing/path editor",
+        "PNG8-bit noninterlaced; 8-frame spritesheet"
+      ],
+      "metrics_note": "No measured token/cost data; existing summary baseline preserved."
+    },
+    {
+      "id": "conforming-alpha-refinement-real-arap-2026-10-12",
+      "kind": "local-implementation-evidence",
+      "recorded_on": "2026-10-12",
+      "status": "implemented-and-validated-in-xvfb",
+      "formal_goal": null,
+      "canonical_document": "docs/development/puppet-tools-comparison.md",
+      "changes": [
+        "Conforming alpha-border refinement of mixed cells; target edge size 2–32 px; base budget 3968 vertices reserving room for inserted pin handles below the 4096 ARAP limit",
+        "Real 2D local/global ARAP; positive uniform edge weights; sparse diagonally preconditioned CG; exact inserted handle vertices; legacy advanced.ts Laplacian solver unchanged",
+        "MLS/ARAP controls in the existing Slint Puppet panel; radius/weight apply only to MLS; GUI migration deferred",
+        "Shared deformed geometry packet for texture, wireframe, onion skin and export; deterministic rest-start solves; four-pose cache invalidated by geometry/UV/pin-rest signature",
+        "Per-mesh build/deformation settings persisted and restored by document history; rebuild retains mode/skinning/strength; prevalidation rejects invalid ARAP budgets before document mutation"
+      ],
+      "verification": {
+        "typecheck": "passed",
+        "build": "passed",
+        "vitest": {
+          "result": "passed",
+          "tests": 267,
+          "suites": 26,
+          "verification_note": "Final complete suite passed all 267 tests in 26 suites; global typecheck, build and strict typechecks for both native QA scripts passed."
+        },
+        "native_ui": {
+          "result": "passed",
+          "checks": 15,
+          "captures": 7,
+          "transparent_exports": 3,
+          "report": "docs/development/screenshots/deformation-tools/report.json"
+        },
+        "fixture_refinement": {
+          "source": "assets/test-kits/frontier-survival/vector-rig/base-survivor.png",
+          "edge_size_px": 8,
+          "vertices": 1303,
+          "triangles": 2152,
+          "refined_cells": 462,
+          "budget_limited": false
+        },
+        "qa_script_strict_typecheck": "passed for qa_puppet_tools.ts and qa_deformation_tools.ts",
+        "solver_benchmark": {
+          "report": "docs/development/screenshots/deformation-tools/solver-benchmark.json",
+          "scope": "Pure solve() latency after preparation and one warmup; excludes native UI, rasterization, export, solver construction, pin insertion and packet pose cache",
+          "default_sample_count": 7,
+          "default_iterations": 16,
+          "default_max_cg_iterations": "min(free vertices, 256)",
+          "coarse_vertices": 106,
+          "coarse_median_ms": 2.853677,
+          "refined_vertices": 1304,
+          "refined_median_ms": 111.66034,
+          "caveat": "Cloud latency can vary with concurrent work; bounded iterations do not prove full convergence and do not predict full-frame FPS",
+          "alpha_threshold": 12
+        }
+      },
+      "limitations": [
+        "CPU renderer and solver; no 60 FPS guarantee for dense meshes or hardware acceptance",
+        "Uniform positive weights, not cotangents; no collision/self-intersection or area-conservation guarantee",
+        "Pins outside mesh triangles do not deform; coincident fixed anchors take priority; locks are image-local, not world IK",
+        "Cell approximation preserves original texture alpha, not exact geometric holes/island separation",
+        "YouTube URLs returned HTTP 403; videos were not watched or transcribed",
+        "Blend, smoothing, paths, advanced BBW/cage integration and GUI migration remain outside this increment"
+      ],
+      "metrics_note": "No measured token/cost data; existing summary baseline preserved."
+    },
+    {
+      "id": "electrobun-solid-editor-migration-2026-10-12",
+      "kind": "local-implementation-evidence",
+      "recorded_on": "2026-10-12",
+      "status": "implemented-validated-linux-runtime",
+      "formal_goal": null,
+      "canonical_document": "docs/development/desktop-migration.md",
+      "changes": [
+        "Electrobun 2.0.2/Bun explicit and CEF per platform; SolidJS 1.9.17/Vite 8.3.4; default desktop scripts and retained legacy Slint adapter",
+        "Prepare/Rig/Animate workflow, contextual inspector, asset/rig tree, resizable panels, Phosphor SVG and per-track timeline/keyframe easing",
+        "Browser-safe editor commands/view model/document authority and transactional history; native host codecs/files/export separated by typed RPC and Zod",
+        "Session-token loopback asset URLs for binary RGBA/PNG, avoiding framebuffer JSON transfers",
+        "WebGL2 resident textures/buffers and Canvas overlays; software fallback; worker deformation with one in-flight and one replaceable pending pose",
+        "Save/export modal with filename/native directory picker; configurable sheet frames/columns; browser File/download adapter for interface QA",
+        "Theme persisted outside the project; Save/Discard/Cancel before New/Open/desktop close; document-boundary history reset and pose opacity/visibility edits"
+      ],
+      "verification": {
+        "previous_tool_baseline": {
+          "tests": 267,
+          "suites": 26,
+          "scope": "Previous Slint tools delivery; not evidence for the new GUI"
+        },
+        "migration": {
+          "result": "passed-for-core-browser-native-and-packaged-runtime",
+          "typecheck": {
+            "result": "passed",
+            "scopes": [
+              "core",
+              "view",
+              "desktop-host"
+            ]
+          },
+          "view_build": {
+            "result": "passed",
+            "tool": "Vite 8.3.4"
+          },
+          "vitest": {
+            "result": "passed",
+            "tests": 303,
+            "suites": 30
+          },
+          "browser_ui": {
+            "result": "passed",
+            "checks": 19,
+            "captures": 7,
+            "device_pixel_ratio": 2,
+            "renderer": "Chromium WebGL2 with SwiftShader",
+            "report": "docs/development/screenshots/solid-editor/browser/report.json"
+          },
+          "native_development_ui": {
+            "result": "passed",
+            "checks": 20,
+            "captures": 7,
+            "full_x11_window_captures": 1,
+            "view_origin": "Vite HTTP in development",
+            "runtime": "Electrobun 2.0.2/Bun 1.4.0/CEF Linux",
+            "renderer": "Canvas2D fallback; CEF software-GPU blocklist",
+            "report": "docs/development/screenshots/solid-editor/native/report.json"
+          },
+          "verification_note": "Native import/open uses explicit RPC paths; save/export and close confirmation use real DOM dialogs. OS file picker was not automated.",
+          "native_packaged_ui": {
+            "result": "passed",
+            "checks": 25,
+            "captures": 7,
+            "view_origin": "views://editor; stable bundle extracted with system tar; no Vite",
+            "report": "docs/development/screenshots/solid-editor/packaged/report.json"
+          },
+          "native_close_guard": {
+            "result": "passed",
+            "checks": 4,
+            "report": "docs/development/screenshots/solid-editor/packaged/close-guard.json"
+          }
+        }
+      },
+      "limitations": [
+        "Worker avoids blocking the UI but does not reduce ARAP solve latency; prior pure-solver benchmark about 112 ms at 1304 vertices",
+        "WebGL2 preview and CPU export may differ in filtering/raster coverage; no byte-identical backend claim",
+        "Graphical curve editor, clip blend, weight paint, paths, BBW/cage and full 3D GUI integration remain pending",
+        "CEF footprint, memory, startup and physical GPU acceptance unmeasured; macOS/Windows builds not executed",
+        "Browser development adapter exercises real files/downloads but does not validate Electrobun transport or native dialogs",
+        "SDK Linux self-extracting installer fails TarUnsupportedFileType; direct stable archive extraction and runtime passed. Distribution installer remains unresolved."
+      ],
+      "metrics_note": "No measured token/cost data; existing summary/tasks/debt envelope preserved. No formal TaskEntry or consumption metrics invented."
     }
   ]
 }

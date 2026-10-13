@@ -15,4 +15,11 @@ layouts.ini
 # Node / Bun
 node_modules/
 dist/
+web-dist/
+build/
+artifacts/
+.hutch/
+.cache/
+.qa-packaged-build/
+__pycache__/
 

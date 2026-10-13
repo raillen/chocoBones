@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["bun", "node", "@webgpu/types"],
+    "paths": { "electrobun/main": ["./.hutch/devkit/api/sdks/main/index.ts"] },
+    "noEmit": true
+  },
+  "include": ["src/desktop/main.ts", "src/desktop/host/**/*", "src/desktop/shared.ts", "electrobun.config.ts"],
+  "exclude": []
+}
